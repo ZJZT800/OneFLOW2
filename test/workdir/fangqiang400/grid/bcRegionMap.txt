@@ -1,0 +1,5 @@
+4
+1 walld-wall
+0 wallt-wall
+3 wally-wall
+2 wallz-wall
