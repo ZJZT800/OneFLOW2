@@ -1,5 +1,0 @@
-4
-3 dwall-wall
-2 lwall-wall
-1 rwall-wall
-0 wall_wall1-wall
