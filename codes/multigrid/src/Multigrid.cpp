@@ -133,7 +133,7 @@ void MG::Run()
 
 			{
 
-				if (Iteration::innerSteps >= maxIterSteps) continue;
+				if (Iteration::innerSteps >= maxIterSteps) break;
 					
 				    ctrl.currTime += ctrl.pdt;
 
