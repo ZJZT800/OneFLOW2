@@ -636,28 +636,29 @@ void UINsInvterm::MomPre()
 
 		else if (ug.bctype == BC::SOLID_SURFACE)
 		{
+	
+				inscom.bcdtkey = 0;
+				if (ug.bcr == -1) return; //interface
+				int dd = bcdata.r2d[ug.bcr];
+				if (dd != -1)
+				{
+					inscom.bcdtkey = 1;
+					inscom.bcflow = &bcdata.dataList[dd];
+				}
 
-			inscom.bcdtkey = 0;
-			if (ug.bcr == -1) return; //interface
-			int dd = bcdata.r2d[ug.bcr];
-			if (dd != -1)
-			{
-				inscom.bcdtkey = 1;
-				inscom.bcflow = &bcdata.dataList[dd];
-			}
+				if (inscom.bcdtkey == 0)
+				{
+					iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * gcom.vfx;
+					iinv.vc[ug.rc] = -iinv.vc[ug.lc] + 2 * gcom.vfy;
+					iinv.wc[ug.rc] = -iinv.wc[ug.lc] + 2 * gcom.vfz;
+				}
+				else
+				{
+					iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIU];
+					iinv.vc[ug.rc] = -iinv.vc[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIV];
+					iinv.wc[ug.rc] = -iinv.wc[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIW];
+				}
 
-			if (inscom.bcdtkey == 0)
-			{
-				iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * gcom.vfx;
-				iinv.vc[ug.rc] = -iinv.vc[ug.lc] + 2 * gcom.vfy;
-				iinv.wc[ug.rc] = -iinv.wc[ug.lc] + 2 * gcom.vfz;
-			}
-			else
-			{
-				iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIU];
-				iinv.vc[ug.rc] = -iinv.vc[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIV];
-				iinv.wc[ug.rc] = -iinv.wc[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIW];
-			}
 		}
 
 		else if (ug.bctype == BC::INFLOW)
@@ -674,8 +675,138 @@ void UINsInvterm::MomPre()
 			iinv.wc[ug.rc] = iinv.wc[ug.lc];
 		}
 
-	}
+		else if (ug.bctype == BC::POLE || ug.bctype / 10 == BC::POLE)
+		{
+			iinv.uc[ug.rc] = iinv.uc[ug.lc];
+			iinv.vc[ug.rc] = iinv.vc[ug.lc];
+			iinv.wc[ug.rc] = iinv.wc[ug.lc];
+		}
 
+		else if (ug.bctype == BC::EXTRAPOLATION)
+		{
+			iinv.uc[ug.rc] = iinv.uc[ug.lc];
+			iinv.vc[ug.rc] = iinv.vc[ug.lc];
+			iinv.wc[ug.rc] = iinv.wc[ug.lc];
+		}
+
+		else if (ug.bctype == BC::SYMMETRY)
+		{
+			Real vx1 = iinv.uc[ug.lc];
+			Real vy1 = iinv.vc[ug.lc];
+			Real vz1 = iinv.wc[ug.lc];
+
+			Real vnRelative1 = (*ug.xfn)[ug.fId] * vx1 + (*ug.yfn)[ug.fId] * vy1 + (*ug.zfn)[ug.fId] * vz1 - (*ug.vfn)[ug.fId];
+
+			iinv.uc[ug.rc] = iinv.uc[ug.lc]-two* (*ug.xfn)[ug.fId] * vnRelative1;
+			iinv.vc[ug.rc] = iinv.vc[ug.lc]- two * (*ug.yfn)[ug.fId] * vnRelative1;
+			iinv.wc[ug.rc] = iinv.wc[ug.lc]- two * (*ug.zfn)[ug.fId] * vnRelative1;
+
+		}
+
+		else if (ug.bctype == BC::SYMMETRY)
+		{
+
+		}
+		
+		else if (ug.bctype == BC::FARFIELD)
+		{
+			Real rin = (*uinsf.q)[IIDX::IIR][ug.lc];
+			Real uin = iinv.uc[ug.lc];
+			Real vin = iinv.vc[ug.lc];
+			Real win = iinv.wc[ug.lc];
+			Real pin = (*uinsf.q)[IIDX::IIP][ug.lc];
+
+			gcom.xfn *= inscom.faceOuterNormal;
+			gcom.yfn *= inscom.faceOuterNormal;
+			gcom.zfn *= inscom.faceOuterNormal;
+
+			Real rref = inscom.inflow[IIDX::IIR];
+			Real uref = inscom.inflow[IIDX::IIU];
+			Real vref = inscom.inflow[IIDX::IIV];
+			Real wref = inscom.inflow[IIDX::IIW];
+			Real pref = inscom.inflow[IIDX::IIP];
+
+			Real vnref = gcom.xfn * uref + gcom.yfn * vref + gcom.zfn * wref - gcom.vfn;
+			Real vnin = gcom.xfn * uin + gcom.yfn * vin + gcom.zfn * win - (*ug.vfn)[ug.fId];
+
+			Real cref = sqrt(ABS(inscom.gama_ref * pref / rref));
+			Real cin = sqrt(ABS(inscom.gama * pin / rin));
+
+			Real gamm1 = inscom.gama - one;
+
+			Real velin = DIST(uin, vin, win);
+
+			//³¬ÉùËÙ
+			if (velin > cin)
+			{
+				if (vnin >= 0.0)
+				{
+					iinv.uc[ug.rc] = iinv.uc[ug.lc];
+					iinv.vc[ug.rc] = iinv.vc[ug.lc];
+					iinv.wc[ug.rc] = iinv.wc[ug.lc];
+				}
+				else
+				{
+					iinv.uc[ug.rc] = inscom.inflow[IIDX::IIU];
+					iinv.vc[ug.rc] = inscom.inflow[IIDX::IIV];
+					iinv.wc[ug.rc] = inscom.inflow[IIDX::IIW];
+				}
+			}
+			else
+			{
+				//subsonic
+				Real riemp = vnin + 2.0 * cin / gamm1;
+				Real riemm = vnref - 2.0 * cref / gamm1;
+				Real vnb = half * (riemp + riemm);
+				Real cb = fourth * (riemp - riemm) * gamm1;
+
+				Real vtx, vty, vtz, entr;
+				if (vnb >= 0.0)
+				{
+					// exit
+					entr = pin / pow(rin, inscom.gama);
+
+					vtx = uin - gcom.xfn * vnin;
+					vty = vin - gcom.yfn * vnin;
+					vtz = win - gcom.zfn * vnin;
+				}
+				else
+				{
+					//inlet
+					entr = pref / pow(rref, inscom.gama);
+					vtx = uref - gcom.xfn * vnref;
+					vty = vref - gcom.yfn * vnref;
+					vtz = wref - gcom.zfn * vnref;
+				}
+
+				Real rb = pow((cb * cb / (entr * inscom.gama)), one / gamm1);
+				Real ub = vtx + gcom.xfn * vnb;
+				Real vb = vty + gcom.yfn * vnb;
+				Real wb = vtz + gcom.zfn * vnb;
+				Real pb = cb * cb * rb / inscom.gama;
+
+				
+				iinv.uc[ug.rc] = ub;
+				iinv.vc[ug.rc] = vb;
+				iinv.wc[ug.rc] = wb;
+
+			}
+		}
+
+		else if (ug.bctype == BC::OVERSET)
+		{
+			;
+		}
+
+		else if (ug.bctype  == BC::GENERIC_2)
+		{
+		
+			;
+			
+		}
+		
+
+	}
 
 /*for (int cId = 0; cId < ug.nCell; cId++)
 {
@@ -1458,6 +1589,136 @@ void UINsInvterm::UpdateSpeed()
 			iinv.up[ug.rc] = iinv.up[ug.lc];
 			iinv.vp[ug.rc] = iinv.vp[ug.lc];
 			iinv.wp[ug.rc] = iinv.wp[ug.lc];
+		}
+
+		else if (ug.bctype == BC::POLE || ug.bctype / 10 == BC::POLE)
+		{
+			iinv.up[ug.rc] = iinv.up[ug.lc];
+			iinv.vp[ug.rc] = iinv.vp[ug.lc];
+			iinv.wp[ug.rc] = iinv.wp[ug.lc];
+		}
+
+		else if (ug.bctype == BC::EXTRAPOLATION)
+		{
+			iinv.up[ug.rc] = iinv.up[ug.lc];
+			iinv.vp[ug.rc] = iinv.vp[ug.lc];
+			iinv.wp[ug.rc] = iinv.wp[ug.lc];
+		}
+
+		else if (ug.bctype == BC::SYMMETRY)
+		{
+			Real vx1 = iinv.up[ug.lc];
+			Real vy1 = iinv.vp[ug.lc];
+			Real vz1 = iinv.wp[ug.lc];
+
+			Real vnRelative1 = (*ug.xfn)[ug.fId] * vx1 + (*ug.yfn)[ug.fId] * vy1 + (*ug.zfn)[ug.fId] * vz1 - (*ug.vfn)[ug.fId];
+
+			iinv.up[ug.rc] = iinv.up[ug.lc] - two * (*ug.xfn)[ug.fId] * vnRelative1;
+			iinv.vp[ug.rc] = iinv.vp[ug.lc] - two * (*ug.yfn)[ug.fId] * vnRelative1;
+			iinv.wp[ug.rc] = iinv.wp[ug.lc] - two * (*ug.zfn)[ug.fId] * vnRelative1;
+
+		}
+
+		else if (ug.bctype == BC::SYMMETRY)
+		{
+
+		}
+
+		else if (ug.bctype == BC::FARFIELD)
+		{
+			Real rin = (*uinsf.q)[IIDX::IIR][ug.lc];
+			Real uin = iinv.up[ug.lc];
+			Real vin = iinv.vp[ug.lc];
+			Real win = iinv.wp[ug.lc];
+			Real pin = (*uinsf.q)[IIDX::IIP][ug.lc];
+
+			gcom.xfn *= inscom.faceOuterNormal;
+			gcom.yfn *= inscom.faceOuterNormal;
+			gcom.zfn *= inscom.faceOuterNormal;
+
+			Real rref = inscom.inflow[IIDX::IIR];
+			Real uref = inscom.inflow[IIDX::IIU];
+			Real vref = inscom.inflow[IIDX::IIV];
+			Real wref = inscom.inflow[IIDX::IIW];
+			Real pref = inscom.inflow[IIDX::IIP];
+
+			Real vnref = gcom.xfn * uref + gcom.yfn * vref + gcom.zfn * wref - gcom.vfn;
+			Real vnin = gcom.xfn * uin + gcom.yfn * vin + gcom.zfn * win - (*ug.vfn)[ug.fId];
+
+			Real cref = sqrt(ABS(inscom.gama_ref * pref / rref));
+			Real cin = sqrt(ABS(inscom.gama * pin / rin));
+
+			Real gamm1 = inscom.gama - one;
+
+			Real velin = DIST(uin, vin, win);
+
+			//³¬ÉùËÙ
+			if (velin > cin)
+			{
+				if (vnin >= 0.0)
+				{
+					iinv.up[ug.rc] = iinv.up[ug.lc];
+					iinv.vp[ug.rc] = iinv.vp[ug.lc];
+					iinv.wp[ug.rc] = iinv.wp[ug.lc];
+				}
+				else
+				{
+					iinv.up[ug.rc] = inscom.inflow[IIDX::IIU];
+					iinv.vp[ug.rc] = inscom.inflow[IIDX::IIV];
+					iinv.wp[ug.rc] = inscom.inflow[IIDX::IIW];
+				}
+			}
+			else
+			{
+				//subsonic
+				Real riemp = vnin + 2.0 * cin / gamm1;
+				Real riemm = vnref - 2.0 * cref / gamm1;
+				Real vnb = half * (riemp + riemm);
+				Real cb = fourth * (riemp - riemm) * gamm1;
+
+				Real vtx, vty, vtz, entr;
+				if (vnb >= 0.0)
+				{
+					// exit
+					entr = pin / pow(rin, inscom.gama);
+
+					vtx = uin - gcom.xfn * vnin;
+					vty = vin - gcom.yfn * vnin;
+					vtz = win - gcom.zfn * vnin;
+				}
+				else
+				{
+					//inlet
+					entr = pref / pow(rref, inscom.gama);
+					vtx = uref - gcom.xfn * vnref;
+					vty = vref - gcom.yfn * vnref;
+					vtz = wref - gcom.zfn * vnref;
+				}
+
+				Real rb = pow((cb * cb / (entr * inscom.gama)), one / gamm1);
+				Real ub = vtx + gcom.xfn * vnb;
+				Real vb = vty + gcom.yfn * vnb;
+				Real wb = vtz + gcom.zfn * vnb;
+				Real pb = cb * cb * rb / inscom.gama;
+
+
+				iinv.up[ug.rc] = ub;
+				iinv.vp[ug.rc] = vb;
+				iinv.wp[ug.rc] = wb;
+
+			}
+		}
+
+		else if (ug.bctype == BC::OVERSET)
+		{
+			;
+		}
+
+		else if (ug.bctype == BC::GENERIC_2)
+		{
+
+			;
+
 		}
 
 

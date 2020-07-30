@@ -60,8 +60,8 @@ void Cavity::Run()
 	//int ni = 41;
 	//int nj = 41;
 
-	int ni = 71;
-	int nj = 71;
+	int ni = 130;
+	int nj = 130;
 
     int nNode = ni * nj;
 
