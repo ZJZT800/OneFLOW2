@@ -509,25 +509,25 @@ void UINsVisterm::CmpUnsteadcoff()
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
 
-		iinv.spt[ug.rc] = (*ug.farea)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.rc] / iinv.timestep;
+		iinv.spt[ug.rc] = (*ug.cvol)[ug.lc] * (*uinsf.q)[IIDX::IIR][ug.rc] / iinv.timestep;
 
 		if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
 		{
-			iinv.up[ug.rc] = ((*uinsf.q)[IIDX::IIU][ug.rc]+ (*uinsf.q)[IIDX::IIU][ug.rc])/2;
-			iinv.vp[ug.rc] = ((*uinsf.q)[IIDX::IIV][ug.rc]+ (*uinsf.q)[IIDX::IIU][ug.rc])/2;
-			iinv.wp[ug.rc] = ((*uinsf.q)[IIDX::IIW][ug.rc]+ (*uinsf.q)[IIDX::IIU][ug.rc])/2;
+			iinv.up[ug.rc] = (*uinsf.q)[IIDX::IIU][ug.rc];
+			iinv.vp[ug.rc] = (*uinsf.q)[IIDX::IIV][ug.rc];
+			iinv.wp[ug.rc] = (*uinsf.q)[IIDX::IIW][ug.rc];
 
 
-			iinv.but[ug.rc] = (*ug.farea)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.up[ug.rc] / iinv.timestep; //源项的非稳态项
-			iinv.bvt[ug.rc] = (*ug.farea)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.vp[ug.rc] / iinv.timestep;
-			iinv.bwt[ug.rc] = (*ug.farea)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.wp[ug.rc] / iinv.timestep;
+			iinv.but[ug.rc] = (*ug.cvol)[ug.lc] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.up[ug.rc] / iinv.timestep; //源项的非稳态项
+			iinv.bvt[ug.rc] = (*ug.cvol)[ug.lc] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.vp[ug.rc] / iinv.timestep;
+			iinv.bwt[ug.rc] = (*ug.cvol)[ug.lc] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.wp[ug.rc] / iinv.timestep;
 
 		}
 		else
 		{
-			iinv.but[ug.cId] = (*ug.farea)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.up[ug.rc] / iinv.timestep; //源项的非稳态项
-			iinv.bvt[ug.cId] = (*ug.farea)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.vp[ug.rc] / iinv.timestep;
-			iinv.bwt[ug.cId] = (*ug.farea)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.wp[ug.rc] / iinv.timestep;
+			iinv.but[ug.cId] = (*ug.cvol)[ug.lc] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.up[ug.rc] / iinv.timestep; //源项的非稳态项
+			iinv.bvt[ug.cId] = (*ug.cvol)[ug.lc] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.vp[ug.rc] / iinv.timestep;
+			iinv.bwt[ug.cId] = (*ug.cvol)[ug.lc] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.wp[ug.rc] / iinv.timestep;
 		}
 
 	}*/
@@ -605,6 +605,7 @@ void UINsVisterm::CmpINsSrc()
 		//cout << "iinv.buc=" << iinv.buc[ug.cId] <<"cId="<< ug.cId<< "\n";
 
 		int fn = (*ug.c2f)[ug.cId].size();
+
 		if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
 		{
 			iinv.sj.resize(ug.nTCell, fn);
@@ -629,6 +630,8 @@ void UINsVisterm::CmpINsSrc()
 			}
 
 		}
+
+
 	}
 }
 
