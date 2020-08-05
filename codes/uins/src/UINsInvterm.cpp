@@ -1432,8 +1432,59 @@ void UINsInvterm::CmpCorrectPresscoef()
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
 
-		iinv.spp[ug.rc] = iinv.spp[ug.lc];
+		/*int bcType = ug.bcRecord->bcType[ug.fId];
+
+		if (ug.bctype == BC::SOLID_SURFACE)
+		{
+			iinv.spp[ug.rc] = iinv.spp[ug.lc];
+		}*/
+		
+		iinv.spp[ug.rc] = 1;
+		iinv.bp[ug.rc] = 0;
+		
 	}
+
+
+
+	/*for (int cId = 0; cId < ug.nCell; ++cId)
+	{
+		ug.cId = cId;
+
+		iinv.VdU[ug.cId] = -(*ug.cvol)[ug.cId] / ((1 + 1)*iinv.spc[ug.cId]); //用于求单元修正速度量;
+		iinv.VdV[ug.cId] = -(*ug.cvol)[ug.cId] / ((1 + 1)*iinv.spc[ug.cId]);
+		iinv.VdW[ug.cId] = -(*ug.cvol)[ug.cId] / ((1 + 1)*iinv.spc[ug.cId]);
+
+		int fn = (*ug.c2f)[ug.cId].size();
+
+		for (int iFace = 0; iFace < fn; ++iFace)
+		{
+			int fId = (*ug.c2f)[ug.cId][iFace];
+			ug.fId = fId;
+			ug.lc = (*ug.lcf)[ug.fId];
+			ug.rc = (*ug.rcf)[ug.fId];
+
+			if (ug.fId < ug.nBFace)
+			{
+				continue;
+			}
+
+			if (ug.cId == ug.lc)
+			{
+				iinv.sjp[ug.cId][iFace] = -iinv.ajp[ug.fId]; //求解压力修正方程的非零系数
+				iinv.sjd[ug.cId][iFace] = ug.rc;
+
+				//cout << "iinv.sjp=" << iinv.sjp[ug.cId][iFace] << "iinv.sjd=" << ug.rc << "\n";
+			}
+			else if (ug.cId == ug.rc)
+			{
+				iinv.sjp[ug.cId][iFace] = -iinv.ajp[ug.fId];
+				iinv.sjd[ug.cId][iFace] = ug.lc;
+
+				//cout << "iinv.sjp=" << iinv.sjp[ug.cId][iFace] << "iinv.sjd=" << ug.lc << "\n";
+			}
+		}
+	}*/
+
 
 
 	for (int cId = 0; cId < ug.nTCell; ++cId)
@@ -1473,6 +1524,7 @@ void UINsInvterm::CmpCorrectPresscoef()
 			}
 		}
 	}
+
 }
 
 void UINsInvterm::CmpNewMomCoe()
@@ -1575,6 +1627,75 @@ void UINsInvterm::CmpPressCorrectEqu()
 
 
 
+
+	//BGMRES求解
+/*NonZero.Number = 0;
+
+for (int cId = 0; cId < ug.nCell; ++cId)
+{
+	//ug.cId = cId;                                                                  // 主单元编号
+	//int fn = (*ug.c2f)[cId].size();                                                                 // 单元相邻面的个数
+	NonZero.Number += iinv.dd[cId];
+}
+NonZero.Number = NonZero.Number + ug.nCell;                                                        // 非零元素的计数
+Rank.RANKNUMBER = ug.nCell;                                                                        // 矩阵的行列
+Rank.COLNUMBER = 1;
+Rank.NUMBER = NonZero.Number;                                                                      // 矩阵非零元素个数
+Rank.Init();
+double residual_p;
+for (int cId = 0; cId < ug.nCell; ++cId)
+{
+	iinv.ppd = iinv.pp[cId];
+	Rank.TempIA[0] = 0;
+	int n = Rank.TempIA[cId];
+	int fn = (*ug.c2f)[cId].size();
+	int fp = iinv.dd[cId];
+	Rank.TempIA[cId + 1] = Rank.TempIA[cId] + fn + 1;                  // 前n+1行非零元素的个数
+	for (int iFace = 0; iFace < fn; ++iFace)
+	{
+		int fId = (*ug.c2f)[cId][iFace];                           // 相邻面的编号
+		ug.fId = fId;
+		ug.lc = (*ug.lcf)[fId];                                    // 面左侧单元
+		ug.rc = (*ug.rcf)[fId];                                    // 面右侧单元
+
+		if (ug.fId < ug.nBFace)
+		{
+			continue;
+		}
+
+		if (cId == ug.lc)
+		{
+			Rank.TempA[n + iFace] = iinv.sjp[cId][iFace];          //非对角线元素值
+			Rank.TempJA[n + iFace] = ug.rc;                           //非对角线元素纵坐标
+		}
+		else if (cId == ug.rc)
+		{
+			Rank.TempA[n + iFace] = iinv.sjp[cId][iFace];          //非对角线元素值
+			Rank.TempJA[n + iFace] = ug.lc;                           //非对角线元素纵坐标
+		}
+	}
+	Rank.TempA[n + fp] = iinv.spp[cId];                            //主对角线元素
+	Rank.TempJA[n + fp] = cId;                                        //主对角线纵坐标
+
+	Rank.TempB[cId][0] = iinv.bp[cId];                             //右端项
+}
+bgx.BGMRES();
+residual_p = Rank.residual;
+//cout << "residual_p:" << residual_p << endl;
+for (int cId = 0; cId < ug.nTCell; cId++)
+{
+	//ug.cId = cId;
+	iinv.pp[cId] = Rank.TempX[cId][0]; //当前时刻的压力修正值
+}
+
+Rank.Deallocate();
+
+//iinv.res_p = 0;
+//iinv.res_p = MAX(iinv.res_p, abs(iinv.ppd - iinv.pp[ug.cId]));*/
+
+
+
+
 		//BGMRES求解
 	NonZero.Number = 0;
 
@@ -1640,7 +1761,9 @@ void UINsInvterm::CmpPressCorrectEqu()
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
 
-		int bcType = ug.bcRecord->bcType[ug.fId];
+		iinv.pp[ug.rc] = iinv.pp[ug.lc];
+
+		/*int bcType = ug.bcRecord->bcType[ug.fId];
 
 		if (ug.bctype == BC::OUTFLOW)
 		{
@@ -1649,7 +1772,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 		else
 		{
 			iinv.pp[ug.rc] = iinv.pp[ug.lc];
-		}
+		}*/
 	}
 
 	for (int cId = 0; cId < ug.nCell; ++cId)

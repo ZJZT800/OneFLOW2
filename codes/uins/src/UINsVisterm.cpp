@@ -605,6 +605,8 @@ void UINsVisterm::CmpINsSrc()
 		//cout << "iinv.buc=" << iinv.buc[ug.cId] <<"cId="<< ug.cId<< "\n";
 
 		int fn = (*ug.c2f)[ug.cId].size();
+		//int fp = fn;
+
 
 		if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
 		{
@@ -614,9 +616,15 @@ void UINsVisterm::CmpINsSrc()
 		for (int iFace = 0; iFace < fn; ++iFace)
 		{
 			int fId = (*ug.c2f)[ug.cId][iFace];
+
 			ug.fId = fId;
 			ug.lc = (*ug.lcf)[ug.fId];
 			ug.rc = (*ug.rcf)[ug.fId];
+
+			/*if (ug.fId < ug.nBFace)
+			{
+				fp -= 1;
+			}*/
 
 			if (ug.cId == ug.lc)
 			{
@@ -632,6 +640,13 @@ void UINsVisterm::CmpINsSrc()
 		}
 
 
+		/*if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
+		{
+			iinv.sjp.resize(ug.nTCell, fp);
+			iinv.sjd.resize(ug.nTCell, fp);
+		}
+
+		iinv.dd[ug.cId] = fp;*/
 	}
 }
 
