@@ -256,6 +256,8 @@ void UINsInvterm::Initflux()
 	iinv.res_vp.resize(ug.nCell);
 	iinv.res_wp.resize(ug.nCell);
 	iinv.fux.resize(ug.nFace);
+	//iinv.dd.resize(ug.nCell);
+	iinv.ajpb.resize(ug.nBFace);
 
 
 	iinv.ai1 = 0;
@@ -1419,14 +1421,6 @@ void UINsInvterm::CmpCorrectPresscoef()
 
 		iinv.bp[ug.lc] += -iinv.fq[ug.fId];
 		iinv.bp[ug.rc] += iinv.fq[ug.fId];
-	
-
-
-		/*if (ug.fId < ug.nBFace)
-		{
-			//iinv.spp[ug.rc] = 0.001;
-			iinv.spp[ug.rc] = 1;
-		}*/
 
 	}
 
@@ -1448,19 +1442,18 @@ void UINsInvterm::CmpCorrectPresscoef()
 		else if (ug.bctype == BC::OUTFLOW)
 		{
 			iinv.spp[ug.rc] = iinv.spp[ug.lc];
-			iinv.bp[ug.rc] = 0;
+			//iinv.bp[ug.rc] = 0;
 		}
 
 		else if (ug.bctype == BC::INFLOW)
 		{
 			iinv.spp[ug.rc] = iinv.spp[ug.lc];
-			iinv.bp[ug.rc] = 0;
+			//iinv.bp[ug.rc] = 0;
 		}
 
 		//iinv.spp[ug.rc] = iinv.spp[ug.lc];
 		
 	}
-
 
 
 	/*for (int cId = 0; cId < ug.nCell; ++cId)
@@ -1484,27 +1477,26 @@ void UINsInvterm::CmpCorrectPresscoef()
 			{
 				continue;
 			}
-
-			if (ug.cId == ug.lc)
+			else
 			{
-				iinv.sjp[ug.cId][iFace] = -iinv.ajp[ug.fId]; //求解压力修正方程的非零系数
-				iinv.sjd[ug.cId][iFace] = ug.rc;
+				if (ug.cId == ug.lc)
+				{
+					iinv.sjp[ug.cId][iFace] = -iinv.ajp[ug.fId]; //求解压力修正方程的非零系数
+					iinv.sjd[ug.cId][iFace] = ug.rc;
 
-				//cout << "iinv.sjp=" << iinv.sjp[ug.cId][iFace] << "iinv.sjd=" << ug.rc << "\n";
-			}
-			else if (ug.cId == ug.rc)
-			{
-				iinv.sjp[ug.cId][iFace] = -iinv.ajp[ug.fId];
-				iinv.sjd[ug.cId][iFace] = ug.lc;
-
-				//cout << "iinv.sjp=" << iinv.sjp[ug.cId][iFace] << "iinv.sjd=" << ug.lc << "\n";
+				}
+				else if (ug.cId == ug.rc)
+				{
+					iinv.sjp[ug.cId][iFace] = -iinv.ajp[ug.fId];
+					iinv.sjd[ug.cId][iFace] = ug.lc;
+				}
 			}
 		}
 	}*/
 
 
 
-	for (int cId = 0; cId < ug.nTCell; ++cId)
+	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		ug.cId = cId;
 
@@ -1535,6 +1527,45 @@ void UINsInvterm::CmpCorrectPresscoef()
 			else if (ug.cId == ug.rc)
 			{
 				iinv.sjp[ug.cId][iFace] = -iinv.ajp[ug.fId];
+				iinv.sjd[ug.cId][iFace] = ug.lc;
+
+				//cout << "iinv.sjp=" << iinv.sjp[ug.cId][iFace] << "iinv.sjd=" << ug.lc << "\n";
+			}
+		}
+	}
+
+
+	for (int cId = ug.nCell; cId < ug.nTCell; ++cId)
+	{
+		ug.cId = cId;
+
+		iinv.VdU[ug.cId] = -(*ug.cvol)[ug.cId] / ((1 + 1)*iinv.spc[ug.cId]); //用于求单元修正速度量;
+		iinv.VdV[ug.cId] = -(*ug.cvol)[ug.cId] / ((1 + 1)*iinv.spc[ug.cId]);
+		iinv.VdW[ug.cId] = -(*ug.cvol)[ug.cId] / ((1 + 1)*iinv.spc[ug.cId]);
+
+		int fn = (*ug.c2f)[ug.cId].size();
+		if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
+		{
+			iinv.sjp.resize(ug.nTCell, fn);
+			iinv.sjd.resize(ug.nTCell, fn);
+		}
+		for (int iFace = 0; iFace < fn; ++iFace)
+		{
+			int fId = (*ug.c2f)[ug.cId][iFace];
+			ug.fId = fId;
+			ug.lc = (*ug.lcf)[ug.fId];
+			ug.rc = (*ug.rcf)[ug.fId];
+
+			if (ug.cId == ug.lc)
+			{
+				iinv.sjp[ug.cId][iFace] = -iinv.ajpb[ug.fId]; //求解压力修正方程的非零系数
+				iinv.sjd[ug.cId][iFace] = ug.rc;
+
+				//cout << "iinv.sjp=" << iinv.sjp[ug.cId][iFace] << "iinv.sjd=" << ug.rc << "\n";
+			}
+			else if (ug.cId == ug.rc)
+			{
+				iinv.sjp[ug.cId][iFace] = -iinv.ajpb[ug.fId];
 				iinv.sjd[ug.cId][iFace] = ug.lc;
 
 				//cout << "iinv.sjp=" << iinv.sjp[ug.cId][iFace] << "iinv.sjd=" << ug.lc << "\n";
@@ -1651,7 +1682,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 for (int cId = 0; cId < ug.nCell; ++cId)
 {
 	//ug.cId = cId;                                                                  // 主单元编号
-	//int fn = (*ug.c2f)[cId].size();                                                                 // 单元相邻面的个数
+	int fn = (*ug.c2f)[cId].size();                                                                 // 单元相邻面的个数
 	NonZero.Number += iinv.dd[cId];
 }
 NonZero.Number = NonZero.Number + ug.nCell;                                                        // 非零元素的计数
@@ -1674,11 +1705,6 @@ for (int cId = 0; cId < ug.nCell; ++cId)
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[fId];                                    // 面左侧单元
 		ug.rc = (*ug.rcf)[fId];                                    // 面右侧单元
-
-		if (ug.fId < ug.nBFace)
-		{
-			continue;
-		}
 
 		if (cId == ug.lc)
 		{
@@ -1770,12 +1796,6 @@ Rank.Deallocate();
 
 	//iinv.res_p = 0;
 	//iinv.res_p = MAX(iinv.res_p, abs(iinv.ppd - iinv.pp[ug.cId]));
-
-
-	for (int cId = 0; cId < ug.nTCell; cId++)
-	{
-		iinv.pp[cId] = iinv.pp[cId] * 1e-18;
-	}
 
 
 	//边界单元
