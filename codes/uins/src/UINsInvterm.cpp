@@ -2171,16 +2171,36 @@ void UINsInvterm::UpdateFaceflux()
 
 void UINsInvterm::CmpUpdateINsBcFaceflux()
 {
-	iinv.uuj[ug.fId] = 0; //面速度修正量
-	iinv.vvj[ug.fId] = 0;
-	iinv.wwj[ug.fId] = 0;
+	int bcType = ug.bcRecord->bcType[ug.fId];
 
-	iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuj[ug.fId]; //下一时刻面速度
-	iinv.vf[ug.fId] = iinv.vf[ug.fId] + iinv.vvj[ug.fId];
-	iinv.wf[ug.fId] = iinv.wf[ug.fId] + iinv.wwj[ug.fId];
+	if (ug.bctype == BC::OUTFLOW)
+	{
+		iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc]);
 
-	iinv.fux = iinv.rf[ug.fId] * (gcom.xfn * iinv.uuj[ug.fId] + gcom.yfn * iinv.vvj[ug.fId] + gcom.zfn * iinv.wwj[ug.fId]) * (*ug.farea)[ug.fId];
-	iinv.fq[ug.fId] = iinv.fq[ug.fId] + iinv.fux;
+		iinv.uuj[ug.fId] = iinv.Vdvu[ug.fId] * (iinv.pp[ug.lc] - iinv.pp[ug.rc]) * (*ug.xfn)[ug.fId] / iinv.dist; //面速度修正量
+		iinv.vvj[ug.fId] = iinv.Vdvv[ug.fId] * (iinv.pp[ug.lc] - iinv.pp[ug.rc]) * (*ug.yfn)[ug.fId] / iinv.dist;
+		iinv.wwj[ug.fId] = iinv.Vdvw[ug.fId] * (iinv.pp[ug.lc] - iinv.pp[ug.rc]) * (*ug.zfn)[ug.fId] / iinv.dist;
+
+		iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuj[ug.fId]; //下一时刻面速度
+		iinv.vf[ug.fId] = iinv.vf[ug.fId] + iinv.vvj[ug.fId];
+		iinv.wf[ug.fId] = iinv.wf[ug.fId] + iinv.wwj[ug.fId];
+
+		iinv.fux = iinv.rf[ug.fId] * ((*ug.xfn)[ug.fId] * iinv.uuj[ug.fId] + (*ug.yfn)[ug.fId] * iinv.vvj[ug.fId] + (*ug.zfn)[ug.fId] * iinv.wwj[ug.fId]) * (*ug.farea)[ug.fId];
+		iinv.fq[ug.fId] = iinv.fq[ug.fId] + iinv.fux;
+	}
+	else
+	{
+		iinv.uuj[ug.fId] = 0; //面速度修正量
+		iinv.vvj[ug.fId] = 0;
+		iinv.wwj[ug.fId] = 0;
+
+		iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuj[ug.fId]; //下一时刻面速度
+		iinv.vf[ug.fId] = iinv.vf[ug.fId] + iinv.vvj[ug.fId];
+		iinv.wf[ug.fId] = iinv.wf[ug.fId] + iinv.wwj[ug.fId];
+
+		iinv.fux = iinv.rf[ug.fId] * (gcom.xfn * iinv.uuj[ug.fId] + gcom.yfn * iinv.vvj[ug.fId] + gcom.zfn * iinv.wwj[ug.fId]) * (*ug.farea)[ug.fId];
+		iinv.fq[ug.fId] = iinv.fq[ug.fId] + iinv.fux;
+	}
 }
 
 
