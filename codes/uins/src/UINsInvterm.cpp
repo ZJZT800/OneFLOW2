@@ -255,6 +255,7 @@ void UINsInvterm::Initflux()
 	iinv.res_up.resize(ug.nCell);
 	iinv.res_vp.resize(ug.nCell);
 	iinv.res_wp.resize(ug.nCell);
+	iinv.op.resize(ug.nBFace);
 
 	iinv.ai1 = 0;
 	iinv.ai2 = 0;
@@ -297,6 +298,10 @@ void UINsInvterm::Initflux()
 
 void UINsInvterm::CmpInvMassFlux()
 {
+
+	iinv.Tqu = 0;
+	iinv.Tqv = 0;
+	iinv.Tqw = 0;
 
 	for (int fId = 0; fId < ug.nFace; ++fId)
 	{
@@ -352,7 +357,7 @@ void UINsInvterm::PrepareProFaceValue()
 	iinv.prim2[IIDX::IIR] = (*uinsf.q)[IIDX::IIR][ug.rc];
 	iinv.prim2[IIDX::IIU] = iinv.uc[ug.rc];
 	iinv.prim2[IIDX::IIV] = iinv.vc[ug.rc];
-	iinv.prim2[IIDX::IIW] = iinv.vc[ug.rc];
+	iinv.prim2[IIDX::IIW] = iinv.wc[ug.rc];
 	iinv.prim2[IIDX::IIP] = (*uinsf.q)[IIDX::IIP][ug.rc];
 	//}
 }
@@ -727,10 +732,9 @@ void UINsInvterm::MomPre()
 					inscom.bcflow = &bcdata.dataList[dd];
 				}
 
-
-				iinv.uc[ug.rc] = iinv.uc[ug.lc];
-				iinv.vc[ug.rc] = iinv.vc[ug.lc];
-				iinv.wc[ug.rc] = iinv.wc[ug.lc];
+				iinv.uc[ug.rc] = (iinv.Tqu / (iinv.rf[ug.fId] * (*ug.farea)[ug.fId] * ug.nRBFace));
+				iinv.vc[ug.rc] = (iinv.Tqv / (iinv.rf[ug.fId] * (*ug.farea)[ug.fId] * ug.nRBFace));
+				iinv.wc[ug.rc] = (iinv.Tqw / (iinv.rf[ug.fId] * (*ug.farea)[ug.fId] * ug.nRBFace));
 			}
 		}
 
@@ -1432,7 +1436,18 @@ void UINsInvterm::CmpCorrectPresscoef()
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
 
+		int bcType = ug.bcRecord->bcType[ug.fId];
+
 		iinv.spp[ug.rc] = iinv.spp[ug.lc];
+
+		if (bcType == BC::OUTFLOW)
+		{
+			iinv.bp[ug.rc] = 0;
+		}
+		else if (bcType == BC::INFLOW)
+		{
+			iinv.bp[ug.rc] = 0;
+		}
 	}
 
 
@@ -1642,11 +1657,17 @@ void UINsInvterm::CmpPressCorrectEqu()
 
 		int bcType = ug.bcRecord->bcType[ug.fId];
 
-		if (ug.bctype == BC::OUTFLOW)
+		if (bcType == BC::OUTFLOW)
 		{
 			iinv.pp[ug.rc] = 0;
 		}
-		else
+
+		else if (ug.bctype == BC::SOLID_SURFACE)
+		{
+			iinv.pp[ug.rc] = iinv.pp[ug.lc];
+		}
+
+		else if(ug.bctype == BC::INFLOW)
 		{
 			iinv.pp[ug.rc] = iinv.pp[ug.lc];
 		}
@@ -1758,7 +1779,6 @@ void UINsInvterm::CmpPressCorrectEqu()
 					inscom.bcdtkey = 1;
 					inscom.bcflow = &bcdata.dataList[dd];
 				}
-
 
 				(*uinsf.q)[IIDX::IIP][ug.rc] = (*uinsf.q)[IIDX::IIP][ug.rc];
 			}
@@ -2173,22 +2193,17 @@ void UINsInvterm::CmpUpdateINsBcFaceflux()
 {
 	int bcType = ug.bcRecord->bcType[ug.fId];
 
-	if (ug.bctype == BC::OUTFLOW)
+	if (bcType == BC::OUTFLOW)
 	{
-		iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc]);
 
-		iinv.uuj[ug.fId] = iinv.Vdvu[ug.fId] * (iinv.pp[ug.lc] - iinv.pp[ug.rc]) * (*ug.xfn)[ug.fId] / iinv.dist; //面速度修正量
-		iinv.vvj[ug.fId] = iinv.Vdvv[ug.fId] * (iinv.pp[ug.lc] - iinv.pp[ug.rc]) * (*ug.yfn)[ug.fId] / iinv.dist;
-		iinv.wwj[ug.fId] = iinv.Vdvw[ug.fId] * (iinv.pp[ug.lc] - iinv.pp[ug.rc]) * (*ug.zfn)[ug.fId] / iinv.dist;
+		iinv.uf[ug.fId] = iinv.up[ug.rc]; //下一时刻面速度
+		iinv.vf[ug.fId] = iinv.vp[ug.lc];
+		iinv.wf[ug.fId] = iinv.wp[ug.rc];
 
-		iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuj[ug.fId]; //下一时刻面速度
-		iinv.vf[ug.fId] = iinv.vf[ug.fId] + iinv.vvj[ug.fId];
-		iinv.wf[ug.fId] = iinv.wf[ug.fId] + iinv.wwj[ug.fId];
-
-		iinv.fux = iinv.rf[ug.fId] * ((*ug.xfn)[ug.fId] * iinv.uuj[ug.fId] + (*ug.yfn)[ug.fId] * iinv.vvj[ug.fId] + (*ug.zfn)[ug.fId] * iinv.wwj[ug.fId]) * (*ug.farea)[ug.fId];
-		iinv.fq[ug.fId] = iinv.fq[ug.fId] + iinv.fux;
+		iinv.fq[ug.fId] = iinv.rf[ug.fId] * ((*ug.xfn)[ug.fId] * iinv.uf[ug.fId] + (*ug.yfn)[ug.fId] * iinv.vf[ug.fId] + (*ug.zfn)[ug.fId] * iinv.wf[ug.fId]) * (*ug.farea)[ug.fId];
 	}
-	else
+
+	else if (bcType == BC::INFLOW)
 	{
 		iinv.uuj[ug.fId] = 0; //面速度修正量
 		iinv.vvj[ug.fId] = 0;
@@ -2201,6 +2216,21 @@ void UINsInvterm::CmpUpdateINsBcFaceflux()
 		iinv.fux = iinv.rf[ug.fId] * (gcom.xfn * iinv.uuj[ug.fId] + gcom.yfn * iinv.vvj[ug.fId] + gcom.zfn * iinv.wwj[ug.fId]) * (*ug.farea)[ug.fId];
 		iinv.fq[ug.fId] = iinv.fq[ug.fId] + iinv.fux;
 	}
+
+	else if (bcType == BC::SOLID_SURFACE)
+	{
+		iinv.uuj[ug.fId] = 0; //面速度修正量
+		iinv.vvj[ug.fId] = 0;
+		iinv.wwj[ug.fId] = 0;
+
+		iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuj[ug.fId]; //下一时刻面速度
+		iinv.vf[ug.fId] = iinv.vf[ug.fId] + iinv.vvj[ug.fId];
+		iinv.wf[ug.fId] = iinv.wf[ug.fId] + iinv.wwj[ug.fId];
+
+		iinv.fux = iinv.rf[ug.fId] * (gcom.xfn * iinv.uuj[ug.fId] + gcom.yfn * iinv.vvj[ug.fId] + gcom.zfn * iinv.wwj[ug.fId]) * (*ug.farea)[ug.fId];
+		iinv.fq[ug.fId] = iinv.fq[ug.fId] + iinv.fux;
+	}
+
 }
 
 
@@ -2358,9 +2388,10 @@ void UINsInvterm::UpdateSpeed()
 				}
 
 
-				iinv.up[ug.rc] = iinv.up[ug.lc];
-				iinv.vp[ug.rc] = iinv.vp[ug.lc];
-				iinv.wp[ug.rc] = iinv.wp[ug.lc];
+				iinv.up[ug.rc] = iinv.Tqu / (iinv.rf[ug.fId] * (*ug.farea)[ug.fId] * ug.nRBFace);
+				iinv.vp[ug.rc] = iinv.Tqu / (iinv.rf[ug.fId] * (*ug.farea)[ug.fId] * ug.nRBFace);
+				iinv.wp[ug.rc] = iinv.Tqu / (iinv.rf[ug.fId] * (*ug.farea)[ug.fId] * ug.nRBFace);
+
 			}
 		}
 

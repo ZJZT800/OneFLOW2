@@ -126,6 +126,8 @@ void INsInvterm::CmpINsBcinvFlux()
 
 	iinv.wf[ug.fId] = (iinv.wl + iinv.wr) * half;
 
+	iinv.op[ug.fId] = (iinv.pl + iinv.pr) * half; //边界面储存的压力
+
 	iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;  //初始界面上 V*n
 
 	if(bcType == BC::SOLID_SURFACE)
@@ -147,9 +149,19 @@ void INsInvterm::CmpINsinvTerm()
 		iinv.ai[ug.fId][0] = clr;
 		iinv.ai[ug.fId][1] = crl;
 
+		if (ug.fId < ug.nBFace)
+		{
+			int bcType = ug.bcRecord->bcType[ug.fId];
+
+			if (bcType == BC::INFLOW)
+			{
+				iinv.Tqu += (*ug.xfn)[ug.fId] * iinv.uf[ug.fId] * (*ug.farea)[ug.fId];
+				iinv.Tqv += (*ug.yfn)[ug.fId] * iinv.vf[ug.fId] * (*ug.farea)[ug.fId];
+				iinv.Tqw += (*ug.zfn)[ug.fId] * iinv.wf[ug.fId] * (*ug.farea)[ug.fId];
+			}
+		}
 		/*iinv.ai[0][ug.fId] = clr;
 		iinv.ai[1][ug.fId] = crl;*/
-
 }
 
 void INsInvterm::CmpINsBcinvTerm()
@@ -260,6 +272,28 @@ void INsInvterm::CmpINsBcFaceflux()
 		iinv.fq[ug.fId] = 0;
 	}
 
+	else if (bcType == BC::INFLOW)
+	{
+		iinv.uf[ug.fId] = iinv.ur;
+		iinv.vf[ug.fId] = iinv.vr;
+		iinv.wf[ug.fId] = iinv.wr;
+
+		iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId];
+
+		iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * (*ug.farea)[ug.fId];
+	}
+
+	else if (bcType == BC::OUTFLOW)
+	{
+		iinv.uf[ug.fId] = iinv.ur;
+		iinv.vf[ug.fId] = iinv.vr;
+		iinv.wf[ug.fId] = iinv.wr;
+
+		iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId];
+
+		iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * (*ug.farea)[ug.fId];
+	}
+
 	Real clr = MAX(0, iinv.fq[ug.fId]);  //从界面左侧单元流入右侧单元的初始质量流量
 
 	Real crl = clr - iinv.fq[ug.fId];   //从界面右侧单元流入左侧单元的初始质量流量
@@ -284,18 +318,6 @@ void INsInvterm::CmpINsFaceCorrectPresscoef()
 
 void INsInvterm::CmpINsBcFaceCorrectPresscoef()
 {
-
-	int bcType = ug.bcRecord->bcType[ug.fId];
-
-	if (ug.bctype == BC::SOLID_SURFACE)
-	{
-		iinv.Vdvu[ug.fId] = 0;  // (Vp/dv)j，用于求面速度修正量
-		iinv.Vdvv[ug.fId] = 0;
-		iinv.Vdvw[ug.fId] = 0;
-		iinv.ajp[ug.fId] = 0;
-	}
-	else
-	{
 		iinv.Vdvu[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc] / (iinv.spc[ug.rc]));  // -Mf*n，用于求面速度修正量
 		iinv.Vdvv[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc] / (iinv.spc[ug.rc]));
 		iinv.Vdvw[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc] / (iinv.spc[ug.rc]));
@@ -303,7 +325,6 @@ void INsInvterm::CmpINsBcFaceCorrectPresscoef()
 		iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc]);
 
 		iinv.ajp[ug.fId] = iinv.rf[ug.fId] * (iinv.Vdvu[ug.fId] * (*ug.xfn)[ug.fId] * (*ug.xfn)[ug.fId] + iinv.Vdvv[ug.fId] * (*ug.yfn)[ug.fId] * (*ug.yfn)[ug.fId] + iinv.Vdvw[ug.fId] * (*ug.zfn)[ug.fId] * (*ug.zfn)[ug.fId]) * (*ug.farea)[ug.fId] / iinv.dist;
-	}
 }
 
 
