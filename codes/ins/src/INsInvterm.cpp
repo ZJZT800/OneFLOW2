@@ -274,24 +274,24 @@ void INsInvterm::CmpINsBcFaceflux()
 
 	else if (bcType == BC::INFLOW)
 	{
-		iinv.uf[ug.fId] = iinv.ur;
-		iinv.vf[ug.fId] = iinv.vr;
-		iinv.wf[ug.fId] = iinv.wr;
+		iinv.uf[ug.fId] = (iinv.ul + iinv.ur)*half;
+		iinv.vf[ug.fId] = (iinv.vl + iinv.vr)*half;
+		iinv.wf[ug.fId] = (iinv.wl + iinv.wr)*half;
 
 		iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId];
 
-		iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * (*ug.farea)[ug.fId];
+		iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * (*ug.farea)[ug.fId];  //下一时刻界面预测通量
 	}
 
 	else if (bcType == BC::OUTFLOW)
 	{
-		iinv.uf[ug.fId] = iinv.ur;
-		iinv.vf[ug.fId] = iinv.vr;
-		iinv.wf[ug.fId] = iinv.wr;
+		iinv.uf[ug.fId] = (iinv.ul + iinv.ur)*half;
+		iinv.vf[ug.fId] = (iinv.vl + iinv.vr)*half;
+		iinv.wf[ug.fId] = (iinv.wl + iinv.wr)*half;
 
 		iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId];
 
-		iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * (*ug.farea)[ug.fId];
+		iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * (*ug.farea)[ug.fId];  //下一时刻界面预测通量
 	}
 
 	Real clr = MAX(0, iinv.fq[ug.fId]);  //从界面左侧单元流入右侧单元的初始质量流量
