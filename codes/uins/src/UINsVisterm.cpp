@@ -118,6 +118,7 @@ void UINsVisterm::CmpPreandVisGrad()
 	(*uinsf.dqdy)[IIDX::IIP] = 0;
 	(*uinsf.dqdz)[IIDX::IIP] = 0;
 
+
 	for (int fId = 0; fId < ug.nFace; ++fId)
 	{
 		if (fId == 432)

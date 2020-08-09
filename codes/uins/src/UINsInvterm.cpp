@@ -732,9 +732,9 @@ void UINsInvterm::MomPre()
 					inscom.bcflow = &bcdata.dataList[dd];
 				}
 	
-				iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * (abs(iinv.Tqu) / (iinv.rf[ug.fId] * (*ug.farea)[ug.fId] * (*ug.xfn)[ug.fId] * ug.nRBFace));
-				iinv.vc[ug.rc] = -iinv.vc[ug.lc];
-				iinv.wc[ug.rc] = -iinv.wc[ug.lc];
+				iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * (abs(iinv.Tqu) / (iinv.rf[ug.fId] * (*ug.xfn)[ug.fId] * (*ug.farea)[ug.fId] * ug.nRBFace));
+				iinv.vc[ug.rc] = iinv.vc[ug.lc];
+				iinv.wc[ug.rc] = iinv.wc[ug.lc];
 			}
 		}
 
@@ -2382,8 +2382,8 @@ void UINsInvterm::UpdateSpeed()
 
 
 				iinv.up[ug.rc] = -iinv.up[ug.lc] + 2 * (abs(iinv.Tqu) / (iinv.rf[ug.fId] * (*ug.farea)[ug.fId] * ug.nRBFace));
-				iinv.vp[ug.rc] = -iinv.vp[ug.lc];
-				iinv.wp[ug.rc] = -iinv.wp[ug.lc];
+				iinv.vp[ug.rc] = iinv.vp[ug.lc];
+				iinv.wp[ug.rc] = iinv.wp[ug.lc];
 
 			}
 		}
