@@ -662,13 +662,13 @@ void UINsInvterm::MomPre()
 
 				if (inscom.bcdtkey == 0)
 				{
-					iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * gcom.vfx;
+					iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * gcom.vfx;   //Neummann
 					iinv.vc[ug.rc] = -iinv.vc[ug.lc] + 2 * gcom.vfy;
 					iinv.wc[ug.rc] = -iinv.wc[ug.lc] + 2 * gcom.vfz;
 				}
 				else
 				{
-					iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIU];
+					iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIU];  //Dirichlet
 					iinv.vc[ug.rc] = -iinv.vc[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIV];
 					iinv.wc[ug.rc] = -iinv.wc[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIW];
 				}
@@ -701,9 +701,9 @@ void UINsInvterm::MomPre()
 				}
 
 
-				iinv.uc[ug.rc] = inscom.inflow[IIDX::IIU];
-				iinv.vc[ug.rc] = inscom.inflow[IIDX::IIV];
-				iinv.wc[ug.rc] = inscom.inflow[IIDX::IIW];
+				iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * inscom.inflow[IIDX::IIU];
+				iinv.vc[ug.rc] = -iinv.vc[ug.lc] + 2 * inscom.inflow[IIDX::IIV];
+				iinv.wc[ug.rc] = -iinv.wc[ug.lc] + 2 * inscom.inflow[IIDX::IIW];//Dirichlet
 			}
 		}
 
@@ -732,9 +732,9 @@ void UINsInvterm::MomPre()
 					inscom.bcflow = &bcdata.dataList[dd];
 				}
 	
-				iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * (abs(iinv.Tqu) / (iinv.rf[ug.fId] * (*ug.xfn)[ug.fId] * (*ug.farea)[ug.fId] * ug.nRBFace));
-				iinv.vc[ug.rc] = iinv.vc[ug.lc];
-				iinv.wc[ug.rc] = iinv.wc[ug.lc];
+				iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * (abs(iinv.Tqu) / (iinv.rf[ug.fId] * (*ug.farea)[ug.fId] * ug.nRBFace));  //Neumann
+				iinv.vc[ug.rc] = -iinv.vc[ug.lc];
+				iinv.wc[ug.rc] = -iinv.wc[ug.lc];
 			}
 		}
 
@@ -1422,12 +1422,6 @@ void UINsInvterm::CmpCorrectPresscoef()
 		iinv.bp[ug.lc] += -iinv.fq[ug.fId];
 		iinv.bp[ug.rc] += iinv.fq[ug.fId];
 
-		/*if (ug.fId < ug.nBFace)
-		{
-			//iinv.spp[ug.rc] = 0.001;
-			iinv.spp[ug.rc] = 1;
-		}*/
-
 	}
 
 	for (int fId = 0; fId < ug.nBFace; ++fId)
@@ -1436,9 +1430,9 @@ void UINsInvterm::CmpCorrectPresscoef()
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
 
-		int bcType = ug.bcRecord->bcType[ug.fId];
-
 		iinv.spp[ug.rc] = iinv.spp[ug.lc];
+
+		int bcType = ug.bcRecord->bcType[ug.fId];
 
 		if (bcType == BC::OUTFLOW)
 		{
@@ -1659,7 +1653,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 
 		if (bcType == BC::OUTFLOW)
 		{
-			iinv.pp[ug.rc] = 0;
+			iinv.pp[ug.rc] = iinv.pp[ug.lc];//Dirichlet
 		}
 
 		else if (ug.bctype == BC::SOLID_SURFACE)
@@ -1669,14 +1663,14 @@ void UINsInvterm::CmpPressCorrectEqu()
 
 		else if(ug.bctype == BC::INFLOW)
 		{
-			iinv.pp[ug.rc] = iinv.pp[ug.lc];
+			iinv.pp[ug.rc] = iinv.pp[ug.lc];//Neumann
 		}
 	}
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		ug.cId = cId;
-		(*uinsf.q)[IIDX::IIP][ug.cId] = (*uinsf.q)[IIDX::IIP][ug.cId] +0.8*iinv.pp[ug.cId];
+		(*uinsf.q)[IIDX::IIP][ug.cId] = (*uinsf.q)[IIDX::IIP][ug.cId] +0.08*iinv.pp[ug.cId];
 	}
 
 
@@ -1778,7 +1772,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 					inscom.bcflow = &bcdata.dataList[dd];
 				}
 
-				(*uinsf.q)[IIDX::IIP][ug.rc] = (*uinsf.q)[IIDX::IIP][ug.rc];
+				(*uinsf.q)[IIDX::IIP][ug.rc] = (*uinsf.q)[IIDX::IIP][ug.lc];
 			}
 		}
 
@@ -2253,9 +2247,9 @@ void UINsInvterm::UpdateSpeed()
 	{
 		ug.cId = cId;
 
-		iinv.uu[ug.cId] = iinv.VdU[ug.cId] * iinv.dqqdx[ug.cId]*0.8; //速度修正量
-		iinv.vv[ug.cId] = iinv.VdV[ug.cId] * iinv.dqqdy[ug.cId]*0.8;
-		iinv.ww[ug.cId] = iinv.VdW[ug.cId] * iinv.dqqdz[ug.cId]*0.8;
+		iinv.uu[ug.cId] = iinv.VdU[ug.cId] * iinv.dqqdx[ug.cId]* 0.08; //速度修正量
+		iinv.vv[ug.cId] = iinv.VdV[ug.cId] * iinv.dqqdy[ug.cId]* 0.08;
+		iinv.ww[ug.cId] = iinv.VdW[ug.cId] * iinv.dqqdz[ug.cId]* 0.08;
 
 		iinv.up[ug.cId] = iinv.uc[cId] + iinv.uu[ug.cId];  //下一时刻的速度值
 		iinv.vp[ug.cId] = iinv.vc[cId] + iinv.vv[ug.cId];
@@ -2310,13 +2304,13 @@ void UINsInvterm::UpdateSpeed()
 
 				if (inscom.bcdtkey == 0)
 				{
-					iinv.up[ug.rc] = -iinv.up[ug.lc] + 2 * gcom.vfx;
+					iinv.up[ug.rc] = -iinv.up[ug.lc] + 2 * gcom.vfx;//Dirichlet
 					iinv.vp[ug.rc] = -iinv.vp[ug.lc] + 2 * gcom.vfy;
 					iinv.wp[ug.rc] = -iinv.wp[ug.lc] + 2 * gcom.vfz;
 				}
 				else
 				{
-					iinv.up[ug.rc] = -iinv.up[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIU];
+					iinv.up[ug.rc] = -iinv.up[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIU];//Dirichlet
 					iinv.vp[ug.rc] = -iinv.vp[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIV];
 					iinv.wp[ug.rc] = -iinv.wp[ug.lc] + 2 * (*inscom.bcflow)[IIDX::IIW];
 				}
@@ -2349,9 +2343,9 @@ void UINsInvterm::UpdateSpeed()
 				}
 
 
-				iinv.up[ug.rc] = inscom.inflow[IIDX::IIU];
-				iinv.vp[ug.rc] = inscom.inflow[IIDX::IIV];
-				iinv.wp[ug.rc] = inscom.inflow[IIDX::IIW];
+				iinv.up[ug.rc] = -iinv.up[ug.lc] + 2 * inscom.inflow[IIDX::IIU];//Dirichlet
+				iinv.vp[ug.rc] = -iinv.vp[ug.lc] + 2 * inscom.inflow[IIDX::IIV];
+				iinv.wp[ug.rc] = -iinv.wp[ug.lc] + 2 * inscom.inflow[IIDX::IIW];
 			}
 		}
 
@@ -2382,8 +2376,8 @@ void UINsInvterm::UpdateSpeed()
 
 
 				iinv.up[ug.rc] = -iinv.up[ug.lc] + 2 * (abs(iinv.Tqu) / (iinv.rf[ug.fId] * (*ug.farea)[ug.fId] * ug.nRBFace));
-				iinv.vp[ug.rc] = iinv.vp[ug.lc];
-				iinv.wp[ug.rc] = iinv.wp[ug.lc];
+				iinv.vp[ug.rc] = -iinv.vp[ug.lc];
+				iinv.wp[ug.rc] = -iinv.wp[ug.lc];
 
 			}
 		}
@@ -2414,7 +2408,7 @@ void UINsInvterm::UpdateSpeed()
 				}
 
 
-				iinv.up[ug.rc] = iinv.up[ug.lc];
+				iinv.up[ug.rc] = -iinv.up[ug.lc] + 2 * (abs(iinv.Tqu) / (iinv.rf[ug.fId] * (*ug.farea)[ug.fId] * ug.nRBFace));
 				iinv.vp[ug.rc] = iinv.vp[ug.lc];
 				iinv.wp[ug.rc] = iinv.wp[ug.lc];
 			}

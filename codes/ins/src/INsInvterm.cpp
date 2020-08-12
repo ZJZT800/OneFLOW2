@@ -318,13 +318,42 @@ void INsInvterm::CmpINsFaceCorrectPresscoef()
 
 void INsInvterm::CmpINsBcFaceCorrectPresscoef()
 {
-		iinv.Vdvu[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc] / (iinv.spc[ug.rc]));  // -Mf*n，用于求面速度修正量
+	int bcType = ug.bcRecord->bcType[ug.fId];
+
+	if (bcType == BC::SOLID_SURFACE)
+	{
+		iinv.Vdvu[ug.fId] = 0;
+		iinv.Vdvv[ug.fId] = 0;
+		iinv.Vdvw[ug.fId] = 0;
+		iinv.ajp[ug.fId] = 0;
+	}
+	else if (bcType == BC::INFLOW)
+	{
+		iinv.Vdvu[ug.fId] = 0;
+		iinv.Vdvv[ug.fId] = 0;
+		iinv.Vdvw[ug.fId] = 0;
+		iinv.ajp[ug.fId] = 0;
+	}
+	else if (bcType == BC::OUTFLOW)
+	{
+		iinv.Vdvu[ug.fId] = 0;
+		iinv.Vdvv[ug.fId] = 0;
+		iinv.Vdvw[ug.fId] = 0;
+		iinv.ajp[ug.fId] = 0;
+	}
+
+	
+	
+		/*iinv.Vdvu[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc] / (iinv.spc[ug.rc]));  // -Mf*n，用于求面速度修正量
 		iinv.Vdvv[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc] / (iinv.spc[ug.rc]));
 		iinv.Vdvw[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc] / (iinv.spc[ug.rc]));
 
 		iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc]);
 
-		iinv.ajp[ug.fId] = iinv.rf[ug.fId] * (iinv.Vdvu[ug.fId] * (*ug.xfn)[ug.fId] * (*ug.xfn)[ug.fId] + iinv.Vdvv[ug.fId] * (*ug.yfn)[ug.fId] * (*ug.yfn)[ug.fId] + iinv.Vdvw[ug.fId] * (*ug.zfn)[ug.fId] * (*ug.zfn)[ug.fId]) * (*ug.farea)[ug.fId] / iinv.dist;
+		iinv.ajp[ug.fId] = iinv.rf[ug.fId] * (iinv.Vdvu[ug.fId] * (*ug.xfn)[ug.fId] * (*ug.xfn)[ug.fId] + iinv.Vdvv[ug.fId] * (*ug.yfn)[ug.fId] * (*ug.yfn)[ug.fId] + iinv.Vdvw[ug.fId] * (*ug.zfn)[ug.fId] * (*ug.zfn)[ug.fId]) * (*ug.farea)[ug.fId] / iinv.dist;*/
+	
+		
+	
 }
 
 
