@@ -1432,7 +1432,7 @@ void UINsInvterm::CmpCorrectPresscoef()
 
 		iinv.spp[ug.rc] = iinv.spp[ug.lc];
 
-		int bcType = ug.bcRecord->bcType[ug.fId];
+		/*int bcType = ug.bcRecord->bcType[ug.fId];
 
 		if (bcType == BC::OUTFLOW)
 		{
@@ -1441,7 +1441,7 @@ void UINsInvterm::CmpCorrectPresscoef()
 		else if (bcType == BC::INFLOW)
 		{
 			iinv.bp[ug.rc] = 0;
-		}
+		}*/
 	}
 
 
