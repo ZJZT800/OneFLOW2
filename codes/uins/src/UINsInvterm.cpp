@@ -732,9 +732,9 @@ void UINsInvterm::MomPre()
 					inscom.bcflow = &bcdata.dataList[dd];
 				}
 	
-				iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * (abs(iinv.Tqu) / (iinv.rf[ug.fId] * (*ug.farea)[ug.fId] * ug.nRBFace));  //Neumann
-				iinv.vc[ug.rc] = -iinv.vc[ug.lc];
-				iinv.wc[ug.rc] = -iinv.wc[ug.lc];
+				iinv.uc[ug.rc] = iinv.uc[ug.lc];  //Neumann
+				iinv.vc[ug.rc] = iinv.vc[ug.lc];
+				iinv.wc[ug.rc] = iinv.wc[ug.lc];
 			}
 		}
 
@@ -1438,10 +1438,11 @@ void UINsInvterm::CmpCorrectPresscoef()
 		{
 			iinv.bp[ug.rc] = 0;
 		}
-		else if (bcType == BC::INFLOW)
+
+		/*else if (bcType == BC::INFLOW)
 		{
 			iinv.bp[ug.rc] = 0;
-		}
+		}*/
 	}
 
 
@@ -1653,7 +1654,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 
 		if (bcType == BC::OUTFLOW)
 		{
-			iinv.pp[ug.rc] = iinv.pp[ug.lc];//Dirichlet
+			iinv.pp[ug.rc] = 0;//Dirichlet
 		}
 
 		else if (ug.bctype == BC::SOLID_SURFACE)
@@ -1670,7 +1671,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		ug.cId = cId;
-		(*uinsf.q)[IIDX::IIP][ug.cId] = (*uinsf.q)[IIDX::IIP][ug.cId] +0.08*iinv.pp[ug.cId];
+		(*uinsf.q)[IIDX::IIP][ug.cId] = (*uinsf.q)[IIDX::IIP][ug.cId] +0.8*iinv.pp[ug.cId];
 	}
 
 
@@ -1772,7 +1773,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 					inscom.bcflow = &bcdata.dataList[dd];
 				}
 
-				(*uinsf.q)[IIDX::IIP][ug.rc] = (*uinsf.q)[IIDX::IIP][ug.lc];
+				(*uinsf.q)[IIDX::IIP][ug.rc] = (*uinsf.q)[IIDX::IIP][ug.rc];
 			}
 		}
 
@@ -2247,9 +2248,9 @@ void UINsInvterm::UpdateSpeed()
 	{
 		ug.cId = cId;
 
-		iinv.uu[ug.cId] = iinv.VdU[ug.cId] * iinv.dqqdx[ug.cId]* 0.08; //速度修正量
-		iinv.vv[ug.cId] = iinv.VdV[ug.cId] * iinv.dqqdy[ug.cId]* 0.08;
-		iinv.ww[ug.cId] = iinv.VdW[ug.cId] * iinv.dqqdz[ug.cId]* 0.08;
+		iinv.uu[ug.cId] = iinv.VdU[ug.cId] * iinv.dqqdx[ug.cId]* 0.8; //速度修正量
+		iinv.vv[ug.cId] = iinv.VdV[ug.cId] * iinv.dqqdy[ug.cId]* 0.8;
+		iinv.ww[ug.cId] = iinv.VdW[ug.cId] * iinv.dqqdz[ug.cId]* 0.8;
 
 		iinv.up[ug.cId] = iinv.uc[cId] + iinv.uu[ug.cId];  //下一时刻的速度值
 		iinv.vp[ug.cId] = iinv.vc[cId] + iinv.vv[ug.cId];
@@ -2375,9 +2376,9 @@ void UINsInvterm::UpdateSpeed()
 				}
 
 
-				iinv.up[ug.rc] = -iinv.up[ug.lc] + 2 * (abs(iinv.Tqu) / (iinv.rf[ug.fId] * (*ug.farea)[ug.fId] * ug.nRBFace));
-				iinv.vp[ug.rc] = -iinv.vp[ug.lc];
-				iinv.wp[ug.rc] = -iinv.wp[ug.lc];
+				iinv.up[ug.rc] = iinv.up[ug.lc];
+				iinv.vp[ug.rc] = iinv.vp[ug.lc];
+				iinv.wp[ug.rc] = iinv.wp[ug.lc];
 
 			}
 		}
