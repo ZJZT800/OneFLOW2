@@ -208,8 +208,8 @@ void UINsInvterm::Initflux()
 	iinv.biw.resize(ug.nFace,2);
 	//iinv.sj.resize(ug.nTCell, 4);
 	//iinv.sd.resize(ug.nTCell, 4);
-	//iinv.sjp.resize(ug.nTCell, 4);
-	//iinv.sjd.resize(ug.nTCell, 4);
+	iinv.sjp.resize(ug.nCell, ug.nCell);
+	iinv.sjd.resize(ug.nCell, ug.nCell);
 	iinv.spp.resize(ug.nTCell);
 	iinv.pp.resize(ug.nTCell);
 	iinv.uu.resize(ug.nTCell);
@@ -256,6 +256,7 @@ void UINsInvterm::Initflux()
 	iinv.res_vp.resize(ug.nCell);
 	iinv.res_wp.resize(ug.nCell);
 	iinv.op.resize(ug.nBFace);
+	iinv.dj.resize(ug.nCell);
 
 	iinv.ai1 = 0;
 	iinv.ai2 = 0;
@@ -1446,7 +1447,7 @@ void UINsInvterm::CmpCorrectPresscoef()
 	}
 
 
-	for (int cId = 0; cId < ug.nTCell; ++cId)
+	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		ug.cId = cId;
 
@@ -1455,11 +1456,12 @@ void UINsInvterm::CmpCorrectPresscoef()
 		iinv.VdW[ug.cId] = -(*ug.cvol)[ug.cId] / ((1+1)*iinv.spc[ug.cId]);
 
 		int fn = (*ug.c2f)[ug.cId].size();
-		if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
+		iinv.dj[ug.cId] = fn;
+		/*if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
 		{
 			iinv.sjp.resize(ug.nTCell, fn);
 			iinv.sjd.resize(ug.nTCell, fn);
-		}
+		}*/
 		for (int iFace = 0; iFace < fn; ++iFace)
 		{
 			int fId = (*ug.c2f)[ug.cId][iFace];
@@ -1467,19 +1469,27 @@ void UINsInvterm::CmpCorrectPresscoef()
 			ug.lc = (*ug.lcf)[ug.fId];
 			ug.rc = (*ug.rcf)[ug.fId];
 
-			if (ug.cId == ug.lc)
+			if (ug.fId > ug.nBFace)
 			{
-				iinv.sjp[ug.cId][iFace] = -iinv.ajp[ug.fId]; //求解压力修正方程的非零系数
-				iinv.sjd[ug.cId][iFace] = ug.rc;
 
-				//cout << "iinv.sjp=" << iinv.sjp[ug.cId][iFace] << "iinv.sjd=" << ug.rc << "\n";
+				if (ug.cId == ug.lc)
+				{
+					iinv.sjp[ug.cId][iFace] = -iinv.ajp[ug.fId]; //求解压力修正方程的非零系数
+					iinv.sjd[ug.cId][iFace] = ug.rc;
+
+					//cout << "iinv.sjp=" << iinv.sjp[ug.cId][iFace] << "iinv.sjd=" << ug.rc << "\n";
+				}
+				else if (ug.cId == ug.rc)
+				{
+					iinv.sjp[ug.cId][iFace] = -iinv.ajp[ug.fId];
+					iinv.sjd[ug.cId][iFace] = ug.lc;
+
+					//cout << "iinv.sjp=" << iinv.sjp[ug.cId][iFace] << "iinv.sjd=" << ug.lc << "\n";
+				}
 			}
-			else if (ug.cId == ug.rc)
+			else
 			{
-				iinv.sjp[ug.cId][iFace] = -iinv.ajp[ug.fId];
-				iinv.sjd[ug.cId][iFace] = ug.lc;
-
-				//cout << "iinv.sjp=" << iinv.sjp[ug.cId][iFace] << "iinv.sjd=" << ug.lc << "\n";
+				iinv.dj[ug.cId] -= 1;
 			}
 		}
 	}
@@ -1588,51 +1598,63 @@ void UINsInvterm::CmpPressCorrectEqu()
 		//BGMRES求解
 	NonZero.Number = 0;
 
-	for (int cId = 0; cId < ug.nTCell; ++cId)
+	for (int cId = 0; cId < ug.nCell; ++cId)
 	{   
-		//ug.cId = cId;                                                                  // 主单元编号
+		ug.cId = cId;                                                                  // 主单元编号
 		int fn = (*ug.c2f)[cId].size();                                                                 // 单元相邻面的个数
-		NonZero.Number += fn;
+		NonZero.Number += iinv.dj[ug.cId];
 	}
-	NonZero.Number = NonZero.Number + ug.nTCell;                                                        // 非零元素的计数
-	Rank.RANKNUMBER = ug.nTCell;                                                                        // 矩阵的行列
+	NonZero.Number = NonZero.Number + ug.nCell;                                                        // 非零元素的计数
+	Rank.RANKNUMBER = ug.nCell;                                                                        // 矩阵的行列
 	Rank.COLNUMBER = 1;
 	Rank.NUMBER = NonZero.Number;                                                                      // 矩阵非零元素个数
 	Rank.Init();
 	double residual_p;
-	for (int cId = 0; cId < ug.nTCell; ++cId)
+	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		iinv.ppd = iinv.pp[cId];
 		Rank.TempIA[0] = 0;
 		int n = Rank.TempIA[cId];
 		int fn = (*ug.c2f)[cId].size();
-		Rank.TempIA[cId + 1] = Rank.TempIA[cId] + fn + 1;                  // 前n+1行非零元素的个数
+		Rank.TempIA[cId + 1] = Rank.TempIA[cId] + iinv.dj[ug.cId] + 1;                  // 前n+1行非零元素的个数
 		for (int iFace = 0; iFace < fn; ++iFace)
 		{
 			int fId = (*ug.c2f)[cId][iFace];                           // 相邻面的编号
 			ug.fId = fId;
 			ug.lc = (*ug.lcf)[fId];                                    // 面左侧单元
 			ug.rc = (*ug.rcf)[fId];                                    // 面右侧单元
-			if (cId == ug.lc)
+
+			if (ug.fId > ug.nBFace)
 			{
-				Rank.TempA[n + iFace] = iinv.sjp[cId][iFace];          //非对角线元素值
-				Rank.TempJA[n + iFace] = ug.rc;                           //非对角线元素纵坐标
+
+				if (cId == ug.lc)
+				{
+					Rank.TempA[n + iFace] = iinv.sjp[cId][iFace];          //非对角线元素值
+					Rank.TempJA[n + iFace] = ug.rc;                           //非对角线元素纵坐标
+				}
+				else if (cId == ug.rc)
+				{
+					Rank.TempA[n + iFace] = iinv.sjp[cId][iFace];          //非对角线元素值
+					Rank.TempJA[n + iFace] = ug.lc;                           //非对角线元素纵坐标
+				}
+
 			}
-			else if (cId == ug.rc)
+			else
 			{
-				Rank.TempA[n + iFace] = iinv.sjp[cId][iFace];          //非对角线元素值
-				Rank.TempJA[n + iFace] = ug.lc;                           //非对角线元素纵坐标
+				continue;
 			}
 		}
-		Rank.TempA[n + fn] = iinv.spp[cId];                            //主对角线元素
-		Rank.TempJA[n + fn] = cId;                                        //主对角线纵坐标
+
+		int fj = iinv.dj[ug.cId];
+		Rank.TempA[n + fj] = iinv.spp[cId];                            //主对角线元素
+		Rank.TempJA[n +fj] = cId;                                        //主对角线纵坐标
 
 		Rank.TempB[cId][0] = iinv.bp[cId];                             //右端项
 	}
 	bgx.BGMRES();
 	residual_p = Rank.residual;
 	//cout << "residual_p:" << residual_p << endl;
-	for (int cId = 0; cId < ug.nTCell; cId++)
+	for (int cId = 0; cId < ug.nCell; cId++)
 	{
 		//ug.cId = cId;
 		iinv.pp[cId] = Rank.TempX[cId][0]; //当前时刻的压力修正值
