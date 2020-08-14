@@ -104,7 +104,7 @@ void UINsVisterm::PrepareField()
 		int bcType = ug.bcRecord->bcType[ug.fId];
 		if (bcType == BC::OUTFLOW)
 		{
-			(*uinsf.q)[IIDX::IIP][ug.rc] = 4;
+			(*uinsf.q)[IIDX::IIP][ug.rc] = 6;
 		}
 	}
 

@@ -701,9 +701,9 @@ void UINsInvterm::MomPre()
 				}
 
 
-				iinv.uc[ug.rc] = inscom.inflow[IIDX::IIU];
-				iinv.vc[ug.rc] = inscom.inflow[IIDX::IIV];
-				iinv.wc[ug.rc] = inscom.inflow[IIDX::IIW];//Dirichlet
+				iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * inscom.inflow[IIDX::IIU];
+				iinv.vc[ug.rc] = -iinv.vc[ug.lc] + 2 * inscom.inflow[IIDX::IIV];
+				iinv.wc[ug.rc] = -iinv.wc[ug.lc] + 2 * inscom.inflow[IIDX::IIW];//Dirichlet
 			}
 		}
 
@@ -733,8 +733,8 @@ void UINsInvterm::MomPre()
 				}
 	
 				iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * (abs(iinv.Tqu) / (iinv.rf[ug.fId] * (*ug.farea)[ug.fId] * ug.nRBFace));  //Neumann
-				iinv.vc[ug.rc] = -iinv.vc[ug.lc];
-				iinv.wc[ug.rc] = -iinv.wc[ug.lc];
+				iinv.vc[ug.rc] = iinv.vc[ug.lc];
+				iinv.wc[ug.rc] = iinv.wc[ug.lc];
 			}
 		}
 
@@ -1659,7 +1659,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 
 		else if (ug.bctype == BC::SOLID_SURFACE)
 		{
-			iinv.pp[ug.rc] = 0;
+			iinv.pp[ug.rc] = iinv.pp[ug.lc];
 		}
 
 		else if(ug.bctype == BC::INFLOW)
@@ -1713,7 +1713,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 					inscom.bcflow = &bcdata.dataList[dd];
 				}
 
-				(*uinsf.q)[IIDX::IIP][ug.rc] = (*uinsf.q)[IIDX::IIP][ug.rc];
+				(*uinsf.q)[IIDX::IIP][ug.rc] = (*uinsf.q)[IIDX::IIP][ug.lc];
 			}
 		}
 
@@ -2344,9 +2344,9 @@ void UINsInvterm::UpdateSpeed()
 				}
 
 
-				iinv.up[ug.rc] = inscom.inflow[IIDX::IIU];//Dirichlet
-				iinv.vp[ug.rc] = inscom.inflow[IIDX::IIV];
-				iinv.wp[ug.rc] = inscom.inflow[IIDX::IIW];
+				iinv.up[ug.rc] = -iinv.up[ug.lc] + 2 * inscom.inflow[IIDX::IIU];//Dirichlet
+				iinv.vp[ug.rc] = -iinv.vp[ug.lc] + 2 * inscom.inflow[IIDX::IIV];
+				iinv.wp[ug.rc] = -iinv.wp[ug.lc] + 2 * inscom.inflow[IIDX::IIW];
 			}
 		}
 
@@ -2377,8 +2377,8 @@ void UINsInvterm::UpdateSpeed()
 
 
 				iinv.up[ug.rc] = -iinv.up[ug.lc] + 2 * (abs(iinv.Tqu) / (iinv.rf[ug.fId] * (*ug.farea)[ug.fId] * ug.nRBFace));
-				iinv.vp[ug.rc] = -iinv.vp[ug.lc];
-				iinv.wp[ug.rc] = -iinv.wp[ug.lc];
+				iinv.vp[ug.rc] = iinv.vp[ug.lc];
+				iinv.wp[ug.rc] = iinv.wp[ug.lc];
 
 			}
 		}
