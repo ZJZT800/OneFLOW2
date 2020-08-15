@@ -208,8 +208,8 @@ void UINsInvterm::Initflux()
 	iinv.biw.resize(ug.nFace,2);
 	//iinv.sj.resize(ug.nTCell, 4);
 	//iinv.sd.resize(ug.nTCell, 4);
-	iinv.sjp.resize(ug.nCell, ug.nCell);
-	iinv.sjd.resize(ug.nCell, ug.nCell);
+	//iinv.sjp.resize(ug.nCell, ug.nCell);
+	//iinv.sjd.resize(ug.nCell, ug.nCell);
 	iinv.spp.resize(ug.nTCell);
 	iinv.pp.resize(ug.nTCell);
 	iinv.uu.resize(ug.nTCell);
@@ -1458,11 +1458,11 @@ void UINsInvterm::CmpCorrectPresscoef()
 		int fn = (*ug.c2f)[ug.cId].size();
 		iinv.dj[ug.cId] = fn;
 
-		/*if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
+		if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
 		{
 			iinv.sjp.resize(ug.nCell, fn);
 			iinv.sjd.resize(ug.nCell, fn);
-		}*/
+		}
 		for (int iFace = 0; iFace < fn; ++iFace)
 		{
 			int fId = (*ug.c2f)[ug.cId][iFace];
@@ -1470,11 +1470,7 @@ void UINsInvterm::CmpCorrectPresscoef()
 			ug.lc = (*ug.lcf)[ug.fId];
 			ug.rc = (*ug.rcf)[ug.fId];
 
-			if (fId < ug.nBFace)
-			{
-				iinv.dj[ug.cId] -= 1;
-			}
-			else
+			if (fId >ug.nBFace-1)
 			{
 				if (ug.cId == ug.lc)
 				{
@@ -1490,6 +1486,11 @@ void UINsInvterm::CmpCorrectPresscoef()
 
 					//cout << "iinv.sjp=" << iinv.sjp[ug.cId][iFace] << "iinv.sjd=" << ug.lc << "\n";
 				}
+	
+			}
+			else
+			{
+				iinv.dj[ug.cId] -= 1;
 			}
 		}
 	}
@@ -1600,9 +1601,9 @@ void UINsInvterm::CmpPressCorrectEqu()
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{   
-		ug.cId = cId;                                                                  // 主单元编号
+		//ug.cId = cId;                                                                  // 主单元编号
 		int fn = (*ug.c2f)[cId].size();                                                                 // 单元相邻面的个数
-		NonZero.Number += iinv.dj[ug.cId];
+		NonZero.Number += iinv.dj[cId];
 	}
 
 	NonZero.Number = NonZero.Number + ug.nCell;                                                        // 非零元素的计数
@@ -1611,6 +1612,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 	Rank.NUMBER = NonZero.Number;                                                                      // 矩阵非零元素个数
 	Rank.Init();
 	double residual_p;
+
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		iinv.ppd = iinv.pp[cId];
@@ -1625,11 +1627,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 			ug.lc = (*ug.lcf)[fId];                                    // 面左侧单元
 			ug.rc = (*ug.rcf)[fId];                                    // 面右侧单元
 		
-			if (fId < ug.nBFace)
-			{
-				continue;
-			}
-			else
+			if (fId > ug.nBFace-1)
 			{
 				if (cId == ug.lc)
 				{
@@ -1641,6 +1639,11 @@ void UINsInvterm::CmpPressCorrectEqu()
 					Rank.TempA[n + iFace] = iinv.sjp[cId][iFace];          //非对角线元素值
 					Rank.TempJA[n + iFace] = ug.lc;                           //非对角线元素纵坐标
 				}
+				
+			}
+			else
+			{
+				continue;
 			}
 		}
 
