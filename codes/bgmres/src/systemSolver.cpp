@@ -33,9 +33,9 @@ void SolveMRhs::Init()
 }
 void SolveMRhs::Deallocate()
 {
-	ArrayUtils<double>::delonetensor(TempA);
+	//ArrayUtils<double>::delonetensor(TempA);
 	ArrayUtils<int>::delonetensor(TempIA);
-	ArrayUtils<int>::delonetensor(TempJA);
+	//ArrayUtils<int>::delonetensor(TempJA);
 	ArrayUtils<double>::deltwotensor(TempB);
 	ArrayUtils<double>::deltwotensor(TempX);
 }
