@@ -208,8 +208,7 @@ void UINsInvterm::Initflux()
 	iinv.biw.resize(ug.nFace,2);
 	//iinv.sj.resize(ug.nTCell, 4);
 	//iinv.sd.resize(ug.nTCell, 4);
-	iinv.sjp.resize(ug.nCell, ug.nCell);
-	iinv.sjd.resize(ug.nCell, ug.nCell);
+
 	iinv.spp.resize(ug.nTCell);
 	iinv.pp.resize(ug.nTCell);
 	iinv.uu.resize(ug.nTCell);
@@ -457,8 +456,9 @@ void UINsInvterm::MomPre()
 	for (int cId = 0; cId < ug.nTCell; ++cId)
 	{                                          
 		int fn = (*ug.c2f)[cId].size();                             //相邻单元的个数                                    
-		NonZero.Number += fn;                                          //非对角线上非零元的个数
+		NonZero.Number += fn;                                        //非对角线上非零元的个数
 	}
+
 	NonZero.Number = NonZero.Number + ug.nTCell;                     //非零元的总个数         
 	Rank.RANKNUMBER = ug.nTCell;                                     // 矩阵的行列大小
 	Rank.NUMBER = NonZero.Number;                                    // 矩阵非零元素个数传到计算程序中
@@ -474,19 +474,22 @@ void UINsInvterm::MomPre()
 		for (int iFace = 0; iFace < fn; ++iFace)
 		{
 			int fId = (*ug.c2f)[cId][iFace];                                                            // 相邻面的编号
+			ug.fId = fId;
 			ug.lc = (*ug.lcf)[fId];                                                                     // 面左侧单元
 			ug.rc = (*ug.rcf)[fId];                                                                     // 面右侧单元
-			if (cId == ug.lc)
-			{
-				Rank.TempA[n + iFace] = -iinv.ai[fId][0];
-				Rank.TempJA[n + iFace] = ug.rc;
-			}
-			else if (cId == ug.rc)
-			{
-				Rank.TempA[n + iFace] = -iinv.ai[fId][1];
-				Rank.TempJA[n + iFace] = ug.lc;
-			}
+
+				if (cId == ug.lc)
+				{
+					Rank.TempA[n + iFace] = -iinv.ai[fId][0];
+					Rank.TempJA[n + iFace] = ug.rc;
+				}
+				else if (cId == ug.rc)
+				{
+					Rank.TempA[n + iFace] = -iinv.ai[fId][1];
+					Rank.TempJA[n + iFace] = ug.lc;
+				}
 		}
+
 		Rank.TempA[n + fn] = iinv.spc[cId];                          //主对角线元素值
 		Rank.TempJA[n + fn] = cId;                                      //主对角线纵坐标
 
@@ -512,9 +515,10 @@ void UINsInvterm::MomPre()
 	NonZero.Number = 0;
 	for (int cId = 0; cId < ug.nTCell; ++cId)
 	{
-		int fn = (*ug.c2f)[cId].size();                             //相邻单元的个数                                    
+		int fn = (*ug.c2f)[cId].size();                             //相邻单元的个数                                   
 		NonZero.Number += fn;                                          //非对角线上非零元的个数
 	}
+
 	NonZero.Number = NonZero.Number + ug.nTCell;                     //非零元的总个数         
 	Rank.RANKNUMBER = ug.nTCell;                                     // 矩阵的行列大小
 	Rank.NUMBER = NonZero.Number;                                    // 矩阵非零元素个数传到计算程序中
@@ -527,22 +531,27 @@ void UINsInvterm::MomPre()
 		int n = Rank.TempIA[cId];
 		int fn = (*ug.c2f)[cId].size();
 		Rank.TempIA[cId + 1] = Rank.TempIA[cId] + fn + 1;                                                  // 前n+1行非零元素的个数
+		
 		for (int iFace = 0; iFace < fn; ++iFace)
 		{
 			int fId = (*ug.c2f)[cId][iFace];                                                            // 相邻面的编号
+			ug.fId = fId;
 			ug.lc = (*ug.lcf)[fId];                                                                     // 面左侧单元
 			ug.rc = (*ug.rcf)[fId];                                                                     // 面右侧单元
-			if (cId == ug.lc)
-			{
-				Rank.TempA[n + iFace] = -iinv.ai[fId][0];
-				Rank.TempJA[n + iFace] = ug.rc;
-			}
-			else if (cId == ug.rc)
-			{
-				Rank.TempA[n + iFace] = -iinv.ai[fId][1];
-				Rank.TempJA[n + iFace] = ug.lc;
-			}
+
+				if (cId == ug.lc)
+				{
+					Rank.TempA[n + iFace] = -iinv.ai[fId][0];
+					Rank.TempJA[n + iFace] = ug.rc;
+				}
+				else if (cId == ug.rc)
+				{
+					Rank.TempA[n + iFace] = -iinv.ai[fId][1];
+					Rank.TempJA[n + iFace] = ug.lc;
+				}
+
 		}
+
 		Rank.TempA[n + fn] = iinv.spc[cId];                          //主对角线元素值
 		Rank.TempJA[n + fn] = cId;                                      //主对角线纵坐标
 
@@ -570,7 +579,8 @@ void UINsInvterm::MomPre()
 	for (int cId = 0; cId < ug.nTCell; ++cId)
 	{
 		int fn = (*ug.c2f)[cId].size();                             //相邻单元的个数                                    
-		NonZero.Number += fn;                                          //非对角线上非零元的个数
+		NonZero.Number += fn;                                         //非对角线上非零元的个数
+		
 	}
 	NonZero.Number = NonZero.Number + ug.nTCell;                     //非零元的总个数         
 	Rank.RANKNUMBER = ug.nTCell;                                     // 矩阵的行列大小
@@ -584,24 +594,28 @@ void UINsInvterm::MomPre()
 		int n = Rank.TempIA[cId];
 		int fn = (*ug.c2f)[cId].size();
 		Rank.TempIA[cId + 1] = Rank.TempIA[cId] + fn + 1;                                                  // 前n+1行非零元素的个数
+
 		for (int iFace = 0; iFace < fn; ++iFace)
 		{
 			int fId = (*ug.c2f)[cId][iFace];                                                            // 相邻面的编号
+			ug.fId = fId;
 			ug.lc = (*ug.lcf)[fId];                                                                     // 面左侧单元
 			ug.rc = (*ug.rcf)[fId];                                                                     // 面右侧单元
-			if (cId == ug.lc)
-			{
-				Rank.TempA[n + iFace] = -iinv.ai[fId][0];
-				Rank.TempJA[n + iFace] = ug.rc;
-			}
-			else if (cId == ug.rc)
-			{
-				Rank.TempA[n + iFace] = -iinv.ai[fId][1];
-				Rank.TempJA[n + iFace] = ug.lc;
-			}
+
+				if (cId == ug.lc)
+				{
+					Rank.TempA[n + iFace] = -iinv.ai[fId][0];
+					Rank.TempJA[n + iFace] = ug.rc;
+				}
+				else if (cId == ug.rc)
+				{
+					Rank.TempA[n + iFace] = -iinv.ai[fId][1];
+					Rank.TempJA[n + iFace] = ug.lc;
+				}
 		}
+
 		Rank.TempA[n + fn] = iinv.spc[cId];                          //主对角线元素值
-		Rank.TempJA[n + fn] = cId;                                      //主对角线纵坐标
+		Rank.TempJA[n + fn] = cId;                                      //主对角线纵坐标*/
 
 	}
 
@@ -733,7 +747,7 @@ void UINsInvterm::MomPre()
 					inscom.bcflow = &bcdata.dataList[dd];
 				}
 	
-				iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * (abs(iinv.Tqu) / (iinv.rf[ug.fId] * (*ug.farea)[ug.fId] * ug.nRBFace));  //Neumann
+				iinv.uc[ug.rc] = iinv.uc[ug.lc];  //Neumann
 				iinv.vc[ug.rc] = iinv.vc[ug.lc];
 				iinv.wc[ug.rc] = iinv.wc[ug.lc];
 			}
@@ -1425,7 +1439,7 @@ void UINsInvterm::CmpCorrectPresscoef()
 
 	}
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	/*for (int fId = 0; fId < ug.nBFace; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -1444,7 +1458,7 @@ void UINsInvterm::CmpCorrectPresscoef()
 		{
 			iinv.bp[ug.rc] = 0;
 		}
-	}
+	}*/
 
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
@@ -1457,11 +1471,11 @@ void UINsInvterm::CmpCorrectPresscoef()
 
 		int fn = (*ug.c2f)[ug.cId].size();
 		iinv.dj[ug.cId] = fn;
-		/*if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
+		if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
 		{
-			iinv.sjp.resize(ug.nTCell, fn);
-			iinv.sjd.resize(ug.nTCell, fn);
-		}*/
+			iinv.sjp.resize(ug.nCell, fn);
+			iinv.sjd.resize(ug.nCell, fn);
+		}
 		for (int iFace = 0; iFace < fn; ++iFace)
 		{
 			int fId = (*ug.c2f)[ug.cId][iFace];
@@ -1616,7 +1630,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 		Rank.TempIA[0] = 0;
 		int n = Rank.TempIA[cId];
 		int fn = (*ug.c2f)[cId].size();
-		Rank.TempIA[cId + 1] = Rank.TempIA[cId] + iinv.dj[ug.cId] + 1;                  // 前n+1行非零元素的个数
+		Rank.TempIA[cId + 1] = Rank.TempIA[cId] + iinv.dj[cId] + 1;                  // 前n+1行非零元素的个数
 		for (int iFace = 0; iFace < fn; ++iFace)
 		{
 			int fId = (*ug.c2f)[cId][iFace];                           // 相邻面的编号
@@ -2398,7 +2412,7 @@ void UINsInvterm::UpdateSpeed()
 				}
 
 
-				iinv.up[ug.rc] = -iinv.up[ug.lc] + 2 * (abs(iinv.Tqu) / (iinv.rf[ug.fId] * (*ug.farea)[ug.fId] * ug.nRBFace));
+				iinv.up[ug.rc] = iinv.up[ug.lc];
 				iinv.vp[ug.rc] = iinv.vp[ug.lc];
 				iinv.wp[ug.rc] = iinv.wp[ug.lc];
 

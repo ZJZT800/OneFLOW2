@@ -95,7 +95,7 @@ void UINsVisterm::PrepareField()
     //ut_grad.CmpGradDebug();
 
 	
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	/*for (int fId = 0; fId < ug.nBFace; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -106,7 +106,7 @@ void UINsVisterm::PrepareField()
 		{
 			(*uinsf.q)[IIDX::IIP][ug.rc] = 6;
 		}
-	}
+	}*/
 
 
 	this->CmpPreandVisGrad();
@@ -628,6 +628,7 @@ void UINsVisterm::CmpINsSrc()
 			iinv.sj.resize(ug.nTCell, fn);
 			iinv.sd.resize(ug.nTCell, fn);
 		}
+
 		for (int iFace = 0; iFace < fn; ++iFace)
 		{
 			int fId = (*ug.c2f)[ug.cId][iFace];
@@ -635,16 +636,17 @@ void UINsVisterm::CmpINsSrc()
 			ug.lc = (*ug.lcf)[ug.fId];
 			ug.rc = (*ug.rcf)[ug.fId];
 
-			if (ug.cId == ug.lc)
-			{
-				iinv.sj[ug.cId][iFace] = -iinv.ai[ug.fId][0];  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
-				iinv.sd[ug.cId][iFace] = ug.rc;
-			}
-			else if (ug.cId == ug.rc)
-			{
-				iinv.sj[ug.cId][iFace] = -iinv.ai[ug.fId][1];  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
-				iinv.sd[ug.cId][iFace] = ug.lc;
-			}
+
+				if (ug.cId == ug.lc)
+				{
+					iinv.sj[ug.cId][iFace] = -iinv.ai[ug.fId][0];  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
+					iinv.sd[ug.cId][iFace] = ug.rc;
+				}
+				else if (ug.cId == ug.rc)
+				{
+					iinv.sj[ug.cId][iFace] = -iinv.ai[ug.fId][1];  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
+					iinv.sd[ug.cId][iFace] = ug.lc;
+				}
 
 		}
 
