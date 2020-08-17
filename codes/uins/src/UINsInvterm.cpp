@@ -702,9 +702,9 @@ void UINsInvterm::MomPre()
 				}
 
 
-				iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * inscom.inflow[IIDX::IIU];
-				iinv.vc[ug.rc] = -iinv.vc[ug.lc] + 2 * inscom.inflow[IIDX::IIV];
-				iinv.wc[ug.rc] = -iinv.wc[ug.lc] + 2 * inscom.inflow[IIDX::IIW];//Dirichlet
+				iinv.uc[ug.rc] = inscom.inflow[IIDX::IIU];//-iinv.uc[ug.lc] + 2 * inscom.inflow[IIDX::IIU];
+				iinv.vc[ug.rc] = inscom.inflow[IIDX::IIV];//-iinv.vc[ug.lc] + 2 * inscom.inflow[IIDX::IIV];
+				iinv.wc[ug.rc] = inscom.inflow[IIDX::IIW];//-iinv.wc[ug.lc] + 2 * inscom.inflow[IIDX::IIW];//Dirichlet
 			}
 		}
 
@@ -733,7 +733,7 @@ void UINsInvterm::MomPre()
 					inscom.bcflow = &bcdata.dataList[dd];
 				}
 	
-				iinv.uc[ug.rc] = -iinv.uc[ug.lc] + 2 * (abs(iinv.Tqu) / (iinv.rf[ug.fId] * (*ug.farea)[ug.fId] * ug.nRBFace));  //Neumann
+				iinv.uc[ug.rc] = -iinv.uc[ug.lc]+ 2 * (abs(iinv.Tqu) / (iinv.rf[ug.fId] * (*ug.farea)[ug.fId] * ug.nRBFace));  //Neumann
 				iinv.vc[ug.rc] = iinv.vc[ug.lc];
 				iinv.wc[ug.rc] = iinv.wc[ug.lc];
 			}
@@ -1470,7 +1470,7 @@ void UINsInvterm::CmpCorrectPresscoef()
 			ug.lc = (*ug.lcf)[ug.fId];
 			ug.rc = (*ug.rcf)[ug.fId];
 
-			if (fId >ug.nBFace-1)
+			if (fId>ug.nBFace-1)
 			{
 				if (ug.cId == ug.lc)
 				{
@@ -1603,7 +1603,8 @@ void UINsInvterm::CmpPressCorrectEqu()
 	{   
 		//ug.cId = cId;                                                                  // 主单元编号
 		int fn = (*ug.c2f)[cId].size();                                                                 // 单元相邻面的个数
-		NonZero.Number += iinv.dj[cId];
+		//NonZero.Number += iinv.dj[cId];
+		NonZero.Number += fn;
 	}
 
 	NonZero.Number = NonZero.Number + ug.nCell;                                                        // 非零元素的计数
@@ -1627,7 +1628,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 			ug.lc = (*ug.lcf)[fId];                                    // 面左侧单元
 			ug.rc = (*ug.rcf)[fId];                                    // 面右侧单元
 		
-			if (fId > ug.nBFace-1)
+			if (fId>ug.nBFace-1)
 			{
 				if (cId == ug.lc)
 				{
@@ -2368,9 +2369,9 @@ void UINsInvterm::UpdateSpeed()
 				}
 
 
-				iinv.up[ug.rc] = -iinv.up[ug.lc] + 2 * inscom.inflow[IIDX::IIU];//Dirichlet
-				iinv.vp[ug.rc] = -iinv.vp[ug.lc] + 2 * inscom.inflow[IIDX::IIV];
-				iinv.wp[ug.rc] = -iinv.wp[ug.lc] + 2 * inscom.inflow[IIDX::IIW];
+				iinv.up[ug.rc] = inscom.inflow[IIDX::IIU];//-iinv.up[ug.lc] + 2 * inscom.inflow[IIDX::IIU];//Dirichlet
+				iinv.vp[ug.rc] = inscom.inflow[IIDX::IIV];//-iinv.vp[ug.lc] + 2 * inscom.inflow[IIDX::IIV];
+				iinv.wp[ug.rc] = inscom.inflow[IIDX::IIW];//-iinv.wp[ug.lc] + 2 * inscom.inflow[IIDX::IIW];
 			}
 		}
 
@@ -2400,7 +2401,7 @@ void UINsInvterm::UpdateSpeed()
 				}
 
 
-				iinv.up[ug.rc] = -iinv.up[ug.lc] + 2 * (abs(iinv.Tqu) / (iinv.rf[ug.fId] * (*ug.farea)[ug.fId] * ug.nRBFace));
+				iinv.up[ug.rc] = -iinv.up[ug.lc] +2 * (abs(iinv.Tqu) / (iinv.rf[ug.fId] * (*ug.farea)[ug.fId] * ug.nRBFace));
 				iinv.vp[ug.rc] = iinv.vp[ug.lc];
 				iinv.wp[ug.rc] = iinv.wp[ug.lc];
 
