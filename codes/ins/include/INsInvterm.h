@@ -72,7 +72,7 @@ public:
 
     Real eig11, eig12, eig13;
     Real eig21, eig22, eig23;
-	Real vnrel, timestep, res_u, res_v, res_w, res_p, maxu, maxv, maxw, c2d, Fn1, Fn2, Fn3, lfdist, rfdist, ppd, vis, remax_V, remax_pp, remax_up, remax_vp, remax_wp, vnflow, l2rdx, l2rdy, l2rdz, Puf, Pvf, Pwf, Pdu, Pdv, Pdw, Ftu1, Ftv1, Ftw1, Ftu2, Ftv2, Ftw2, PufT, PvfT, PwfT, Pud, Pvd, Pwd, FtuT, FtvT, FtwT, Vau, Vav, Vaw, dist, Deun, Devn, Dewn, dlf, dfr, Bpe, fux, value,Tqu,Tqv,Tqw;
+	Real vnrel, timestep, res_u, res_v, res_w, res_p, maxu, maxv, maxw, c2d, Fn1, Fn2, Fn3, lfdist, rfdist, ppd, vis, remax_V, remax_pp, remax_up, remax_vp, remax_wp, vnflow, l2rdx, l2rdy, l2rdz, Puf, Pvf, Pwf, Pdu, Pdv, Pdw, Ftu1, Ftv1, Ftw1, Ftu2, Ftv2, Ftw2, PufT, PvfT, PwfT, Pud, Pvd, Pwd, FtuT, FtvT, FtwT, Vau, Vav, Vaw, dist, Deun, Devn, Dewn, dlf, dfr, Bpe, fux, value,Tqu,Tqv,Tqw,Tq,qout,f;
     Real cl, cr, cm;
 public:
     Real rl, ul, vl, wl, pl, hl, el;

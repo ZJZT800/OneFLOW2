@@ -95,7 +95,7 @@ void UINsVisterm::PrepareField()
     //ut_grad.CmpGradDebug();
 
 	
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	/*for (int fId = 0; fId < ug.nBFace; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -104,9 +104,9 @@ void UINsVisterm::PrepareField()
 		int bcType = ug.bcRecord->bcType[ug.fId];
 		if (bcType == BC::OUTFLOW)
 		{
-			(*uinsf.q)[IIDX::IIP][ug.rc] = 6;
+			(*uinsf.q)[IIDX::IIP][ug.rc] = 0;
 		}
-	}
+	}*/
 
 
 	this->CmpPreandVisGrad();
