@@ -634,7 +634,7 @@ void UINsInvterm::MomPre()
 		int bcType = ug.bcRecord->bcType[ug.fId];
 		if (bcType == BC::OUTFLOW)
 		{
-			iinv.qout += iinv.rf[ug.fId] * iinv.uf[ug.fId]* (*ug.farea)[ug.fId];
+			iinv.qout += iinv.rf[ug.fId] * iinv.uc[ug.lc]* (*ug.farea)[ug.fId];
 		}
 		else
 		{
@@ -642,7 +642,7 @@ void UINsInvterm::MomPre()
 		}
 	}
 
-	iinv.f = abs(iinv.Tqu) / abs(iinv.qout);
+	iinv.f = abs(iinv.Tq) / abs(iinv.qout);
 
 	ug.nRegion = ug.bcRecord->bcInfo->bcType.size();
 	BcInfo * bcInfo = ug.bcRecord->bcInfo;
@@ -2340,7 +2340,7 @@ void UINsInvterm::UpdateSpeed()
 		}
 	}
 
-	iinv.f = abs(iinv.Tqu) / abs(iinv.qout);
+	iinv.f = abs(iinv.Tq) / abs(iinv.qout);
 
 	ug.nRegion = ug.bcRecord->bcInfo->bcType.size();
 	BcInfo * bcInfo = ug.bcRecord->bcInfo;
