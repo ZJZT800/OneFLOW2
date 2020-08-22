@@ -135,7 +135,7 @@ void UINsVisterm::CmpPreandVisGrad()
 	(*uinsf.dqdz)[IIDX::IIP] = 0;
 
 
-	for (int fId = 0; fId < ug.nFace; ++fId)
+	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
 		if (fId == 432)
 		{
@@ -160,15 +160,15 @@ void UINsVisterm::CmpPreandVisGrad()
 		Real cl = delt2 * delta;
 		Real cr = delt1 * delta;
 
-		/*Real value1 = cl * (*uinsf.q)[IIDX::IIU][ug.lc] + cr * (*uinsf.q)[IIDX::IIU][ug.rc];
+		Real value1 = cl * (*uinsf.q)[IIDX::IIU][ug.lc] + cr * (*uinsf.q)[IIDX::IIU][ug.rc];
 		Real value2 = cl * (*uinsf.q)[IIDX::IIV][ug.lc] + cr * (*uinsf.q)[IIDX::IIV][ug.rc];
 		Real value3 = cl * (*uinsf.q)[IIDX::IIW][ug.lc] + cr * (*uinsf.q)[IIDX::IIW][ug.rc];
-		Real value4 = cl * (*uinsf.q)[IIDX::IIP][ug.lc] + cr * (*uinsf.q)[IIDX::IIP][ug.rc];*/
+		Real value4 = cl * (*uinsf.q)[IIDX::IIP][ug.lc] + cr * (*uinsf.q)[IIDX::IIP][ug.rc];
 
-		Real value1 = iinv.uf[ug.fId];
+		/*Real value1 = iinv.uf[ug.fId];
 		Real value2 = iinv.vf[ug.fId];
 		Real value3 = iinv.wf[ug.fId];
-		Real value4 = iinv.pf[ug.fId];
+		Real value4 = iinv.pf[ug.fId];*/
 
 		Real fnxa = (*ug.xfn)[ug.fId] * (*ug.farea)[ug.fId];
 		Real fnya = (*ug.yfn)[ug.fId] * (*ug.farea)[ug.fId];
@@ -203,7 +203,38 @@ void UINsVisterm::CmpPreandVisGrad()
 		(*uinsf.dqdz)[IIDX::IIP][ug.rc] += -fnza * value4;
 	}
 
+	for (int fId = 0; fId < ug.nBFace; ++fId)
+	{
+		if (fId == 432)
+		{
+			int kkk = 1;
+		}
+		ug.fId = fId;
+		ug.lc = (*ug.lcf)[ug.fId];
+		ug.rc = (*ug.rcf)[ug.fId];
 
+		Real value1 = iinv.uf[ug.fId];
+		Real value2 = iinv.vf[ug.fId];
+		Real value3 = iinv.wf[ug.fId];
+		Real value4 = iinv.pf[ug.fId];
+
+		Real fnxa = (*ug.xfn)[ug.fId] * (*ug.farea)[ug.fId];
+		Real fnya = (*ug.yfn)[ug.fId] * (*ug.farea)[ug.fId];
+		Real fnza = (*ug.zfn)[ug.fId] * (*ug.farea)[ug.fId];
+
+		(*uinsf.dqdx)[IIDX::IIU][ug.lc] += fnxa * value1;
+		(*uinsf.dqdy)[IIDX::IIU][ug.lc] += fnya * value1;
+		(*uinsf.dqdz)[IIDX::IIU][ug.lc] += fnza * value1;
+		(*uinsf.dqdx)[IIDX::IIV][ug.lc] += fnxa * value2;
+		(*uinsf.dqdy)[IIDX::IIV][ug.lc] += fnya * value2;
+		(*uinsf.dqdz)[IIDX::IIV][ug.lc] += fnza * value2;
+		(*uinsf.dqdx)[IIDX::IIW][ug.lc] += fnxa * value3;
+		(*uinsf.dqdy)[IIDX::IIW][ug.lc] += fnya * value3;
+		(*uinsf.dqdz)[IIDX::IIW][ug.lc] += fnza * value3;
+		(*uinsf.dqdx)[IIDX::IIP][ug.lc] += fnxa * value4;
+		(*uinsf.dqdy)[IIDX::IIP][ug.lc] += fnya * value4;
+		(*uinsf.dqdz)[IIDX::IIP][ug.lc] += fnza * value4;
+	}
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
