@@ -45,12 +45,12 @@ MRField * CreateNodeVar( const string & name )
     int nNode = grid->nNode;
     int nEqu = cf->GetNEqu();
 
-    MRField * nf = AllocNodeVar( nEqu );
-    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-    {
-        CmpNodeVar( ( * nf )[ iEqu ], ( * cf )[ iEqu ] );
-    }
-    return nf;
+		MRField * nf = AllocNodeVar(nEqu);
+		for (int iEqu = 0; iEqu < nEqu; ++iEqu)
+		{
+			CmpNodeVar((*nf)[iEqu], (*cf)[iEqu]);
+		}
+		return nf;
 }
 
 MRField * CreateNodeVar( RealField & qc )

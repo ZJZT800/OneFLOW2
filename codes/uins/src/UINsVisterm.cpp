@@ -160,15 +160,15 @@ void UINsVisterm::CmpPreandVisGrad()
 		Real cl = delt2 * delta;
 		Real cr = delt1 * delta;
 
-		Real value1 = cl * (*uinsf.q)[IIDX::IIU][ug.lc] + cr * (*uinsf.q)[IIDX::IIU][ug.rc];
+		/*Real value1 = cl * (*uinsf.q)[IIDX::IIU][ug.lc] + cr * (*uinsf.q)[IIDX::IIU][ug.rc];
 		Real value2 = cl * (*uinsf.q)[IIDX::IIV][ug.lc] + cr * (*uinsf.q)[IIDX::IIV][ug.rc];
 		Real value3 = cl * (*uinsf.q)[IIDX::IIW][ug.lc] + cr * (*uinsf.q)[IIDX::IIW][ug.rc];
-		Real value4 = cl * (*uinsf.q)[IIDX::IIP][ug.lc] + cr * (*uinsf.q)[IIDX::IIP][ug.rc];
+		Real value4 = cl * (*uinsf.q)[IIDX::IIP][ug.lc] + cr * (*uinsf.q)[IIDX::IIP][ug.rc];*/
 
-		/*Real value1 = 0.5 * (*uinsf.q)[IIDX::IIU][ug.lc] + 0.5 * (*uinsf.q)[IIDX::IIU][ug.rc];
-		Real value2 = 0.5 * (*uinsf.q)[IIDX::IIV][ug.lc] + 0.5 * (*uinsf.q)[IIDX::IIV][ug.rc];
-		Real value3 = 0.5 * (*uinsf.q)[IIDX::IIW][ug.lc] + 0.5 * (*uinsf.q)[IIDX::IIW][ug.rc];
-		Real value4 = 0.5 * (*uinsf.q)[IIDX::IIP][ug.lc] + 0.5 * (*uinsf.q)[IIDX::IIP][ug.rc];*/
+		Real value1 = iinv.uf[ug.fId];
+		Real value2 = iinv.vf[ug.fId];
+		Real value3 = iinv.wf[ug.fId];
+		Real value4 = iinv.pf[ug.fId];
 
 		Real fnxa = (*ug.xfn)[ug.fId] * (*ug.farea)[ug.fId];
 		Real fnya = (*ug.yfn)[ug.fId] * (*ug.farea)[ug.fId];
@@ -187,7 +187,8 @@ void UINsVisterm::CmpPreandVisGrad()
 		(*uinsf.dqdy)[IIDX::IIP][ug.lc] += fnya * value4;
 		(*uinsf.dqdz)[IIDX::IIP][ug.lc] += fnza * value4;
 
-		if (ug.fId < ug.nBFace) continue;
+		//if (ug.fId < ug.nBFace) continue;
+
 		(*uinsf.dqdx)[IIDX::IIU][ug.rc] += -fnxa * value1;
 		(*uinsf.dqdy)[IIDX::IIU][ug.rc] += -fnya * value1;
 		(*uinsf.dqdz)[IIDX::IIU][ug.rc] += -fnza * value1;
@@ -201,6 +202,8 @@ void UINsVisterm::CmpPreandVisGrad()
 		(*uinsf.dqdy)[IIDX::IIP][ug.rc] += -fnya * value4;
 		(*uinsf.dqdz)[IIDX::IIP][ug.rc] += -fnza * value4;
 	}
+
+
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
@@ -220,7 +223,7 @@ void UINsVisterm::CmpPreandVisGrad()
 		(*uinsf.dqdz)[IIDX::IIP][ug.cId] *= ovol;
 	}
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	/*for (int fId = 0; fId < ug.nBFace; ++fId)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
@@ -241,14 +244,14 @@ void UINsVisterm::CmpPreandVisGrad()
 		(*uinsf.dqdz)[IIDX::IIP][ug.rc] = (*uinsf.dqdz)[IIDX::IIP][ug.lc];
 		//}
 
-	}
+	}*/
 
 }
 
 
 void UINsVisterm::CmpVisterm()
 {
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = ug.nBFace; fId < ug.nFace; ++ fId )
     {
         ug.fId = fId;
 
@@ -271,7 +274,7 @@ void UINsVisterm::CmpVisterm()
 
     }
 
-	/*for (int fId = 0; fId < ug.nBFace; ++fId)
+	for (int fId = 0; fId < ug.nBFace; ++fId)
 	{
 		ug.fId = fId;
 
@@ -292,7 +295,7 @@ void UINsVisterm::CmpVisterm()
 
 		this->CmpBcFaceVisterm();  //要改动
 
-	}*/
+	}
 
 }
 
@@ -404,95 +407,54 @@ void UINsVisterm::CmpFaceVisterm()
 	iinv.biw[ug.fId][1] = -iinv.Ftw1 - iinv.Ftw2;
 }
 
-/*void UINsVisterm::CmpBcFaceVisterm()
+void UINsVisterm::CmpBcFaceVisterm()
 {
-	iinv.l2rdx[ug.fId] = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];  //界面左右单元中心距
-	iinv.l2rdy[ug.fId] = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
-	iinv.l2rdz[ug.fId] = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
+	iinv.l2rdx = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];  //界面左右单元中心距
+	iinv.l2rdy = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
+	iinv.l2rdz = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
 
-	iinv.c2d = sqrt(iinv.l2rdx[ug.fId] * iinv.l2rdx[ug.fId] + iinv.l2rdy[ug.fId] * iinv.l2rdy[ug.fId] + iinv.l2rdz[ug.fId] * iinv.l2rdz[ug.fId]);
+	iinv.c2d = sqrt(iinv.l2rdx * iinv.l2rdx + iinv.l2rdy * iinv.l2rdy + iinv.l2rdz * iinv.l2rdz);
 
-	iinv.dist[ug.fId] = (*ug.xfn)[ug.fId] * ((*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc]);
+	iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc]);
 
-	iinv.Fn[ug.fId] = iinv.vis * (*ug.farea)[ug.fId] / 2*iinv.dist[ug.fId];
+	iinv.vis = 1 / inscom.reynolds;  //动力粘度
 
+	int bcType = ug.bcRecord->bcType[ug.fId];
 
-	iinv.Puf[ug.fId] = ((*uinsf.dqdx)[IIDX::IIU][ug.lc])*(*ug.xfn)[ug.fId] +
-		((*uinsf.dqdy)[IIDX::IIU][ug.lc])*(*ug.yfn)[ug.fId] +
-		((*uinsf.dqdz)[IIDX::IIU][ug.lc])*(*ug.zfn)[ug.fId];  //▽q*n
+	if (bcType == BC::SOLID_SURFACE)
+	{
+		iinv.Fn[ug.fId] = iinv.vis * (*ug.farea)[ug.fId] / iinv.c2d;
+		iinv.Fbu = iinv.vis * (*ug.farea)[ug.fId] * iinv.uf[ug.fId] / iinv.c2d;
+		iinv.Fbv = iinv.vis * (*ug.farea)[ug.fId] * iinv.vf[ug.fId] / iinv.c2d;
+		iinv.Fbw = iinv.vis * (*ug.farea)[ug.fId] * iinv.wf[ug.fId] / iinv.c2d;
+	}
+	else if (bcType == BC::INFLOW)
+	{
+		iinv.Fn[ug.fId] = iinv.vis * (*ug.farea)[ug.fId] / iinv.c2d;
+		iinv.Fbu = iinv.vis * (*ug.farea)[ug.fId] * iinv.uf[ug.fId] / iinv.c2d;
+		iinv.Fbv = iinv.vis * (*ug.farea)[ug.fId] * iinv.vf[ug.fId] / iinv.c2d;
+		iinv.Fbw = iinv.vis * (*ug.farea)[ug.fId] * iinv.wf[ug.fId] / iinv.c2d;
+	}
+	else if (bcType == BC::OUTFLOW)
+	{
+		iinv.Fn[ug.fId] = 0;
+		iinv.Fbu = 0;
+		iinv.Fbv = 0;
+		iinv.Fbw = 0;
+	}
 
-	iinv.Pvf[ug.fId] = ((*uinsf.dqdx)[IIDX::IIV][ug.lc] )*(*ug.xfn)[ug.fId] +
-		((*uinsf.dqdy)[IIDX::IIV][ug.lc])*(*ug.yfn)[ug.fId] +
-		((*uinsf.dqdz)[IIDX::IIV][ug.lc])*(*ug.zfn)[ug.fId];
+	iinv.ai[ug.fId][0] += iinv.Fn[ug.fId];
+	iinv.ai[ug.fId][1] += 0;
 
-	iinv.Pwf[ug.fId] = ((*uinsf.dqdx)[IIDX::IIW][ug.lc])*(*ug.xfn)[ug.fId] +
-		((*uinsf.dqdy)[IIDX::IIW][ug.lc])*(*ug.yfn)[ug.fId] +
-		((*uinsf.dqdz)[IIDX::IIW][ug.lc])*(*ug.zfn)[ug.fId];
+	iinv.biu[ug.fId][0] = iinv.Fbu;
+	iinv.biu[ug.fId][1] = 0;
 
-	iinv.Pdu[ug.fId] = -(((*uinsf.dqdx)[IIDX::IIU][ug.lc])*iinv.l2rdx[ug.fId] +
-		((*uinsf.dqdy)[IIDX::IIU][ug.lc] )*iinv.l2rdy[ug.fId] +
-		((*uinsf.dqdz)[IIDX::IIU][ug.lc] )*iinv.l2rdz[ug.fId]) / iinv.dist[ug.fId];
+	iinv.biv[ug.fId][0] = iinv.Fbv;
+	iinv.biv[ug.fId][1] = 0;
 
-	iinv.Pdv[ug.fId] = -(((*uinsf.dqdx)[IIDX::IIV][ug.lc])*iinv.l2rdx[ug.fId] +
-		((*uinsf.dqdy)[IIDX::IIV][ug.lc])*iinv.l2rdy[ug.fId] +
-		((*uinsf.dqdz)[IIDX::IIV][ug.lc])*iinv.l2rdz[ug.fId]) / iinv.dist[ug.fId];
-
-	iinv.Pdw[ug.fId] = -(((*uinsf.dqdx)[IIDX::IIW][ug.lc])*iinv.l2rdx[ug.fId] +
-		((*uinsf.dqdy)[IIDX::IIW][ug.lc])*iinv.l2rdy[ug.fId] +
-		((*uinsf.dqdz)[IIDX::IIW][ug.lc] )*iinv.l2rdz[ug.fId]) / iinv.dist[ug.fId];
-
-	iinv.Ftu1[ug.fId] = iinv.Puf[ug.fId] * (*ug.farea)[ug.fId] * iinv.visu[ug.fId];   //扩散项中归入源项的部分1
-	iinv.Ftv1[ug.fId] = iinv.Pvf[ug.fId] * (*ug.farea)[ug.fId] * iinv.visv[ug.fId];
-	iinv.Ftw1[ug.fId] = iinv.Pwf[ug.fId] * (*ug.farea)[ug.fId] * iinv.visw[ug.fId];
-
-	iinv.Ftu2[ug.fId] = iinv.Pdu[ug.fId] * (*ug.farea)[ug.fId] * iinv.visu[ug.fId];   //扩散项中归入源项的部分2
-	iinv.Ftv2[ug.fId] = iinv.Pdv[ug.fId] * (*ug.farea)[ug.fId] * iinv.visv[ug.fId];
-	iinv.Ftw2[ug.fId] = iinv.Pdw[ug.fId] * (*ug.farea)[ug.fId] * iinv.visw[ug.fId];
-
-
-
-	iinv.PufT[ug.fId] = (((*uinsf.dqdx)[IIDX::IIU][ug.lc] )*(*ug.xfn)[ug.fId] +
-		((*uinsf.dqdx)[IIDX::IIV][ug.lc])*(*ug.yfn)[ug.fId] +
-		((*uinsf.dqdx)[IIDX::IIW][ug.lc])*(*ug.zfn)[ug.fId]);
-
-	iinv.PvfT[ug.fId] = (((*uinsf.dqdy)[IIDX::IIU][ug.lc])*(*ug.xfn)[ug.fId] +
-		((*uinsf.dqdy)[IIDX::IIV][ug.lc])*(*ug.yfn)[ug.fId] +
-		((*uinsf.dqdy)[IIDX::IIW][ug.lc])*(*ug.zfn)[ug.fId]);
-
-	iinv.PwfT[ug.fId] = (((*uinsf.dqdz)[IIDX::IIU][ug.lc])*(*ug.xfn)[ug.fId] +
-		((*uinsf.dqdz)[IIDX::IIV][ug.lc])*(*ug.yfn)[ug.fId] +
-		((*uinsf.dqdz)[IIDX::IIW][ug.lc] )*(*ug.zfn)[ug.fId]);
-
-
-
-	iinv.Pud[ug.fId] = (((*uinsf.dqdx)[IIDX::IIU][ug.lc]) +
-		((*uinsf.dqdy)[IIDX::IIV][ug.lc]) +
-		((*uinsf.dqdz)[IIDX::IIW][ug.lc]))*(*ug.xfn)[ug.fId];
-
-	iinv.Pvd[ug.fId] = (((*uinsf.dqdx)[IIDX::IIU][ug.lc]) +
-		((*uinsf.dqdy)[IIDX::IIV][ug.lc]) +
-		((*uinsf.dqdz)[IIDX::IIW][ug.lc]))*(*ug.yfn)[ug.fId];
-
-	iinv.Pwd[ug.fId] = (((*uinsf.dqdx)[IIDX::IIU][ug.lc]) +
-		((*uinsf.dqdy)[IIDX::IIV][ug.lc]) +
-		((*uinsf.dqdz)[IIDX::IIW][ug.lc]))*(*ug.zfn)[ug.fId];
-
-	iinv.FtuT[ug.fId] = iinv.PufT[ug.fId] * (*ug.farea)[ug.fId] * iinv.visu[ug.fId];  //Г(▽V)T，表面源项
-	iinv.FtvT[ug.fId] = iinv.PvfT[ug.fId] * (*ug.farea)[ug.fId] * iinv.visv[ug.fId];
-	iinv.FtwT[ug.fId] = iinv.PwfT[ug.fId] * (*ug.farea)[ug.fId] * iinv.visw[ug.fId];
-
-	iinv.ai[0][ug.fId] += iinv.Fn[ug.fId];
-	iinv.ai[1][ug.fId] += iinv.Fn[ug.fId];
-
-	iinv.biu[0][ug.fId] = iinv.Ftu1[ug.fId] + iinv.Ftu2[ug.fId];
-	iinv.biu[1][ug.fId] = -iinv.Ftu1[ug.fId] - iinv.Ftu2[ug.fId];
-
-	iinv.biv[0][ug.fId] = iinv.Ftv1[ug.fId] + iinv.Ftv2[ug.fId];
-	iinv.biv[1][ug.fId] = -iinv.Ftv1[ug.fId] - iinv.Ftv2[ug.fId];
-
-	iinv.biw[0][ug.fId] = iinv.Ftw1[ug.fId] + iinv.Ftw2[ug.fId];
-	iinv.biw[1][ug.fId] = -iinv.Ftw1[ug.fId] - iinv.Ftw2[ug.fId];
-}*/
+	iinv.biw[ug.fId][0] = iinv.Fbw;
+	iinv.biw[ug.fId][1] = 0;
+}
 
 void UINsVisterm::CmpUnsteadcoff()
 {
@@ -550,7 +512,7 @@ void UINsVisterm::CmpUnsteadcoff()
 	}*/
 
 
-	for (int cId = ug.nCell; cId < ug.nTCell; ++cId)
+	/*for (int cId = ug.nCell; cId < ug.nTCell; ++cId)
 	{
 		ug.cId = cId;
 
@@ -576,7 +538,7 @@ void UINsVisterm::CmpUnsteadcoff()
 			iinv.bwt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.wp[ug.cId] / iinv.timestep;
 		}
 
-	}
+	}*/
 
 }
 
@@ -609,7 +571,8 @@ void UINsVisterm::CmpINsSrc()
 
 	}
 
-	for (int cId = 0; cId < ug.nTCell; ++cId)
+
+	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		ug.cId = cId;
 
@@ -622,11 +585,12 @@ void UINsVisterm::CmpINsSrc()
 		//cout << "iinv.buc=" << iinv.buc[ug.cId] <<"cId="<< ug.cId<< "\n";
 
 		int fn = (*ug.c2f)[ug.cId].size();
+		iinv.dj[ug.cId] = fn;
 
 		if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
 		{
-			iinv.sj.resize(ug.nTCell, fn);
-			iinv.sd.resize(ug.nTCell, fn);
+			iinv.sj.resize(ug.nCell, fn);
+			iinv.sd.resize(ug.nCell, fn);
 		}
 		for (int iFace = 0; iFace < fn; ++iFace)
 		{
@@ -635,15 +599,22 @@ void UINsVisterm::CmpINsSrc()
 			ug.lc = (*ug.lcf)[ug.fId];
 			ug.rc = (*ug.rcf)[ug.fId];
 
-			if (ug.cId == ug.lc)
+			if (fId > ug.nBFace - 1)
 			{
-				iinv.sj[ug.cId][iFace] = -iinv.ai[ug.fId][0];  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
-				iinv.sd[ug.cId][iFace] = ug.rc;
+				if (ug.cId == ug.lc)
+				{
+					iinv.sj[ug.cId][iFace] = -iinv.ai[ug.fId][0];  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
+					iinv.sd[ug.cId][iFace] = ug.rc;
+				}
+				else if (ug.cId == ug.rc)
+				{
+					iinv.sj[ug.cId][iFace] = -iinv.ai[ug.fId][1];  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
+					iinv.sd[ug.cId][iFace] = ug.lc;
+				}
 			}
-			else if (ug.cId == ug.rc)
+			else
 			{
-				iinv.sj[ug.cId][iFace] = -iinv.ai[ug.fId][1];  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
-				iinv.sd[ug.cId][iFace] = ug.lc;
+				iinv.dj[ug.cId] -= 1;
 			}
 
 		}

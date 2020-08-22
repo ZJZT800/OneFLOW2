@@ -102,6 +102,8 @@ void INsInvterm::CmpINsinvFlux()
 
 		iinv.wf[ug.fId] = (iinv.wl + iinv.wr) * half;
 
+		iinv.pf[ug.fId] = (iinv.pl + iinv.pr) * half;
+
 		iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;  //初始界面上 V*n
 
 		iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * gcom.farea; //初始界面上的质量通量
@@ -116,45 +118,56 @@ void INsInvterm::CmpINsBcinvFlux()
 	INsExtract(iinv.prim2, iinv.rr, iinv.ur, iinv.vr, iinv.wr, iinv.pr);
 
 	int bcType = ug.bcRecord->bcType[ug.fId];
-
-	/*iinv.rf[ug.fId] = (iinv.rl + iinv.rr) * half;    //初始界面上的值（u、v、w ）
-
-	iinv.uf[ug.fId] = (iinv.ul + iinv.ur) * half;
-
-	iinv.vf[ug.fId] = (iinv.vl + iinv.vr) * half;
-
-	iinv.wf[ug.fId] = (iinv.wl + iinv.wr) * half;
-
-	iinv.op[ug.fId] = (iinv.pl + iinv.pr) * half; //边界面储存的压力
-
-	iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;  //初始界面上 V*n*/
-
+	int inflowType = GetDataValue< int >("inflowType");
 
 	if(bcType == BC::SOLID_SURFACE)
 	{
-		iinv.rf[ug.fId] = (iinv.rl + iinv.rr) * half;    //初始界面上的值（u、v、w ）
+		if (inflowType == 1)
+		{
+			iinv.rf[ug.fId] = iinv.rl;    //初始界面上的值（u、v、w ）
 
-		iinv.uf[ug.fId] = 0;
+			iinv.uf[ug.fId] = (*inscom.bcflow)[IIDX::IIU];
 
-		iinv.vf[ug.fId] = 0;
+			iinv.vf[ug.fId] = (*inscom.bcflow)[IIDX::IIV];
 
-		iinv.wf[ug.fId] = 0;
+			iinv.wf[ug.fId] = (*inscom.bcflow)[IIDX::IIW];
 
-		iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;
+			iinv.pf[ug.fId] = iinv.pl;
 
-		iinv.fq[ug.fId] = 0;
+			iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;
+
+			iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * gcom.farea;
+		}
+		else
+		{
+			iinv.rf[ug.fId] = iinv.rl;    //初始界面上的值（u、v、w ）
+
+			iinv.uf[ug.fId] = (*ug.vfx)[ug.fId];
+
+			iinv.vf[ug.fId] = (*ug.vfy)[ug.fId];
+
+			iinv.wf[ug.fId] = (*ug.vfz)[ug.fId];
+
+			iinv.pf[ug.fId] = iinv.pl;
+
+			iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;
+
+			iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * gcom.farea;
+		}
 
 	}
 	else if (bcType == BC::OUTFLOW)
 	{
 
-		iinv.rf[ug.fId] = iinv.rr;    //初始界面上的值（u、v、w ）
+		iinv.rf[ug.fId] = iinv.rl;    //初始界面上的值（u、v、w ）
 
-		iinv.uf[ug.fId] = iinv.ur;
+		iinv.uf[ug.fId] = iinv.ul;
 
-		iinv.vf[ug.fId] = iinv.vr;
+		iinv.vf[ug.fId] = iinv.vl;
 
-		iinv.wf[ug.fId] = iinv.wr;
+		iinv.wf[ug.fId] = iinv.wl;
+
+		iinv.pf[ug.fId] = iinv.pl;
 
 		iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;
 
@@ -163,13 +176,15 @@ void INsInvterm::CmpINsBcinvFlux()
 
 	else if(bcType == BC::INFLOW)
 	{
-		iinv.rf[ug.fId] = iinv.rr;    //初始界面上的值（u、v、w ）
+		iinv.rf[ug.fId] = inscom.inflow[IIDX::IIR];    //初始界面上的值（u、v、w ）
 
-		iinv.uf[ug.fId] = iinv.ur;
+		iinv.uf[ug.fId] = inscom.inflow[IIDX::IIU];
 
-		iinv.vf[ug.fId] = iinv.vr;
+		iinv.vf[ug.fId] = inscom.inflow[IIDX::IIV];
 
-		iinv.wf[ug.fId] = iinv.wr;
+		iinv.wf[ug.fId] = inscom.inflow[IIDX::IIW];
+
+		iinv.pf[ug.fId] = inscom.inflow[IIDX::IIP];
 
 		iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;
 
@@ -186,7 +201,7 @@ void INsInvterm::CmpINsinvTerm()
 		iinv.ai[ug.fId][0] = clr;
 		iinv.ai[ug.fId][1] = crl;
 
-		if (ug.fId < ug.nBFace)
+		/*if (ug.fId < ug.nBFace)
 		{
 			int bcType = ug.bcRecord->bcType[ug.fId];
 
@@ -198,7 +213,7 @@ void INsInvterm::CmpINsinvTerm()
 
 				iinv.Tq += iinv.rf[ug.fId] * ((*ug.xfn)[ug.fId] * iinv.uf[ug.fId]+ (*ug.yfn)[ug.fId] * iinv.vf[ug.fId]+ (*ug.zfn)[ug.fId] * iinv.wf[ug.fId])* (*ug.farea)[ug.fId];
 			}
-		}
+		}*/
 		/*iinv.ai[0][ug.fId] = clr;
 		iinv.ai[1][ug.fId] = crl;*/
 }
@@ -308,13 +323,13 @@ void INsInvterm::CmpINsBcFaceflux()
 
 	if (bcType == BC::SOLID_SURFACE)
 	{
-		iinv.rf[ug.fId] = (iinv.rl + iinv.rr) * half;    //初始界面上的值（u、v、w ）
+		/*iinv.rf[ug.fId] = iinv.rl;    //初始界面上的值（u、v、w ）
 
 		iinv.uf[ug.fId] = 0;
 
 		iinv.vf[ug.fId] = 0;
 
-		iinv.wf[ug.fId] = 0;
+		iinv.wf[ug.fId] = 0;*/
 
 		iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;
 
@@ -324,13 +339,13 @@ void INsInvterm::CmpINsBcFaceflux()
 	else if (bcType == BC::OUTFLOW)
 	{
 
-		iinv.rf[ug.fId] = iinv.rr;    //初始界面上的值（u、v、w ）
+		/*iinv.rf[ug.fId] = iinv.rl;    //初始界面上的值（u、v、w ）
 
 		iinv.uf[ug.fId] = iinv.ur;
 
 		iinv.vf[ug.fId] = iinv.vr;
 
-		iinv.wf[ug.fId] = iinv.wr;
+		iinv.wf[ug.fId] = iinv.wr;*/
 
 		iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;
 
@@ -339,23 +354,23 @@ void INsInvterm::CmpINsBcFaceflux()
 
 	else if (bcType == BC::INFLOW)
 	{
-		iinv.rf[ug.fId] = iinv.rr;    //初始界面上的值（u、v、w ）
+		/*iinv.rf[ug.fId] = iinv.rr;    //初始界面上的值（u、v、w ）
 
 		iinv.uf[ug.fId] = iinv.ur;
 
 		iinv.vf[ug.fId] = iinv.vr;
 
-		iinv.wf[ug.fId] = iinv.wr;
+		iinv.wf[ug.fId] = iinv.wr;*/
 
 		iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;
 
 		iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * gcom.farea; //初始界面上的质量通量
 
-		iinv.Tqu += iinv.rf[ug.fId] * (*ug.xfn)[ug.fId] * iinv.uf[ug.fId] * (*ug.farea)[ug.fId];
+		/*iinv.Tqu += iinv.rf[ug.fId] * (*ug.xfn)[ug.fId] * iinv.uf[ug.fId] * (*ug.farea)[ug.fId];
 		iinv.Tqv += iinv.rf[ug.fId] * (*ug.yfn)[ug.fId] * iinv.vf[ug.fId] * (*ug.farea)[ug.fId];
 		iinv.Tqw += iinv.rf[ug.fId] * (*ug.zfn)[ug.fId] * iinv.wf[ug.fId] * (*ug.farea)[ug.fId];
 
-		iinv.Tq += iinv.rf[ug.fId] * ((*ug.xfn)[ug.fId] * iinv.uf[ug.fId]+ (*ug.yfn)[ug.fId] * iinv.vf[ug.fId]+ (*ug.zfn)[ug.fId] * iinv.wf[ug.fId]) * (*ug.farea)[ug.fId];
+		iinv.Tq += iinv.rf[ug.fId] * ((*ug.xfn)[ug.fId] * iinv.uf[ug.fId]+ (*ug.yfn)[ug.fId] * iinv.vf[ug.fId]+ (*ug.zfn)[ug.fId] * iinv.wf[ug.fId]) * (*ug.farea)[ug.fId];*/
 	}
 
 
@@ -419,9 +434,9 @@ void INsInvterm::CmpINsBcFaceCorrectPresscoef()
 
 		iinv.ajp[ug.fId] = iinv.rf[ug.fId] * (iinv.Vdvu[ug.fId] * (*ug.xfn)[ug.fId] * (*ug.xfn)[ug.fId] + iinv.Vdvv[ug.fId] * (*ug.yfn)[ug.fId] * (*ug.yfn)[ug.fId] + iinv.Vdvw[ug.fId] * (*ug.zfn)[ug.fId] * (*ug.zfn)[ug.fId]) * (*ug.farea)[ug.fId] / iinv.dist;*/
 
-	iinv.Vdvu[ug.fId] = 0;
-	iinv.Vdvv[ug.fId] = 0;
-	iinv.Vdvw[ug.fId] = 0;
+	iinv.Vdvu[ug.fId] = (*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc]);
+	iinv.Vdvv[ug.fId] = (*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc]);
+	iinv.Vdvw[ug.fId] = (*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc]);
 	iinv.ajp[ug.fId] = 0;
 		
 	
