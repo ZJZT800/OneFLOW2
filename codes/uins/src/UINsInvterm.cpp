@@ -2270,12 +2270,13 @@ void UINsInvterm::CmpUpdateINsBcFaceflux()
 		iinv.vvj[ug.fId] = 0;
 		iinv.wwj[ug.fId] = 0;
 
-		iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuj[ug.fId]; //下一时刻面速度
+		iinv.fq[ug.fId] = 0;
+		/*iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuj[ug.fId]; //下一时刻面速度
 		iinv.vf[ug.fId] = iinv.vf[ug.fId] + iinv.vvj[ug.fId];
 		iinv.wf[ug.fId] = iinv.wf[ug.fId] + iinv.wwj[ug.fId];
 
 		iinv.fux = iinv.rf[ug.fId] * (gcom.xfn * iinv.uuj[ug.fId] + gcom.yfn * iinv.vvj[ug.fId] + gcom.zfn * iinv.wwj[ug.fId]) * (*ug.farea)[ug.fId];
-		iinv.fq[ug.fId] = iinv.fq[ug.fId] + iinv.fux;
+		iinv.fq[ug.fId] = iinv.fq[ug.fId] + iinv.fux;*/
 	}
 
 }
