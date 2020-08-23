@@ -132,15 +132,15 @@ void INsInvterm::CmpINsBcinvFlux()
 
 	if(bcType == BC::SOLID_SURFACE)
 	{
-		//iinv.rf[ug.fId] = (iinv.rl + iinv.rr) * half;    //初始界面上的值（u、v、w ）
+		iinv.rf[ug.fId] = (iinv.rl + iinv.rr) * half;    //初始界面上的值（u、v、w ）
 
-		//iinv.uf[ug.fId] = 0;
+		iinv.uf[ug.fId] = 0;
 
-		//iinv.vf[ug.fId] = 0;
+		iinv.vf[ug.fId] = 0;
 
-		//iinv.wf[ug.fId] = 0;
+		iinv.wf[ug.fId] = 0;
 
-		//iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;
+		iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;
 
 		iinv.fq[ug.fId] = 0;
 
@@ -308,7 +308,7 @@ void INsInvterm::CmpINsBcFaceflux()
 
 	if (bcType == BC::SOLID_SURFACE)
 	{
-		/*iinv.rf[ug.fId] = (iinv.rl + iinv.rr) * half;    //初始界面上的值（u、v、w ）
+		iinv.rf[ug.fId] = (iinv.rl + iinv.rr) * half;    //初始界面上的值（u、v、w ）
 
 		iinv.uf[ug.fId] = 0;
 
@@ -316,7 +316,7 @@ void INsInvterm::CmpINsBcFaceflux()
 
 		iinv.wf[ug.fId] = 0;
 
-		iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;*/
+		iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;
 
 		iinv.fq[ug.fId] = 0;
 
