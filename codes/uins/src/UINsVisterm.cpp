@@ -294,13 +294,6 @@ void UINsVisterm::CmpVisterm()
         {
             int kkk = 1;
         }
-		
-		//iinv.ukl[ug.fId] = (*limf->qf1)[IIDX::IIU][ug.fId];
-		//iinv.ukr[ug.fId] = (*limf->qf2)[IIDX::IIU][ug.fId];
-		//iinv.vkl[ug.fId] = (*limf->qf1)[IIDX::IIV][ug.fId];
-		//iinv.vkr[ug.fId] = (*limf->qf2)[IIDX::IIV][ug.fId];
-		//iinv.wkl[ug.fId] = (*limf->qf1)[IIDX::IIW][ug.fId];
-		//iinv.wkr[ug.fId] = (*limf->qf2)[IIDX::IIW][ug.fId];
 
         this->CmpFaceVisterm();  //要改动
 
@@ -317,13 +310,6 @@ void UINsVisterm::CmpVisterm()
 		{
 			int kkk = 1;
 		}
-
-		//iinv.ukl[ug.fId] = (*limf->qf1)[IIDX::IIU][ug.fId];
-		//iinv.ukr[ug.fId] = (*limf->qf2)[IIDX::IIU][ug.fId];
-		//iinv.vkl[ug.fId] = (*limf->qf1)[IIDX::IIV][ug.fId];
-		//iinv.vkr[ug.fId] = (*limf->qf2)[IIDX::IIV][ug.fId];
-		//iinv.wkl[ug.fId] = (*limf->qf1)[IIDX::IIW][ug.fId];
-		//iinv.wkr[ug.fId] = (*limf->qf2)[IIDX::IIW][ug.fId];
 
 		this->CmpBcFaceVisterm();  //要改动
 

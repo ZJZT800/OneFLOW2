@@ -150,16 +150,43 @@ void UINsInvterm::INsPreflux()
 
 	}
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	ug.nRegion = ug.bcRecord->bcInfo->bcType.size();
+	BcInfo * bcInfo = ug.bcRecord->bcInfo;
+
+	for (int ir = 0; ir < ug.nRegion; ++ir)
 	{
-		ug.fId = fId;
+		ug.ir = ir;
+		ug.bctype = ug.bcRecord->bcInfo->bcType[ir];
+		ug.nRBFace = ug.bcRecord->bcInfo->bcFace[ir].size();
 
-		ug.lc = (*ug.lcf)[ug.fId];
-		ug.rc = (*ug.rcf)[ug.fId];
+		for (int ibc = 0; ibc < ug.nRBFace; ++ibc)
+		{
+			ug.bcfId = ibc;
 
-		this->PrepareFaceValue();
+			BcInfo * bcInfo = ug.bcRecord->bcInfo;
 
-		this->CmpINsBcinvFlux();
+			ug.fId = bcInfo->bcFace[ug.ir][ibc];
+			ug.bcr = bcInfo->bcRegion[ug.ir][ibc];
+
+			ug.bcdtkey = bcInfo->bcdtkey[ug.ir][ibc];
+
+			ug.lc = (*ug.lcf)[ug.fId];
+			ug.rc = (*ug.rcf)[ug.fId];
+
+			inscom.bcdtkey = 0;
+			if (ug.bcr == -1) return; //interface
+			int dd = bcdata.r2d[ug.bcr];
+			if (dd != -1)
+			{
+				inscom.bcdtkey = 1;
+				inscom.bcflow = &bcdata.dataList[dd];
+			}
+
+			this->PrepareFaceValue();
+
+			this->CmpINsBcinvFlux();
+
+		}
 	}
 
 }
@@ -849,22 +876,42 @@ void UINsInvterm::CmpFaceflux()
 	iinv.Tqw = 0;
 	iinv.Tq = 0;
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
+	ug.nRegion = ug.bcRecord->bcInfo->bcType.size();
+	BcInfo * bcInfo = ug.bcRecord->bcInfo;
+
+	for (int ir = 0; ir < ug.nRegion; ++ir)
 	{
+		ug.ir = ir;
+		ug.bctype = ug.bcRecord->bcInfo->bcType[ir];
+		ug.nRBFace = ug.bcRecord->bcInfo->bcFace[ir].size();
 
-		ug.fId = fId;
-
-		if (fId == 10127)
+		for (int ibc = 0; ibc < ug.nRBFace; ++ibc)
 		{
-			int kkk = 1;
+			ug.bcfId = ibc;
+
+			BcInfo * bcInfo = ug.bcRecord->bcInfo;
+
+			ug.fId = bcInfo->bcFace[ug.ir][ibc];
+			ug.bcr = bcInfo->bcRegion[ug.ir][ibc];
+
+			ug.bcdtkey = bcInfo->bcdtkey[ug.ir][ibc];
+
+			ug.lc = (*ug.lcf)[ug.fId];
+			ug.rc = (*ug.rcf)[ug.fId];
+
+			inscom.bcdtkey = 0;
+			if (ug.bcr == -1) return; //interface
+			int dd = bcdata.r2d[ug.bcr];
+			if (dd != -1)
+			{
+				inscom.bcdtkey = 1;
+				inscom.bcflow = &bcdata.dataList[dd];
+			}
+
+			this->PrepareProFaceValue();
+
+			this->CmpINsBcFaceflux();
 		}
-
-		ug.lc = (*ug.lcf)[ug.fId];
-		ug.rc = (*ug.rcf)[ug.fId];
-
-		this->PrepareProFaceValue();
-
-		this->CmpINsBcFaceflux();
 	}
 
 }
@@ -1142,73 +1189,7 @@ void UINsInvterm::CmpNewMomCoe()
 
 void UINsInvterm::CmpPressCorrectEqu()
 {
-	/*double rhs_p = 1e-8;
-	iinv.res_p = 1;
-	iinv.mp = 0;
-    iinv.pp = 0;
-	while (iinv.res_p >= rhs_p)
-	{
-		iinv.res_p = 0.0;
-
-		for (int cId = 0; cId < ug.nCell; ++cId)
-		{
-			ug.cId = cId;
-
-			iinv.ppd = iinv.pp[ug.cId];
-			int fn = (*ug.c2f)[ug.cId].size();
-			for (int iFace = 0; iFace < fn; ++iFace)
-			{
-				int fId = (*ug.c2f)[ug.cId][iFace];
-				ug.fId = fId;
-				if (ug.fId < ug.nBFace) continue;
-
-				ug.lc = (*ug.lcf)[ug.fId];
-				ug.rc = (*ug.rcf)[ug.fId];
-				if (ug.cId == ug.lc)
-				{
-					iinv.mp[ug.cId] += -iinv.sjp[ug.cId][iFace] * iinv.pp[ug.rc]; //高斯赛戴尔迭代求解时的相邻单元的值，矩阵法不需要
-				}
-				else if (ug.cId == ug.rc)
-				{
-					iinv.mp[ug.cId] += -iinv.sjp[ug.cId][iFace] * iinv.pp[ug.lc];
-				}
-			}
-			iinv.pp[ug.cId] = (iinv.bp[ug.cId] + iinv.mp[ug.cId]) / (iinv.spp[ug.cId]); //压力修正值
-
-			iinv.res_p = MAX(iinv.res_p, abs(iinv.ppd - iinv.pp[ug.cId]));
-
-		}
-
-	}
-
-	for (int fId = 0; fId < ug.nBFace; ++fId)
-	{
-		ug.fId = fId;
-		ug.lc = (*ug.lcf)[ug.fId];
-		ug.rc = (*ug.rcf)[ug.fId];
-
-		iinv.pp[ug.rc] = iinv.pp[ug.lc];
-	}
-
-
-
-	for (int cId = 0; cId < ug.nCell; ++cId)
-	{
-		ug.cId = cId;
-		(*uinsf.q)[IIDX::IIP][ug.cId] = (*uinsf.q)[IIDX::IIP][ug.cId] + 0.8*iinv.pp[ug.cId];
-	}
-
-	for (int fId = 0; fId < ug.nBFace; ++fId)
-	{
-		ug.fId = fId;
-		ug.lc = (*ug.lcf)[ug.fId];
-		ug.rc = (*ug.rcf)[ug.fId];
-
-		(*uinsf.q)[IIDX::IIP][ug.rc] = (*uinsf.q)[IIDX::IIP][ug.lc];
-	}*/
-
-
-
+	
 		//BGMRES求解
 	NonZero.Number = 0;
 
@@ -2313,14 +2294,8 @@ void UINsInvterm::CmpPreGrad()
 
 		Real cl = delt2 * delta;
 		Real cr = delt1 * delta;
-		//if (ug.fId < ug.nBFace)
-		//{
-		//	iinv.value[ug.fId] = iinv.pp[ug.lc] + iinv.pp[ug.rc];
-		//}
-		//else
-		//{
+
 		iinv.value = cl * iinv.pp[ug.lc] + cr * iinv.pp[ug.rc];
-		//}
 
 		Real fnxa = (*ug.xfn)[ug.fId] * (*ug.farea)[ug.fId];
 		Real fnya = (*ug.yfn)[ug.fId] * (*ug.farea)[ug.fId];
