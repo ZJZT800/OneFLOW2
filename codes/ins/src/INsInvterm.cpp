@@ -201,6 +201,15 @@ void INsInvterm::CmpINsinvTerm()
 		iinv.ai[ug.fId][0] = clr;
 		iinv.ai[ug.fId][1] = crl;
 
+		iinv.biu[ug.fId][0] = 0;
+		iinv.biu[ug.fId][1] = 0;
+
+		iinv.biv[ug.fId][0] = 0;
+		iinv.biv[ug.fId][1] = 0;
+
+		iinv.biw[ug.fId][0] = 0;
+		iinv.biw[ug.fId][1] = 0;
+
 		/*if (ug.fId < ug.nBFace)
 		{
 			int bcType = ug.bcRecord->bcType[ug.fId];
@@ -228,13 +237,13 @@ void INsInvterm::CmpINsBcinvTerm()
 		iinv.ai[ug.fId][0] = clr;
 		iinv.ai[ug.fId][1] = 0;
 
-		iinv.biu[ug.fId][0] = iinv.Fbu;
+		iinv.biu[ug.fId][0] = crl * iinv.uf[ug.fId];
 		iinv.biu[ug.fId][1] = 0;
 
-		iinv.biv[ug.fId][0] = iinv.Fbv;
+		iinv.biv[ug.fId][0] = crl * iinv.vf[ug.fId];
 		iinv.biv[ug.fId][1] = 0;
 
-		iinv.biw[ug.fId][0] = iinv.Fbw;
+		iinv.biw[ug.fId][0] = crl * iinv.wf[ug.fId];
 		iinv.biw[ug.fId][1] = 0;
 }
 
@@ -385,7 +394,7 @@ void INsInvterm::CmpINsBcFaceflux()
 	Real crl = clr - iinv.fq[ug.fId];   //从界面右侧单元流入左侧单元的初始质量流量
 
 	iinv.ai[ug.fId][0] = clr;
-	iinv.ai[ug.fId][1] = crl;
+	iinv.ai[ug.fId][1] = 0;
 									  
 }
 

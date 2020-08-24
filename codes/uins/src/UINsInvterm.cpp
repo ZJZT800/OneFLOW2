@@ -1116,7 +1116,7 @@ void UINsInvterm::CmpNewMomCoe()
 		iinv.spc[ug.rc] += iinv.ai[ug.fId][1] + iinv.Fn[ug.fId];
 	}
 
-	for (int cId = 0; cId < ug.nTCell; ++cId)
+	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		ug.cId = cId;
 		iinv.spc[ug.cId] += iinv.spt[ug.cId];

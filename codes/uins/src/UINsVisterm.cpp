@@ -428,14 +428,14 @@ void UINsVisterm::CmpFaceVisterm()
 	iinv.ai[ug.fId][0] += iinv.Fn[ug.fId];
 	iinv.ai[ug.fId][1] += iinv.Fn[ug.fId];
 	
-	iinv.biu[ug.fId][0] = iinv.Ftu1 + iinv.Ftu2;
-	iinv.biu[ug.fId][1] = -iinv.Ftu1 - iinv.Ftu2;
+	iinv.biu[ug.fId][0] += iinv.Ftu1 + iinv.Ftu2;
+	iinv.biu[ug.fId][1] += -iinv.Ftu1 - iinv.Ftu2;
 
-	iinv.biv[ug.fId][0] = iinv.Ftv1 + iinv.Ftv2;
-	iinv.biv[ug.fId][1] = -iinv.Ftv1 - iinv.Ftv2;
+	iinv.biv[ug.fId][0] += iinv.Ftv1 + iinv.Ftv2;
+	iinv.biv[ug.fId][1] += -iinv.Ftv1 - iinv.Ftv2;
 
-	iinv.biw[ug.fId][0] = iinv.Ftw1 + iinv.Ftw2;
-	iinv.biw[ug.fId][1] = -iinv.Ftw1 - iinv.Ftw2;
+	iinv.biw[ug.fId][0] += iinv.Ftw1 + iinv.Ftw2;
+	iinv.biw[ug.fId][1] += -iinv.Ftw1 - iinv.Ftw2;
 }
 
 void UINsVisterm::CmpBcFaceVisterm()
@@ -477,14 +477,14 @@ void UINsVisterm::CmpBcFaceVisterm()
 	iinv.ai[ug.fId][0] += iinv.Fn[ug.fId];
 	iinv.ai[ug.fId][1] += 0;
 
-	iinv.biu[ug.fId][0] = iinv.Fbu;
-	iinv.biu[ug.fId][1] = 0;
+	iinv.biu[ug.fId][0] += iinv.Fbu;
+	iinv.biu[ug.fId][1] += 0;
 
-	iinv.biv[ug.fId][0] = iinv.Fbv;
-	iinv.biv[ug.fId][1] = 0;
+	iinv.biv[ug.fId][0] += iinv.Fbv;
+	iinv.biv[ug.fId][1] += 0;
 
-	iinv.biw[ug.fId][0] = iinv.Fbw;
-	iinv.biw[ug.fId][1] = 0;
+	iinv.biw[ug.fId][0] += iinv.Fbw;
+	iinv.biw[ug.fId][1] += 0;
 }
 
 void UINsVisterm::CmpUnsteadcoff()
