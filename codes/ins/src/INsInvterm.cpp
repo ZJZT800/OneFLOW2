@@ -225,11 +225,17 @@ void INsInvterm::CmpINsBcinvTerm()
 		Real crl = clr - iinv.fq[ug.fId];   //从界面右侧单元流入左侧单元的初始质量流量
 
 
-		iinv.aii1[ug.fId] = crl;   //该面流向左单元的流量
-		iinv.aii2[ug.fId] = clr;   //该面流向右单元的流量
+		iinv.ai[ug.fId][0] = clr;
+		iinv.ai[ug.fId][1] = 0;
 
-		iinv.ai1[ug.lc] += crl;   //流入单元的流量
-		iinv.ai2[ug.rc] += clr;   //流出单元的流量
+		iinv.biu[ug.fId][0] = iinv.Fbu;
+		iinv.biu[ug.fId][1] = 0;
+
+		iinv.biv[ug.fId][0] = iinv.Fbv;
+		iinv.biv[ug.fId][1] = 0;
+
+		iinv.biw[ug.fId][0] = iinv.Fbw;
+		iinv.biw[ug.fId][1] = 0;
 }
 
 void INsInvterm::CmpINsFaceflux()

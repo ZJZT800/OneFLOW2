@@ -299,7 +299,7 @@ void UINsInvterm::CmpInvMassFlux()
 	iinv.Tq = 0;*/
 
 
-	for (int fId = 0; fId < ug.nFace; ++fId)
+	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
 		ug.fId = fId;
 
@@ -309,6 +309,18 @@ void UINsInvterm::CmpInvMassFlux()
 		//this->PrepareFaceValue();
 
 		this->CmpINsinvTerm();
+	}
+
+	for (int fId = 0; fId < ug.nBFace; ++fId)
+	{
+		ug.fId = fId;
+
+		ug.lc = (*ug.lcf)[ug.fId];
+		ug.rc = (*ug.rcf)[ug.fId];
+
+		//this->PrepareFaceValue();
+
+		this->CmpINsBcinvTerm();
 	}
 }
 
