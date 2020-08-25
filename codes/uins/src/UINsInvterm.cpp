@@ -24,6 +24,7 @@ License
 #include "INsInvterm.h"
 #include "UINsVisterm.h"
 #include "UINsGrad.h"
+#include "UGrad.h"
 #include "BcData.h"
 #include "Zone.h"
 #include "Atmosphere.h"
@@ -273,7 +274,7 @@ void UINsInvterm::Initflux()
 	iinv.op.resize(ug.nBFace);
 	iinv.dj.resize(ug.nCell);
 	iinv.pf.resize(ug.nFace);
-	iinv.ppf.resize(ug.nBFace);
+	iinv.ppf.resize(ug.nFace);
 	iinv.uuf.resize(ug.nBFace);
 	iinv.vvf.resize(ug.nBFace);
 	iinv.wwf.resize(ug.nBFace);
@@ -407,6 +408,7 @@ void UINsInvterm::MomPre()
 {
 	this->CmpINsMomRes();
 
+	//Alloc();
 	/*iinv.muc = 0;
 	iinv.mvc = 0;
 	iinv.mwc = 0;
@@ -853,6 +855,7 @@ void UINsInvterm::CmpFaceflux()
 	ug.Init();
 	uinsf.Init();
 	//Alloc();
+
 	//this->CmpInvFace();  //±ﬂΩÁ¥¶¿Ì
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
@@ -913,6 +916,8 @@ void UINsInvterm::CmpFaceflux()
 			this->CmpINsBcFaceflux();
 		}
 	}
+
+	//DeAlloc();
 
 }
 
@@ -1287,6 +1292,29 @@ void UINsInvterm::CmpPressCorrectEqu()
 		}
 	}
 
+	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
+	{
+		ug.fId = fId;
+		ug.lc = (*ug.lcf)[ug.fId];
+		ug.rc = (*ug.rcf)[ug.fId];
+
+		Real dxl = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];
+		Real dyl = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
+		Real dzl = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
+
+		Real dxr = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.rc];
+		Real dyr = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.rc];
+		Real dzr = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.rc];
+
+		Real delt1 = DIST(dxl, dyl, dzl);
+		Real delt2 = DIST(dxr, dyr, dzr);
+		Real delta = 1.0 / (delt1 + delt2);
+
+		Real cl = delt2 * delta;
+		Real cr = delt1 * delta;
+
+		iinv.ppf[ug.fId] = cl * iinv.pp[ug.lc] + cr * iinv.pp[ug.rc];
+	}
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		ug.cId = cId;
@@ -1683,7 +1711,9 @@ void UINsInvterm::CmpUpdateINsFaceflux()
 
 void UINsInvterm::UpdateSpeed()
 {
-	this->CmpPreGrad();
+	//this->CmpPreGrad();
+
+	ONEFLOW::CmpINsGrad(iinv.ppf, iinv.dqqdx, iinv.dqqdy, iinv.dqqdz);
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
@@ -2358,13 +2388,13 @@ void UINsInvterm::CmpPreGrad()
 
 void UINsInvterm::Alloc()
 {
-	//iinvflux = new MRField(inscom.nEqu, ug.nFace);
+	uinsf.qf = new MRField(inscom.nEqu, ug.nFace);
 
 }
 
 void UINsInvterm::DeAlloc()
 {
-	//delete iinvflux;
+	delete uinsf.qf;
 }
 
 

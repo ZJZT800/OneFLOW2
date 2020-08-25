@@ -50,7 +50,8 @@ void UINsField::Init()
     q  = GetFieldPointer< MRField > ( grid, "q" );
     q1  = GetFieldPointer< MRField > ( grid, "q1" );
     q2  = GetFieldPointer< MRField > ( grid, "q2" );
-    dq  = GetFieldPointer< MRField > ( grid, "dq" );
+	qf = GetFieldPointer< MRField >(grid, "qf");
+	dq = GetFieldPointer< MRField >(grid, "dq");
     limiter  = GetFieldPointer< MRField > ( grid, "limiter" );
     gama  = GetFieldPointer< MRField > ( grid, "gama" );
     dqdx  = GetFieldPointer< MRField > ( grid, "dqdx" );

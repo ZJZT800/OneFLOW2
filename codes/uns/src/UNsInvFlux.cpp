@@ -174,7 +174,7 @@ void UNsInvFlux::AddInvFlux()
 
 void UNsInvFlux::Alloc()
 {
-    invflux = new MRField( nscom.nEqu, ug.nFace );
+    invflux = new MRField(nscom.nEqu, ug.nFace );
 }
 
 void UNsInvFlux::DeAlloc()

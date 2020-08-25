@@ -35,6 +35,7 @@ public:
 public:
     int nEqu;
     MRField * q;
+	MRField * qf;
     MRField * dqdx, * dqdy, * dqdz;
     MRField * bdqdx, * bdqdy, * bdqdz;
     string name, namex, namey, namez;

@@ -22,6 +22,8 @@ License
 
 #include "Grad.h"
 #include "UGrad.h"
+#include "INsVisterm.h"
+#include "UINsCom.h"
 #include "UCom.h"
 #include "FieldImp.h"
 #include "FaceTopo.h"
@@ -31,6 +33,7 @@ License
 #include "CellMesh.h"
 #include "CellTopo.h"
 #include "Zone.h"
+#include "INsIdx.h"
 #include <iostream>
 using namespace std;
 
@@ -48,13 +51,9 @@ Grad::~Grad()
 
 void Grad::CmpGrad()
 {
-    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
-    {
         //ONEFLOW::CmpGrad( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
-        ONEFLOW::CmpGradGGCellWeight( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
-    }
-
-    this->SwapBcGrad();
+        
+    //this->SwapBcGrad(s);
 }
 
 void Grad::CmpGradDebug()

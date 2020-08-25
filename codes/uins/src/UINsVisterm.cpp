@@ -26,6 +26,7 @@ License
 #include "INsVisterm.h"
 #include "Iteration.h"
 #include "HeatFlux.h"
+#include "UGrad.h"
 #include "Zone.h"
 #include "ZoneState.h"
 #include "UnsGrid.h"
@@ -70,22 +71,22 @@ void UINsVisterm::CmpViscoff()
     uinsf.Init();
     visQ.Init( inscom.nEqu );
 
-    //Alloc();
+    Alloc();
 
     this->PrepareField();
     this->CmpVisterm();
 
-    //DeAlloc();
+    DeAlloc();
 }
 
 void UINsVisterm::Alloc()
 {
-    visflux = new MRField( inscom.nEqu, ug.nFace );
+	uinsf.qf = new MRField( inscom.nEqu, ug.nFace );
 }
 
 void UINsVisterm::DeAlloc()
 {
-    delete visflux;
+    delete uinsf.qf;
 }
 
 void UINsVisterm::PrepareField()
@@ -109,8 +110,45 @@ void UINsVisterm::PrepareField()
 		}
 	}*/
 
+	for (int fId = 0; fId < ug.nBFace; ++fId)
+	{
+		ug.fId = fId;
 
-	this->CmpPreandVisGrad();
+		(*uinsf.qf)[IIDX::IIU][ug.fId] = iinv.uf[ug.fId];
+		(*uinsf.qf)[IIDX::IIV][ug.fId] = iinv.vf[ug.fId];
+		(*uinsf.qf)[IIDX::IIW][ug.fId] = iinv.wf[ug.fId];
+	}
+	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
+	{
+		ug.fId = fId;
+		ug.lc = (*ug.lcf)[ug.fId];
+		ug.rc = (*ug.rcf)[ug.fId];
+
+		Real dxl = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];
+		Real dyl = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
+		Real dzl = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
+
+		Real dxr = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.rc];
+		Real dyr = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.rc];
+		Real dzr = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.rc];
+
+		Real delt1 = DIST(dxl, dyl, dzl);
+		Real delt2 = DIST(dxr, dyr, dzr);
+		Real delta = 1.0 / (delt1 + delt2);
+
+		Real cl = delt2 * delta;
+		Real cr = delt1 * delta;
+
+		(*uinsf.qf)[IIDX::IIU][ug.fId] = cl * (*uinsf.q)[IIDX::IIU][ug.lc] + cr * (*uinsf.q)[IIDX::IIU][ug.rc];;
+		(*uinsf.qf)[IIDX::IIV][ug.fId] = cl * (*uinsf.q)[IIDX::IIV][ug.lc] + cr * (*uinsf.q)[IIDX::IIV][ug.rc];;
+		(*uinsf.qf)[IIDX::IIW][ug.fId] = cl * (*uinsf.q)[IIDX::IIW][ug.lc] + cr * (*uinsf.q)[IIDX::IIW][ug.rc];;
+	}
+
+	ONEFLOW::CmpINsGrad((*uinsf.qf)[IIDX::IIU], (*uinsf.dqdx)[IIDX::IIU], (*uinsf.dqdy)[IIDX::IIU], (*uinsf.dqdz)[IIDX::IIU]);
+	ONEFLOW::CmpINsGrad((*uinsf.qf)[IIDX::IIV], (*uinsf.dqdx)[IIDX::IIV], (*uinsf.dqdy)[IIDX::IIV], (*uinsf.dqdz)[IIDX::IIV]);
+	ONEFLOW::CmpINsGrad((*uinsf.qf)[IIDX::IIW], (*uinsf.dqdx)[IIDX::IIW], (*uinsf.dqdy)[IIDX::IIW], (*uinsf.dqdz)[IIDX::IIW]);
+
+	//this->CmpPreandVisGrad();
 }
 
 void UINsVisterm::CmpPreandVisGrad()
@@ -516,6 +554,8 @@ void UINsVisterm::CmpBcFaceVisterm()
 
 void UINsVisterm::CmpUnsteadcoff()
 {
+	iinv.timestep = GetDataValue< Real >("global_dt");
+
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		ug.cId = cId;
@@ -604,6 +644,41 @@ void UINsVisterm::CmpUnsteadcoff()
 
 void UINsVisterm::CmpINsSrc()
 {
+	Alloc();
+
+	for (int fId = 0; fId < ug.nBFace; ++fId)
+	{
+		ug.fId = fId;
+
+		(*uinsf.qf)[IIDX::IIP][ug.fId] = iinv.pf[ug.fId];
+	}
+	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
+	{
+		ug.fId = fId;
+		ug.lc = (*ug.lcf)[ug.fId];
+		ug.rc = (*ug.rcf)[ug.fId];
+
+		Real dxl = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];
+		Real dyl = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
+		Real dzl = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
+
+		Real dxr = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.rc];
+		Real dyr = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.rc];
+		Real dzr = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.rc];
+
+		Real delt1 = DIST(dxl, dyl, dzl);
+		Real delt2 = DIST(dxr, dyr, dzr);
+		Real delta = 1.0 / (delt1 + delt2);
+
+		Real cl = delt2 * delta;
+		Real cr = delt1 * delta;
+
+		(*uinsf.qf)[IIDX::IIP][ug.fId] = cl * (*uinsf.q)[IIDX::IIP][ug.lc] + cr * (*uinsf.q)[IIDX::IIP][ug.rc];
+		
+	}
+
+	ONEFLOW::CmpINsGrad((*uinsf.qf)[IIDX::IIP], (*uinsf.dqdx)[IIDX::IIP], (*uinsf.dqdy)[IIDX::IIP], (*uinsf.dqdz)[IIDX::IIP]);
+
 	iinv.spc = 0;
 	iinv.buc = 0;
 	iinv.bvc = 0;
@@ -679,6 +754,8 @@ void UINsVisterm::CmpINsSrc()
 
 
 	}
+
+	DeAlloc();
 }
 
 
