@@ -36,7 +36,6 @@ public:
     typedef void ( UINsVisterm:: * VisPointer )();
     VisPointer visPointer;
     MRField * visflux;
-	MRField *qf;
 
 public:
     void CmpViscoff();

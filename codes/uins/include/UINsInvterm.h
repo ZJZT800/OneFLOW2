@@ -78,7 +78,6 @@ public:
     Limiter* limiter;
     LimField* limf;
     MRField* iinvflux;
-	MRField* qf;
 public:
     Real Number;
 };

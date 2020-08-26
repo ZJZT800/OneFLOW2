@@ -201,14 +201,23 @@ void INsInvterm::CmpINsinvTerm()
 		iinv.ai[ug.fId][0] = clr;
 		iinv.ai[ug.fId][1] = crl;
 
-		iinv.biu[ug.fId][0] = 0;
+		iinv.buc[ug.lc] = 0;
+		iinv.buc[ug.rc] = 0;
+
+		iinv.bvc[ug.lc] = 0;
+		iinv.bvc[ug.rc] = 0;
+
+		iinv.bwc[ug.lc] = 0;
+		iinv.bwc[ug.rc] = 0;
+
+		/*iinv.biu[ug.fId][0] = 0;
 		iinv.biu[ug.fId][1] = 0;
 
 		iinv.biv[ug.fId][0] = 0;
 		iinv.biv[ug.fId][1] = 0;
 
 		iinv.biw[ug.fId][0] = 0;
-		iinv.biw[ug.fId][1] = 0;
+		iinv.biw[ug.fId][1] = 0;*/
 
 		/*if (ug.fId < ug.nBFace)
 		{
@@ -237,14 +246,23 @@ void INsInvterm::CmpINsBcinvTerm()
 		iinv.ai[ug.fId][0] = clr;
 		iinv.ai[ug.fId][1] = crl;
 
-		iinv.biu[ug.fId][0] = crl*iinv.uf[ug.fId];
+		iinv.buc[ug.lc] = crl * iinv.uf[ug.fId];
+		iinv.buc[ug.rc] = 0;
+
+		iinv.bvc[ug.lc] = crl * iinv.uf[ug.fId];
+		iinv.bvc[ug.rc] = 0;
+
+		iinv.bwc[ug.lc] = crl * iinv.uf[ug.fId];
+		iinv.bwc[ug.rc] = 0;
+
+		/*iinv.biu[ug.fId][0] = crl*iinv.uf[ug.fId];
 		iinv.biu[ug.fId][1] = 0;
 
 		iinv.biv[ug.fId][0] = crl * iinv.vf[ug.fId];
 		iinv.biv[ug.fId][1] = 0;
 
 		iinv.biw[ug.fId][0] = crl * iinv.wf[ug.fId];
-		iinv.biw[ug.fId][1] = 0;
+		iinv.biw[ug.fId][1] = 0;*/
 }
 
 void INsInvterm::CmpINsFaceflux()
@@ -424,8 +442,12 @@ void INsInvterm::CmpINsBcFaceCorrectPresscoef()
 	iinv.Vdvu[ug.fId] = (*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc]);
 	iinv.Vdvv[ug.fId] = (*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc]);
 	iinv.Vdvw[ug.fId] = (*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc]);
-	iinv.ajp[ug.fId] = 0;
 
+	iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc]);
+
+	//iinv.ajp[ug.fId] = iinv.rf[ug.fId] * (iinv.Vdvu[ug.fId] * (*ug.xfn)[ug.fId] * (*ug.xfn)[ug.fId] + iinv.Vdvv[ug.fId] * (*ug.yfn)[ug.fId] * (*ug.yfn)[ug.fId] + iinv.Vdvw[ug.fId] * (*ug.zfn)[ug.fId] * (*ug.zfn)[ug.fId]) * (*ug.farea)[ug.fId] / iinv.dist;
+
+	iinv.ajp[ug.fId] = 0;
 	/*if (bcType == BC::SOLID_SURFACE)
 	{
 		iinv.Vdvu[ug.fId] = 0;

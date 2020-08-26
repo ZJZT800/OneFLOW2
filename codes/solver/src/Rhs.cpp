@@ -206,7 +206,7 @@ void INSCmpGamaT(int flag)
 void INsCmpRHS()
 {
 
-		INsCmpTimestep();
+		//INsCmpTimestep();
 
 		INsPreflux();
 

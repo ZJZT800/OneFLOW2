@@ -68,15 +68,9 @@ void UINsInvterm::CmpLimiter()
 
 void UINsInvterm::CmpInvFace()  //单元数据重构
 {
-	//uins_grad.Init();
-	//uins_grad.CmpGrad();
-
-
 	this->CmpLimiter();   //不改
 
 	this->GetQlQrField();  //不改
-
-	//this->ReconstructFaceValueField();  //不改
 
 	this->BoundaryQlQrFixField();  //不改
 }
@@ -219,9 +213,9 @@ void UINsInvterm::Initflux()
 	iinv.fq.resize(ug.nFace);
 	iinv.spc.resize(ug.nTCell);
 	iinv.ai.resize(ug.nFace,2);
-	iinv.biu.resize(ug.nFace,2);
-	iinv.biv.resize(ug.nFace,2);
-	iinv.biw.resize(ug.nFace,2);
+	//iinv.biu.resize(ug.nFace,2);
+	//iinv.biv.resize(ug.nFace,2);
+	//iinv.biw.resize(ug.nFace,2);
 	//iinv.sj.resize(ug.nTCell, 4);
 	//iinv.sd.resize(ug.nTCell, 4);
 	//iinv.sjp.resize(ug.nCell, ug.nCell);
@@ -1712,7 +1706,6 @@ void UINsInvterm::CmpUpdateINsFaceflux()
 void UINsInvterm::UpdateSpeed()
 {
 	//this->CmpPreGrad();
-
 	ONEFLOW::CmpINsGrad(iinv.ppf, iinv.dqqdx, iinv.dqqdy, iinv.dqqdz);
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
@@ -2389,7 +2382,6 @@ void UINsInvterm::CmpPreGrad()
 void UINsInvterm::Alloc()
 {
 	uinsf.qf = new MRField(inscom.nEqu, ug.nFace);
-
 }
 
 void UINsInvterm::DeAlloc()
