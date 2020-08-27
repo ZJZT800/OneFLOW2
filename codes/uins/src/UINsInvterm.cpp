@@ -868,10 +868,10 @@ void UINsInvterm::CmpFaceflux()
 		this->CmpINsFaceflux();
 	}
 
-	iinv.Tqu = 0;
+	/*iinv.Tqu = 0;
 	iinv.Tqv = 0;
 	iinv.Tqw = 0;
-	iinv.Tq = 0;
+	iinv.Tq = 0;*/
 
 	ug.nRegion = ug.bcRecord->bcInfo->bcType.size();
 	BcInfo * bcInfo = ug.bcRecord->bcInfo;
@@ -1036,7 +1036,7 @@ void UINsInvterm::AddFlux()
 
 void UINsInvterm::CmpCorrectPresscoef()
 {
-	this->CmpNewMomCoe();
+	//this->CmpNewMomCoe();
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
 		ug.fId = fId;
@@ -1321,10 +1321,19 @@ void UINsInvterm::CmpPressCorrectEqu()
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
 
-		iinv.pf[ug.fId] = iinv.pf[ug.fId] + 0.8*iinv.ppf[ug.fId];
+		iinv.pf[ug.fId] = iinv.pf[ug.fId] + iinv.ppf[ug.fId];
 
 		//(*uinsf.q)[IIDX::IIP][ug.rc] = -(*uinsf.q)[IIDX::IIP][ug.lc] + 2 * iinv.pf[ug.fId];
 	}
+
+	/*for (int fId = 0; fId < ug.nBFace; ++fId)
+	{
+		ug.fId = fId;
+		ug.lc = (*ug.lcf)[ug.fId];
+		ug.rc = (*ug.rcf)[ug.fId];
+
+		(*uinsf.q)[IIDX::IIP][ug.rc] = -(*uinsf.q)[IIDX::IIP][ug.lc] + 2*iinv.pf[ug.fId];
+	}*/
 
 	/*ug.nRegion = ug.bcRecord->bcInfo->bcType.size();
 	BcInfo * bcInfo = ug.bcRecord->bcInfo;
@@ -1781,6 +1790,17 @@ void UINsInvterm::UpdateSpeed()
 			(*uinsf.q)[IIDX::IIW][ug.rc] = (*uinsf.q)[IIDX::IIW][ug.rc] + iinv.wwf[ug.fId];*/
 		}
 	}
+
+	/*for (int fId = 0; fId < ug.nBFace; ++fId)
+	{
+		ug.fId = fId;
+		ug.lc = (*ug.lcf)[ug.fId];
+		ug.rc = (*ug.rcf)[ug.fId];
+
+		(*uinsf.q)[IIDX::IIU][ug.rc] = -(*uinsf.q)[IIDX::IIU][ug.lc] + 2 * iinv.uf[ug.fId];
+		(*uinsf.q)[IIDX::IIV][ug.rc] = -(*uinsf.q)[IIDX::IIV][ug.lc] + 2 * iinv.vf[ug.fId];
+		(*uinsf.q)[IIDX::IIW][ug.rc] = -(*uinsf.q)[IIDX::IIW][ug.lc] + 2 * iinv.wf[ug.fId];
+	}*/
 
 	/*iinv.qout = 0;
 

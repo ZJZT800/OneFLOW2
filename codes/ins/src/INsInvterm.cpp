@@ -117,9 +117,9 @@ void INsInvterm::CmpINsBcinvFlux()
 
 	INsExtract(iinv.prim2, iinv.rr, iinv.ur, iinv.vr, iinv.wr, iinv.pr);
 
-	int bcType = ug.bcRecord->bcType[ug.fId];
+	//int bcType = ug.bcRecord->bcType[ug.fId];
 
-	if(bcType == BC::SOLID_SURFACE)
+	if(ug.bctype == BC::SOLID_SURFACE)
 	{
 		if (inscom.bcdtkey == 0)
 		{
@@ -156,7 +156,7 @@ void INsInvterm::CmpINsBcinvFlux()
 		}
 
 	}
-	else if (bcType == BC::OUTFLOW)
+	else if (ug.bctype == BC::OUTFLOW)
 	{
 
 		iinv.rf[ug.fId] = iinv.rl;    //初始界面上的值（u、v、w ）
@@ -174,7 +174,7 @@ void INsInvterm::CmpINsBcinvFlux()
 		iinv.fq[ug.fId] = iinv.rf[ug.fId]* iinv.vnflow * gcom.farea;
 	}
 
-	else if(bcType == BC::INFLOW)
+	else if(ug.bctype == BC::INFLOW)
 	{
 		iinv.rf[ug.fId] = inscom.inflow[IIDX::IIR];    //初始界面上的值（u、v、w ）
 
@@ -249,10 +249,10 @@ void INsInvterm::CmpINsBcinvTerm()
 		iinv.buc[ug.lc] = crl * iinv.uf[ug.fId];
 		iinv.buc[ug.rc] = 0;
 
-		iinv.bvc[ug.lc] = crl * iinv.uf[ug.fId];
+		iinv.bvc[ug.lc] = crl * iinv.vf[ug.fId];
 		iinv.bvc[ug.rc] = 0;
 
-		iinv.bwc[ug.lc] = crl * iinv.uf[ug.fId];
+		iinv.bwc[ug.lc] = crl * iinv.wf[ug.fId];
 		iinv.bwc[ug.rc] = 0;
 
 		/*iinv.biu[ug.fId][0] = crl*iinv.uf[ug.fId];
@@ -289,9 +289,6 @@ void INsInvterm::CmpINsFaceflux()
 	Real dx2 = (*ug.xcc)[ug.rc] - (*ug.xfc)[ug.fId];
 	Real dy2 = (*ug.ycc)[ug.rc] - (*ug.yfc)[ug.fId];
 	Real dz2 = (*ug.zcc)[ug.rc] - (*ug.zfc)[ug.fId];
-
-	iinv.dlf = sqrt(dx1*dx1 + dy1 * dy1 + dz1 * dz1);
-	iinv.dfr = sqrt(dx2*dx2 + dy2 * dy2 + dz2 * dz2);
 
 	iinv.Bpe = (*uinsf.dqdx)[IIDX::IIP][ug.lc] * (dx1) + (*uinsf.dqdy)[IIDX::IIP][ug.lc] * (dy1) + (*uinsf.dqdz)[IIDX::IIP][ug.lc] * (dz1) +
 		(*uinsf.dqdx)[IIDX::IIP][ug.rc] * (dx2) + (*uinsf.dqdy)[IIDX::IIP][ug.rc] * (dy2) + (*uinsf.dqdz)[IIDX::IIP][ug.rc] * (dz2) -
@@ -337,14 +334,12 @@ void INsInvterm::CmpINsBcFaceflux()
 	Real dy1 = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
 	Real dz1 = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
 
-	iinv.dlf = sqrt(dx1*dx1 + dy1 * dy1 + dz1 * dz1);
-
 	iinv.Bpe = (*uinsf.dqdx)[IIDX::IIP][ug.lc] * (dx1)+(*uinsf.dqdy)[IIDX::IIP][ug.lc] * (dy1)+(*uinsf.dqdz)[IIDX::IIP][ug.lc] * (dz1)-
 		(iinv.pf[ug.fId] - iinv.pl);
 
-	int bcType = ug.bcRecord->bcType[ug.fId];
+	//int bcType = ug.bcRecord->bcType[ug.fId];
 
-	if (bcType == BC::SOLID_SURFACE)
+	if (ug.bctype == BC::SOLID_SURFACE)
 	{
 		if (inscom.bcdtkey == 0)
 		{
@@ -378,7 +373,7 @@ void INsInvterm::CmpINsBcFaceflux()
 
 	}
 
-	else if (bcType == BC::INFLOW)
+	else if (ug.bctype == BC::INFLOW)
 	{
 		iinv.rf[ug.fId] = inscom.inflow[IIDX::IIR];    //初始界面上的值（u、v、w ）
 
@@ -393,7 +388,7 @@ void INsInvterm::CmpINsBcFaceflux()
 		iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * gcom.farea; //初始界面上的质量通量
 	}
 
-	else if (bcType == BC::OUTFLOW)
+	else if (ug.bctype == BC::OUTFLOW)
 	{
 
 		iinv.rf[ug.fId] = iinv.rl;    //初始界面上的值（u、v、w ）
@@ -408,9 +403,6 @@ void INsInvterm::CmpINsBcFaceflux()
 
 		iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * gcom.farea;
 	}
-
-	
-
 
 
 	Real clr = MAX(0, iinv.fq[ug.fId]);  //从界面左侧单元流入右侧单元的初始质量流量
@@ -444,10 +436,8 @@ void INsInvterm::CmpINsBcFaceCorrectPresscoef()
 	iinv.Vdvw[ug.fId] = (*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc]);
 
 	iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc]);
-
-	//iinv.ajp[ug.fId] = iinv.rf[ug.fId] * (iinv.Vdvu[ug.fId] * (*ug.xfn)[ug.fId] * (*ug.xfn)[ug.fId] + iinv.Vdvv[ug.fId] * (*ug.yfn)[ug.fId] * (*ug.yfn)[ug.fId] + iinv.Vdvw[ug.fId] * (*ug.zfn)[ug.fId] * (*ug.zfn)[ug.fId]) * (*ug.farea)[ug.fId] / iinv.dist;
-
 	iinv.ajp[ug.fId] = 0;
+	//iinv.ajp[ug.fId] = iinv.rf[ug.fId] * (iinv.Vdvu[ug.fId] * (*ug.xfn)[ug.fId] * (*ug.xfn)[ug.fId] + iinv.Vdvv[ug.fId] * (*ug.yfn)[ug.fId] * (*ug.yfn)[ug.fId] + iinv.Vdvw[ug.fId] * (*ug.zfn)[ug.fId] * (*ug.zfn)[ug.fId]) * (*ug.farea)[ug.fId] / iinv.dist;
 	/*if (bcType == BC::SOLID_SURFACE)
 	{
 		iinv.Vdvu[ug.fId] = 0;
