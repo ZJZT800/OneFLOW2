@@ -224,19 +224,30 @@ void INsInvterm::CmpINsBcFaceflux()
 	INsExtract(iinv.prim1, iinv.rl, iinv.ul, iinv.vl, iinv.wl, iinv.pl);
 	INsExtract(iinv.prim2, iinv.rr, iinv.ur, iinv.vr, iinv.wr, iinv.pr);
 
-	iinv.dist = gcom.xfn * ((*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc]) + gcom.yfn * ((*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc]) + gcom.zfn * ((*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc]);
-	
 	int bcType = ug.bcRecord->bcType[ug.fId];
 
-	iinv.rf[ug.fId] = (iinv.rl + iinv.rr)*half;
-	iinv.uf[ug.fId] = (iinv.ul + iinv.ur)*half;
-	iinv.vf[ug.fId] = (iinv.vl + iinv.vr)*half;
-	iinv.wf[ug.fId] = (iinv.wl + iinv.wr)*half;
-	
-	iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId];
+	iinv.dist = gcom.xfn * ((*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc]) + gcom.yfn * ((*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc]) + gcom.zfn * ((*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc]);
 
-	iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * (*ug.farea)[ug.fId];  //下一时刻界面预测通量
-	
+	iinv.Deun = iinv.Vau / iinv.dist;   //Df*n/e*n
+	iinv.Devn = iinv.Vav / iinv.dist;
+	iinv.Dewn = iinv.Vaw / iinv.dist;
+
+
+	Real dx1 = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];
+	Real dy1 = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
+	Real dz1 = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
+
+	Real dx2 = (*ug.xcc)[ug.rc] - (*ug.xfc)[ug.fId];
+	Real dy2 = (*ug.ycc)[ug.rc] - (*ug.yfc)[ug.fId];
+	Real dz2 = (*ug.zcc)[ug.rc] - (*ug.zfc)[ug.fId];
+
+	iinv.dlf = sqrt(dx1*dx1 + dy1 * dy1 + dz1 * dz1);
+	iinv.dfr = sqrt(dx2*dx2 + dy2 * dy2 + dz2 * dz2);
+
+	iinv.Bpe = (*uinsf.dqdx)[IIDX::IIP][ug.lc] * (dx1)+(*uinsf.dqdy)[IIDX::IIP][ug.lc] * (dy1)+(*uinsf.dqdz)[IIDX::IIP][ug.lc] * (dz1)+
+		(*uinsf.dqdx)[IIDX::IIP][ug.rc] * (dx2)+(*uinsf.dqdy)[IIDX::IIP][ug.rc] * (dy2)+(*uinsf.dqdz)[IIDX::IIP][ug.rc] * (dz2)-
+		(iinv.pr - iinv.pl);
+
 
 	/*iinv.uf1[ug.fId] = (iinv.ul + iinv.ur)*half;
 	iinv.vf1[ug.fId] = (iinv.vl + iinv.vr)*half;
@@ -257,7 +268,36 @@ void INsInvterm::CmpINsBcFaceflux()
 
 	if (bcType == BC::SOLID_SURFACE)
 	{
-		iinv.fq[ug.fId] = 0;
+		iinv.rf[ug.fId] = half * (iinv.rl + iinv.rr);
+		iinv.uf[ug.fId] = half* (iinv.ul + iinv.ur);  //下一时刻的界面预测速度
+		iinv.vf[ug.fId] = half*(iinv.vl + iinv.vr);
+		iinv.wf[ug.fId] = half*(iinv.wl + iinv.wr);
+
+		iinv.vnflow = (*ug.xfn)[ug.fId] * iinv.uf[ug.fId] + (*ug.yfn)[ug.fId] * iinv.vf[ug.fId] + (*ug.zfn)[ug.fId] * iinv.wf[ug.fId];
+
+		iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * (*ug.farea)[ug.fId];
+	}
+	else if (bcType == BC::INFLOW)
+	{
+		iinv.rf[ug.fId] = half * (iinv.rl + iinv.rr);
+		iinv.uf[ug.fId] = (iinv.f1[ug.fId] * iinv.ul + iinv.f2[ug.fId] * iinv.ur) + iinv.Deun * iinv.Bpe;  //下一时刻的界面预测速度
+		iinv.vf[ug.fId] = (iinv.f1[ug.fId] * iinv.vl + iinv.f2[ug.fId] * iinv.vr) + iinv.Devn * iinv.Bpe;
+		iinv.wf[ug.fId] = (iinv.f1[ug.fId] * iinv.wl + iinv.f2[ug.fId] * iinv.wr) + iinv.Dewn * iinv.Bpe;
+
+		iinv.vnflow = (*ug.xfn)[ug.fId] * iinv.uf[ug.fId] + (*ug.yfn)[ug.fId] * iinv.vf[ug.fId] + (*ug.zfn)[ug.fId] * iinv.wf[ug.fId];
+
+		iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * (*ug.farea)[ug.fId];  //下一时刻界面预测通量
+	}
+	else if (bcType == BC::OUTFLOW)
+	{
+		iinv.rf[ug.fId] = half * (iinv.rl + iinv.rr);
+		iinv.uf[ug.fId] = (iinv.ul) + iinv.Deun * iinv.Bpe;  //下一时刻的界面预测速度
+		iinv.vf[ug.fId] = (iinv.vl) + iinv.Devn * iinv.Bpe;
+		iinv.wf[ug.fId] = (iinv.wl) + iinv.Dewn * iinv.Bpe;
+
+		iinv.vnflow = (*ug.xfn)[ug.fId] * iinv.uf[ug.fId] + (*ug.yfn)[ug.fId] * iinv.vf[ug.fId] + (*ug.zfn)[ug.fId] * iinv.wf[ug.fId];
+
+		iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * (*ug.farea)[ug.fId];  //下一时刻界面预测通量
 	}
 
 	Real clr = MAX(0, iinv.fq[ug.fId]);  //从界面左侧单元流入右侧单元的初始质量流量

@@ -727,7 +727,6 @@ void UINsInvterm::MomPre()
 					inscom.bcflow = &bcdata.dataList[dd];
 				}
 
-
 				iinv.uc[ug.rc] = iinv.uc[ug.lc];
 				iinv.vc[ug.rc] = iinv.vc[ug.lc];
 				iinv.wc[ug.rc] = iinv.wc[ug.lc];
