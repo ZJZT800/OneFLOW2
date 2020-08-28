@@ -320,9 +320,9 @@ void INsInvterm::CmpINsBcFaceflux()
 	INsExtract(iinv.prim1, iinv.rl, iinv.ul, iinv.vl, iinv.wl, iinv.pl);
 	INsExtract(iinv.prim2, iinv.rr, iinv.ur, iinv.vr, iinv.wr, iinv.pr);
 
-	iinv.Vau =  (*ug.cvol1)[ug.lc] * gcom.xfn / (iinv.spc[ug.lc]); //Df*n，分子
-	iinv.Vav =  (*ug.cvol1)[ug.lc] * gcom.yfn / (iinv.spc[ug.lc]);
-	iinv.Vaw =  (*ug.cvol1)[ug.lc] * gcom.zfn / (iinv.spc[ug.lc]);
+	iinv.Vau = ((*ug.cvol1)[ug.lc] * gcom.xfn / (iinv.spc[ug.lc])); //Df*n，分子
+	iinv.Vav = ((*ug.cvol1)[ug.lc] * gcom.yfn / (iinv.spc[ug.lc]));
+	iinv.Vaw = ((*ug.cvol1)[ug.lc] * gcom.zfn / (iinv.spc[ug.lc]));
 
 	iinv.dist = gcom.xfn * ((*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc]) + gcom.yfn * ((*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc]) + gcom.zfn * ((*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc]);
 
@@ -435,7 +435,6 @@ void INsInvterm::CmpINsBcFaceCorrectPresscoef()
 	iinv.Vdvv[ug.fId] = (*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc]);
 	iinv.Vdvw[ug.fId] = (*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc]);
 
-	iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc]);
 	iinv.ajp[ug.fId] = 0;
 	//iinv.ajp[ug.fId] = iinv.rf[ug.fId] * (iinv.Vdvu[ug.fId] * (*ug.xfn)[ug.fId] * (*ug.xfn)[ug.fId] + iinv.Vdvv[ug.fId] * (*ug.yfn)[ug.fId] * (*ug.yfn)[ug.fId] + iinv.Vdvw[ug.fId] * (*ug.zfn)[ug.fId] * (*ug.zfn)[ug.fId]) * (*ug.farea)[ug.fId] / iinv.dist;
 	/*if (bcType == BC::SOLID_SURFACE)

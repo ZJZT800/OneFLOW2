@@ -1036,7 +1036,7 @@ void UINsInvterm::AddFlux()
 
 void UINsInvterm::CmpCorrectPresscoef()
 {
-	//this->CmpNewMomCoe();
+	this->CmpNewMomCoe();
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
 		ug.fId = fId;
@@ -1172,6 +1172,7 @@ void UINsInvterm::CmpNewMomCoe()
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		ug.cId = cId;
+
 		iinv.spc[ug.cId] += iinv.spt[ug.cId];
 	}
 
@@ -1312,7 +1313,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		ug.cId = cId;
-		(*uinsf.q)[IIDX::IIP][ug.cId] = (*uinsf.q)[IIDX::IIP][ug.cId] +0.8*iinv.pp[ug.cId];
+		(*uinsf.q)[IIDX::IIP][ug.cId] = (*uinsf.q)[IIDX::IIP][ug.cId] +0.08*iinv.pp[ug.cId];
 	}
 
 	for (int fId = 0; fId < ug.nBFace; ++fId)
@@ -1321,7 +1322,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
 
-		iinv.pf[ug.fId] = iinv.pf[ug.fId] + iinv.ppf[ug.fId];
+		iinv.pf[ug.fId] = iinv.pf[ug.fId] + iinv.ppf[ug.fId]*0.08;
 
 		//(*uinsf.q)[IIDX::IIP][ug.rc] = -(*uinsf.q)[IIDX::IIP][ug.lc] + 2 * iinv.pf[ug.fId];
 	}
@@ -1777,9 +1778,9 @@ void UINsInvterm::UpdateSpeed()
 		{
 			iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc]);
 
-			iinv.uuf[ug.fId] = iinv.Vdvu[ug.fId] * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]) * (*ug.xfn)[ug.fId] / iinv.dist;
-			iinv.vvf[ug.fId] = iinv.Vdvv[ug.fId] * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]) * (*ug.yfn)[ug.fId] / iinv.dist;
-			iinv.vvf[ug.fId] = iinv.Vdvw[ug.fId] * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]) * (*ug.zfn)[ug.fId] / iinv.dist;
+			iinv.uuf[ug.fId] = 0.08*iinv.Vdvu[ug.fId] * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]) * (*ug.xfn)[ug.fId] / iinv.dist;
+			iinv.vvf[ug.fId] = 0.08*iinv.Vdvv[ug.fId] * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]) * (*ug.yfn)[ug.fId] / iinv.dist;
+			iinv.vvf[ug.fId] = 0.08*iinv.Vdvw[ug.fId] * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]) * (*ug.zfn)[ug.fId] / iinv.dist;
 
 			iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuf[ug.fId];
 			iinv.vf[ug.fId] = iinv.vf[ug.fId] + iinv.vvf[ug.fId];
