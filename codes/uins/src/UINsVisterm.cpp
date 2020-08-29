@@ -415,7 +415,7 @@ void UINsVisterm::CmpFaceVisterm()
 	iinv.ai[ug.fId][0] += iinv.Fn[ug.fId];
 	iinv.ai[ug.fId][1] += iinv.Fn[ug.fId];
 	
-	iinv.buc[ug.lc] += iinv.Ftu1 + iinv.Ftu2;//+ iinv.FtuT1+ iinv.FtuT2;
+	iinv.buc[ug.lc] += iinv.Ftu1 + iinv.Ftu2;// +iinv.FtuT1 + iinv.FtuT2;
 	iinv.buc[ug.rc] += -iinv.Ftu1 - iinv.Ftu2;// -iinv.FtuT1 - iinv.FtuT2;
 
 	iinv.bvc[ug.lc] += iinv.Ftv1 + iinv.Ftv2;// +iinv.FtvT1 + iinv.FtvT2;

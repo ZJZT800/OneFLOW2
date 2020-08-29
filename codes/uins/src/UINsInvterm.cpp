@@ -1016,13 +1016,13 @@ void UINsInvterm::CmpPressCorrectEqu()
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
 
-		iinv.pf[ug.fId] = iinv.pf[ug.fId] + iinv.ppf[ug.fId];
+		iinv.pf[ug.fId] = iinv.pf[ug.fId] + 0.8*iinv.ppf[ug.fId];
 
 		//(*uinsf.q)[IIDX::IIP][ug.rc] = -(*uinsf.q)[IIDX::IIP][ug.lc] + 2 * iinv.pf[ug.fId];
 	}
 
 
-	ug.nRegion = ug.bcRecord->bcInfo->bcType.size();
+	/*ug.nRegion = ug.bcRecord->bcInfo->bcType.size();
 	BcInfo * bcInfo = ug.bcRecord->bcInfo;
 
 	for (int ir = 0; ir < ug.nRegion; ++ir)
@@ -1060,7 +1060,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 					inscom.bcflow = &bcdata.dataList[dd];
 				}
 
-				(*uinsf.q)[IIDX::IIP][ug.rc] = (*uinsf.q)[IIDX::IIP][ug.lc];//(*uinsf.q)[IIDX::IIP][ug.rc]+0.8*iinv.pp[ug.lc];
+				(*uinsf.q)[IIDX::IIP][ug.rc] = (*uinsf.q)[IIDX::IIP][ug.rc]+0.8*iinv.pp[ug.lc];
 			}
 		}
 
@@ -1122,7 +1122,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 			}
 		}
 
-	}
+	}*/
 }
 
 
@@ -1315,9 +1315,9 @@ void UINsInvterm::UpdateSpeed()
 		{
 			iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc]);
 
-			iinv.uuf[ug.fId] = 0.08*iinv.Vdvu[ug.fId] * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]) * (*ug.xfn)[ug.fId] / iinv.dist;
-			iinv.vvf[ug.fId] = 0.08*iinv.Vdvv[ug.fId] * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]) * (*ug.yfn)[ug.fId] / iinv.dist;
-			iinv.vvf[ug.fId] = 0.08*iinv.Vdvw[ug.fId] * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]) * (*ug.zfn)[ug.fId] / iinv.dist;
+			iinv.uuf[ug.fId] = 0.8*iinv.Vdvu[ug.fId] * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]) * (*ug.xfn)[ug.fId] / iinv.dist;
+			iinv.vvf[ug.fId] = 0.8*iinv.Vdvv[ug.fId] * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]) * (*ug.yfn)[ug.fId] / iinv.dist;
+			iinv.vvf[ug.fId] = 0.8*iinv.Vdvw[ug.fId] * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]) * (*ug.zfn)[ug.fId] / iinv.dist;
 
 			iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuf[ug.fId];
 			iinv.vf[ug.fId] = iinv.vf[ug.fId] + iinv.vvf[ug.fId];
@@ -1329,7 +1329,7 @@ void UINsInvterm::UpdateSpeed()
 		}
 	}
 
-	ug.nRegion = ug.bcRecord->bcInfo->bcType.size();
+	/*ug.nRegion = ug.bcRecord->bcInfo->bcType.size();
 	BcInfo * bcInfo = ug.bcRecord->bcInfo;
 
 	for (int ir = 0; ir < ug.nRegion; ++ir)
@@ -1462,7 +1462,7 @@ void UINsInvterm::UpdateSpeed()
 			}
 		}
 
-	}
+	}*/
 }
 
 void UINsInvterm::UpdateINsRes()
