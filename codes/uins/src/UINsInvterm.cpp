@@ -1290,10 +1290,6 @@ void UINsInvterm::UpdateSpeed()
 			iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuf[ug.fId];
 			iinv.vf[ug.fId] = iinv.vf[ug.fId] + iinv.vvf[ug.fId];
 			iinv.wf[ug.fId] = iinv.wf[ug.fId] + iinv.wwf[ug.fId];
-
-			/*(*uinsf.q)[IIDX::IIU][ug.rc] = -(*uinsf.q)[IIDX::IIU][ug.lc] + 2 * iinv.uf[ug.fId];
-			(*uinsf.q)[IIDX::IIV][ug.rc] = -(*uinsf.q)[IIDX::IIV][ug.lc] + 2 * iinv.vf[ug.fId];
-			(*uinsf.q)[IIDX::IIW][ug.rc] = -(*uinsf.q)[IIDX::IIW][ug.lc] + 2 * iinv.wf[ug.fId];*/
 		}
 
 		else if (bcType == BC::INFLOW)
@@ -1305,10 +1301,6 @@ void UINsInvterm::UpdateSpeed()
 			iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuf[ug.fId];
 			iinv.vf[ug.fId] = iinv.vf[ug.fId] + iinv.vvf[ug.fId];
 			iinv.wf[ug.fId] = iinv.wf[ug.fId] + iinv.wwf[ug.fId];
-
-			/*(*uinsf.q)[IIDX::IIU][ug.rc] = (*uinsf.q)[IIDX::IIU][ug.rc] + iinv.uuf[ug.fId];
-			(*uinsf.q)[IIDX::IIV][ug.rc] = (*uinsf.q)[IIDX::IIV][ug.rc] + iinv.vvf[ug.fId];
-			(*uinsf.q)[IIDX::IIW][ug.rc] = (*uinsf.q)[IIDX::IIW][ug.rc] + iinv.wwf[ug.fId];*/
 		}
 
 		else if (bcType == BC::OUTFLOW)
@@ -1322,10 +1314,6 @@ void UINsInvterm::UpdateSpeed()
 			iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuf[ug.fId];
 			iinv.vf[ug.fId] = iinv.vf[ug.fId] + iinv.vvf[ug.fId];
 			iinv.wf[ug.fId] = iinv.wf[ug.fId] + iinv.wwf[ug.fId];
-
-			/*(*uinsf.q)[IIDX::IIU][ug.rc] = (*uinsf.q)[IIDX::IIU][ug.rc] + iinv.uuf[ug.fId];
-			(*uinsf.q)[IIDX::IIV][ug.rc] = (*uinsf.q)[IIDX::IIV][ug.rc] + iinv.vvf[ug.fId];
-			(*uinsf.q)[IIDX::IIW][ug.rc] = (*uinsf.q)[IIDX::IIW][ug.rc] + iinv.wwf[ug.fId];*/
 		}
 	}
 
@@ -1538,19 +1526,26 @@ void UINsInvterm::UpdateINsRes()
 			ug.lc = (*ug.lcf)[ug.fId];
 			ug.rc = (*ug.rcf)[ug.fId];
 
-			if (ug.cId == ug.lc)
+			if (fId > ug.nBFace - 1)
 			{
-				iinv.mu[ug.cId] += -iinv.ai[ug.fId][0] * (iinv.up[ug.rc] - iinv.uc[ug.rc]);  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
-				iinv.mv[ug.cId] += -iinv.ai[ug.fId][0] * (iinv.vp[ug.rc] - iinv.vc[ug.rc]);
-				iinv.mw[ug.cId] += -iinv.ai[ug.fId][0] * (iinv.wp[ug.rc] - iinv.wc[ug.rc]);
-				//iinv.mpp[ug.cId] += -iinv.ajp[ug.fId] * iinv.pp[ug.rc];
+				if (ug.cId == ug.lc)
+				{
+					iinv.mu[ug.cId] += -iinv.ai[ug.fId][0] * (iinv.up[ug.rc] - iinv.uc[ug.rc]);  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
+					iinv.mv[ug.cId] += -iinv.ai[ug.fId][0] * (iinv.vp[ug.rc] - iinv.vc[ug.rc]);
+					iinv.mw[ug.cId] += -iinv.ai[ug.fId][0] * (iinv.wp[ug.rc] - iinv.wc[ug.rc]);
+					//iinv.mpp[ug.cId] += -iinv.ajp[ug.fId] * iinv.pp[ug.rc];
+				}
+				else if (ug.cId == ug.rc)
+				{
+					iinv.mu[ug.cId] += -iinv.ai[ug.fId][1] * (iinv.up[ug.lc] - iinv.uc[ug.lc]);  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
+					iinv.mv[ug.cId] += -iinv.ai[ug.fId][1] * (iinv.vp[ug.lc] - iinv.vc[ug.lc]);
+					iinv.mw[ug.cId] += -iinv.ai[ug.fId][1] * (iinv.wp[ug.lc] - iinv.wc[ug.lc]);
+					//iinv.mpp[ug.cId] += -iinv.ajp[ug.fId] * iinv.pp[ug.lc];
+				}
 			}
-			else if (ug.cId == ug.rc)
+			else
 			{
-				iinv.mu[ug.cId] += -iinv.ai[ug.fId][1] * (iinv.up[ug.lc] - iinv.uc[ug.lc]);  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
-				iinv.mv[ug.cId] += -iinv.ai[ug.fId][1] * (iinv.vp[ug.lc] - iinv.vc[ug.lc]);
-				iinv.mw[ug.cId] += -iinv.ai[ug.fId][1] * (iinv.wp[ug.lc] - iinv.wc[ug.lc]);
-				//iinv.mpp[ug.cId] += -iinv.ajp[ug.fId] * iinv.pp[ug.lc];
+				continue;
 			}
 		}
 
