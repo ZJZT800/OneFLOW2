@@ -459,7 +459,7 @@ void UINsVisterm::CmpBcFaceVisterm()
 	iinv.Fbw = iinv.vis * (*ug.farea)[ug.fId] * iinv.wf[ug.fId] / iinv.c2d;
 
 
-	iinv.Puf = ((*uinsf.dqdx)[IIDX::IIU][ug.lc])*(*ug.xfn)[ug.fId] +((*uinsf.dqdy)[IIDX::IIU][ug.lc])*(*ug.yfn)[ug.fId] +((*uinsf.dqdz)[IIDX::IIU][ug.lc])*(*ug.zfn)[ug.fId];  //▽q*n
+	/*iinv.Puf = ((*uinsf.dqdx)[IIDX::IIU][ug.lc])*(*ug.xfn)[ug.fId] +((*uinsf.dqdy)[IIDX::IIU][ug.lc])*(*ug.yfn)[ug.fId] +((*uinsf.dqdz)[IIDX::IIU][ug.lc])*(*ug.zfn)[ug.fId];  //▽q*n
 
 	iinv.Pvf = ((*uinsf.dqdx)[IIDX::IIV][ug.lc])*(*ug.xfn)[ug.fId] +((*uinsf.dqdy)[IIDX::IIV][ug.lc])*(*ug.yfn)[ug.fId] +((*uinsf.dqdz)[IIDX::IIV][ug.lc])*(*ug.zfn)[ug.fId];
 
@@ -469,8 +469,22 @@ void UINsVisterm::CmpBcFaceVisterm()
 
 	iinv.Pdv = -((*uinsf.dqdx)[IIDX::IIV][ug.lc]*iinv.l2rdx +(*uinsf.dqdy)[IIDX::IIV][ug.lc]*iinv.l2rdy +(*uinsf.dqdz)[IIDX::IIV][ug.lc]*iinv.l2rdz) / iinv.dist;
 
-	iinv.Pdw = -((*uinsf.dqdx)[IIDX::IIW][ug.lc]*iinv.l2rdx +(*uinsf.dqdy)[IIDX::IIW][ug.lc]*iinv.l2rdy +(*uinsf.dqdz)[IIDX::IIW][ug.lc]*iinv.l2rdz) / iinv.dist;
+	iinv.Pdw = -((*uinsf.dqdx)[IIDX::IIW][ug.lc]*iinv.l2rdx +(*uinsf.dqdy)[IIDX::IIW][ug.lc]*iinv.l2rdy +(*uinsf.dqdz)[IIDX::IIW][ug.lc]*iinv.l2rdz) / iinv.dist;*/
 
+
+	iinv.Puf = (((*uinsf.q)[IIDX::IIU][ug.lc] - iinv.uf[ug.fId]) / iinv.c2d)*(*ug.xfn)[ug.fId] * (*ug.xfn)[ug.fId] +
+		       (((*uinsf.q)[IIDX::IIU][ug.lc] - iinv.uf[ug.fId]) / iinv.c2d)*(*ug.yfn)[ug.fId] * (*ug.yfn)[ug.fId] +
+		       (((*uinsf.q)[IIDX::IIU][ug.lc] - iinv.uf[ug.fId]) / iinv.c2d)*(*ug.zfn)[ug.fId] * (*ug.zfn)[ug.fId];
+
+	iinv.Pvf = (((*uinsf.q)[IIDX::IIV][ug.lc] - iinv.vf[ug.fId]) / iinv.c2d)*(*ug.xfn)[ug.fId] * (*ug.xfn)[ug.fId] +
+		       (((*uinsf.q)[IIDX::IIV][ug.lc] - iinv.vf[ug.fId]) / iinv.c2d)*(*ug.yfn)[ug.fId] * (*ug.yfn)[ug.fId] +
+		       (((*uinsf.q)[IIDX::IIV][ug.lc] - iinv.vf[ug.fId]) / iinv.c2d)*(*ug.zfn)[ug.fId] * (*ug.zfn)[ug.fId];
+
+	iinv.Pwf = (((*uinsf.q)[IIDX::IIW][ug.lc] - iinv.wf[ug.fId]) / iinv.c2d)*(*ug.xfn)[ug.fId] * (*ug.xfn)[ug.fId] +
+		       (((*uinsf.q)[IIDX::IIW][ug.lc] - iinv.wf[ug.fId]) / iinv.c2d)*(*ug.yfn)[ug.fId] * (*ug.yfn)[ug.fId] +
+		       (((*uinsf.q)[IIDX::IIW][ug.lc] - iinv.wf[ug.fId]) / iinv.c2d)*(*ug.zfn)[ug.fId] * (*ug.zfn)[ug.fId];
+
+	iinv.Pdu = ((*uinsf.dqdx)[IIDX::IIW][ug.lc])*(*ug.xfn)[ug.fId] + ((*uinsf.dqdy)[IIDX::IIW][ug.lc])*(*ug.yfn)[ug.fId] + ((*uinsf.dqdz)[IIDX::IIW][ug.lc])*(*ug.zfn)[ug.fId];
 
 	iinv.Ftu1 = iinv.Puf *(*ug.farea)[ug.fId] * iinv.vis;   //扩散项中归入源项的部分1
 	iinv.Ftv1 = iinv.Pvf *(*ug.farea)[ug.fId] * iinv.vis;
