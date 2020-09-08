@@ -187,6 +187,10 @@ void INsInvterm::CmpINsBcinvFlux()
 		iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;
 
 		iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * gcom.farea; //初始界面上的质量通量
+
+		iinv.Tqu += iinv.rf[ug.fId]*gcom.xfn * iinv.uf[ug.fId] * gcom.farea;
+		iinv.Tqv += iinv.rf[ug.fId] * gcom.yfn * iinv.vf[ug.fId] * gcom.farea;
+		iinv.Tqu += iinv.rf[ug.fId] * gcom.zfn * iinv.wf[ug.fId] * gcom.farea;
 	}
 }
 
@@ -196,8 +200,8 @@ void INsInvterm::CmpINsinvTerm()
 
 		Real crl = clr - iinv.fq[ug.fId];   //从界面右侧单元流入左侧单元的质量流量
 		
-		iinv.ai[ug.fId][0] = clr;
-		iinv.ai[ug.fId][1] = crl;
+		iinv.ai[ug.fId][0] = crl;//clr;
+		iinv.ai[ug.fId][1] = clr;//crl;
 
 		iinv.buc[ug.lc] = 0;
 		iinv.buc[ug.rc] = 0;
@@ -216,16 +220,16 @@ void INsInvterm::CmpINsBcinvTerm()
 		Real crl = clr - iinv.fq[ug.fId];   //从界面右侧单元流入左侧单元的初始质量流量
 
 
-		iinv.ai[ug.fId][0] = clr;
-		iinv.ai[ug.fId][1] = crl;
+		iinv.ai[ug.fId][0] = crl;//clr;
+		iinv.ai[ug.fId][1] = clr;//crl;
 
-		iinv.buc[ug.lc] = crl * iinv.uf[ug.fId];
+		iinv.buc[ug.lc] = clr * iinv.uf[ug.fId];//crl * iinv.uf[ug.fId];
 		iinv.buc[ug.rc] = 0;
 
-		iinv.bvc[ug.lc] = crl * iinv.vf[ug.fId];
+		iinv.bvc[ug.lc] = clr * iinv.vf[ug.fId];//crl * iinv.vf[ug.fId];
 		iinv.bvc[ug.rc] = 0;
 
-		iinv.bwc[ug.lc] = crl * iinv.wf[ug.fId];
+		iinv.bwc[ug.lc] = clr * iinv.wf[ug.fId];//crl * iinv.wf[ug.fId]
 		iinv.bwc[ug.rc] = 0;
 }
 
@@ -273,8 +277,8 @@ void INsInvterm::CmpINsFaceflux()
 
 	Real crl = clr - iinv.fq[ug.fId];   //从界面右侧单元流入左侧单元的初始质量流量
 
-	iinv.ai[ug.fId][0] = clr;
-	iinv.ai[ug.fId][1] = crl;
+	iinv.ai[ug.fId][0] = crl;//clr;
+	iinv.ai[ug.fId][1] = clr;//crl;
 
 }
 
@@ -298,8 +302,10 @@ void INsInvterm::CmpINsBcFaceflux()
 	Real dy1 = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
 	Real dz1 = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
 
-	iinv.Bpe = (*uinsf.dqdx)[IIDX::IIP][ug.lc] * (dx1)+(*uinsf.dqdy)[IIDX::IIP][ug.lc] * (dy1)+(*uinsf.dqdz)[IIDX::IIP][ug.lc] * (dz1)-
+	iinv.Bpe = ((iinv.pf[ug.fId]-iinv.pl) *gcom.xfn* (dx1)+(iinv.pf[ug.fId] - iinv.pl) *gcom.yfn * (dy1)+(iinv.pf[ug.fId] - iinv.pl) *gcom.zfn* (dz1))/ iinv.dist -
 		(iinv.pf[ug.fId] - iinv.pl);
+
+	//iinv.Bpe = ((iinv.pf[ug.fId] - (*uinsf.q)[IIDX::IIP][ug.lc]) / abs(iinv.dist))*(dx1 + dy1 + dz1)-(iinv.pf[ug.fId] - iinv.pl);
 
 	if (ug.bctype == BC::SOLID_SURFACE)
 	{
@@ -337,13 +343,13 @@ void INsInvterm::CmpINsBcFaceflux()
 
 	else if (ug.bctype == BC::INFLOW)
 	{
-		iinv.rf[ug.fId] = inscom.inflow[IIDX::IIR];    //初始界面上的值（u、v、w ）
+		iinv.rf[ug.fId] =  inscom.inflow[IIDX::IIR];    //初始界面上的值（u、v、w ）
 
-		iinv.uf[ug.fId] = inscom.inflow[IIDX::IIU];
+		iinv.uf[ug.fId] =  inscom.inflow[IIDX::IIU];
 
-		iinv.vf[ug.fId] = inscom.inflow[IIDX::IIV];
+		iinv.vf[ug.fId] =  inscom.inflow[IIDX::IIV];
 
-		iinv.wf[ug.fId] = inscom.inflow[IIDX::IIW];
+		iinv.wf[ug.fId] =  inscom.inflow[IIDX::IIW];
 
 		iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;
 
@@ -355,11 +361,11 @@ void INsInvterm::CmpINsBcFaceflux()
 
 		iinv.rf[ug.fId] = iinv.rl;    //初始界面上的值（u、v、w ）
 
-		iinv.uf[ug.fId] = iinv.ul+iinv.Deun * iinv.Bpe;
+		iinv.uf[ug.fId] = iinv.ul + iinv.Deun * iinv.Bpe;//(abs(iinv.Tqu) / ug.nRBFace)/(iinv.rf[ug.fId]* gcom.farea);
 
-		iinv.vf[ug.fId] = iinv.vl+ iinv.Devn * iinv.Bpe;
+		iinv.vf[ug.fId] = iinv.vl + iinv.Devn * iinv.Bpe; //(abs(iinv.Tqv) / ug.nRBFace) / (iinv.rf[ug.fId] * gcom.farea);
 
-		iinv.wf[ug.fId] = iinv.wl+ iinv.Dewn * iinv.Bpe;
+		iinv.wf[ug.fId] = iinv.wl + iinv.Dewn * iinv.Bpe;//(abs(iinv.Tqw) / ug.nRBFace) / (iinv.rf[ug.fId] * gcom.farea);
 
 		iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;
 
@@ -371,8 +377,8 @@ void INsInvterm::CmpINsBcFaceflux()
 
 	Real crl = clr - iinv.fq[ug.fId];   //从界面右侧单元流入左侧单元的初始质量流量
 
-	iinv.ai[ug.fId][0] = clr;
-	iinv.ai[ug.fId][1] = crl;
+	iinv.ai[ug.fId][0] = crl;//clr;
+	iinv.ai[ug.fId][1] = clr;//crl;
 									  
 }
 
