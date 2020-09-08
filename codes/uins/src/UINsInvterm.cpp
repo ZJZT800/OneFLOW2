@@ -312,6 +312,7 @@ void UINsInvterm::Initflux()
 
 void UINsInvterm::CmpInvMassFlux()
 {
+	iinv.spc = 0;
 
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
@@ -863,7 +864,6 @@ void UINsInvterm::CmpCorrectPresscoef()
 
 void UINsInvterm::CmpNewMomCoe()
 {
-	iinv.spc = 0;
 
 	for (int fId = 0; fId < ug.nFace; ++fId)
 	{
@@ -871,8 +871,8 @@ void UINsInvterm::CmpNewMomCoe()
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
 
-		iinv.spc[ug.lc] += iinv.ai[ug.fId][0] + iinv.Fn[ug.fId];
-		iinv.spc[ug.rc] += iinv.ai[ug.fId][1] + iinv.Fn[ug.fId];
+		iinv.spc[ug.lc] += iinv.ai[ug.fId][1]+iinv.Fn[ug.fId];
+		iinv.spc[ug.rc] += iinv.ai[ug.fId][0]+iinv.Fn[ug.fId];
 	}
 
 	for (int cId = 0; cId < ug.nCell; ++cId)

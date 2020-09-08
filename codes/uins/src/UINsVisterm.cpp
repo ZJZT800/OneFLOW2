@@ -676,20 +676,6 @@ void UINsVisterm::CmpINsSrc()
 
 	ONEFLOW::CmpINsGrad((*uinsf.qf)[IIDX::IIP], (*uinsf.dqdx)[IIDX::IIP], (*uinsf.dqdy)[IIDX::IIP], (*uinsf.dqdz)[IIDX::IIP]);
 
-	iinv.spc = 0;
-
-	for (int fId = 0; fId < ug.nFace; ++fId)
-	{
-		ug.fId = fId;
-		ug.lc = (*ug.lcf)[ug.fId];
-		ug.rc = (*ug.rcf)[ug.fId];
-
-		iinv.spc[ug.lc] += iinv.ai[ug.fId][0];
-		iinv.spc[ug.rc] += iinv.ai[ug.fId][1];
-
-	}
-
-
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		ug.cId = cId;
