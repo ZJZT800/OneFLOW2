@@ -200,17 +200,11 @@ void INsInvterm::CmpINsinvTerm()
 
 		Real crl = clr - iinv.fq[ug.fId];   //从界面右侧单元流入左侧单元的质量流量
 		
-		iinv.ai[ug.fId][0] = crl;//clr;
-		iinv.ai[ug.fId][1] = clr;//crl;
+		iinv.ai[ug.fId][0] = crl;//非对角线元素
+		iinv.ai[ug.fId][1] = clr;//非对角线元素
 
-		iinv.buc[ug.lc] = 0;
-		iinv.buc[ug.rc] = 0;
-
-		iinv.bvc[ug.lc] = 0;
-		iinv.bvc[ug.rc] = 0;
-
-		iinv.bwc[ug.lc] = 0;
-		iinv.bwc[ug.rc] = 0;
+		iinv.spc[ug.lc] += clr;
+		iinv.spc[ug.rc] += crl;
 }
 
 void INsInvterm::CmpINsBcinvTerm()
@@ -223,13 +217,16 @@ void INsInvterm::CmpINsBcinvTerm()
 		iinv.ai[ug.fId][0] = crl;//clr;
 		iinv.ai[ug.fId][1] = clr;//crl;
 
-		iinv.buc[ug.lc] = clr * iinv.uf[ug.fId];//crl * iinv.uf[ug.fId];
+		iinv.spc[ug.lc] += clr;
+		iinv.spc[ug.rc] += crl;
+
+		iinv.buc[ug.lc] += crl * iinv.uf[ug.fId];//crl * iinv.uf[ug.fId];
 		iinv.buc[ug.rc] = 0;
 
-		iinv.bvc[ug.lc] = clr * iinv.vf[ug.fId];//crl * iinv.vf[ug.fId];
+		iinv.bvc[ug.lc] += crl * iinv.vf[ug.fId];//crl * iinv.vf[ug.fId];
 		iinv.bvc[ug.rc] = 0;
 
-		iinv.bwc[ug.lc] = clr * iinv.wf[ug.fId];//crl * iinv.wf[ug.fId]
+		iinv.bwc[ug.lc] += crl * iinv.wf[ug.fId];//crl * iinv.wf[ug.fId]
 		iinv.bwc[ug.rc] = 0;
 }
 
@@ -277,8 +274,8 @@ void INsInvterm::CmpINsFaceflux()
 
 	Real crl = clr - iinv.fq[ug.fId];   //从界面右侧单元流入左侧单元的初始质量流量
 
-	iinv.ai[ug.fId][0] = crl;//clr;
-	iinv.ai[ug.fId][1] = clr;//crl;
+	iinv.ai[ug.fId][0] = crl;
+	iinv.ai[ug.fId][1] = clr;
 
 }
 
@@ -377,8 +374,8 @@ void INsInvterm::CmpINsBcFaceflux()
 
 	Real crl = clr - iinv.fq[ug.fId];   //从界面右侧单元流入左侧单元的初始质量流量
 
-	iinv.ai[ug.fId][0] = crl;//clr;
-	iinv.ai[ug.fId][1] = clr;//crl;
+	iinv.ai[ug.fId][0] = crl;
+	iinv.ai[ug.fId][1] = clr;
 									  
 }
 

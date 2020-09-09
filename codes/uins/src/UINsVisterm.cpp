@@ -434,6 +434,9 @@ void UINsVisterm::CmpFaceVisterm()
 
 	iinv.ai[ug.fId][0] += iinv.Fn[ug.fId];
 	iinv.ai[ug.fId][1] += iinv.Fn[ug.fId];
+
+	iinv.spc[ug.lc] += iinv.Fn[ug.fId];
+	iinv.spc[ug.rc] += iinv.Fn[ug.fId];
 	
 	iinv.buc[ug.lc] += iinv.Ftu1 + iinv.Ftu2;// +iinv.FtuT1 + iinv.FtuT2;
 	iinv.buc[ug.rc] += -iinv.Ftu1 - iinv.Ftu2;// -iinv.FtuT1 - iinv.FtuT2;
@@ -594,7 +597,10 @@ void UINsVisterm::CmpBcFaceVisterm()
 	iinv.FtwT2 = iinv.Pwd*(*ug.farea)[ug.fId] * (-2 / 3)*iinv.vis;
 
 	iinv.ai[ug.fId][0] += iinv.Fn[ug.fId];
-	iinv.ai[ug.fId][1] += 0;
+	iinv.ai[ug.fId][1] += iinv.Fn[ug.fId];
+
+	iinv.spc[ug.lc] += iinv.Fn[ug.fId];
+	iinv.spc[ug.rc] += iinv.Fn[ug.fId];
 
 	iinv.buc[ug.lc] += iinv.Fbu +iinv.Ftu1 + iinv.Ftu2;
 	iinv.buc[ug.rc] += 0;
@@ -676,7 +682,7 @@ void UINsVisterm::CmpINsSrc()
 
 	ONEFLOW::CmpINsGrad((*uinsf.qf)[IIDX::IIP], (*uinsf.dqdx)[IIDX::IIP], (*uinsf.dqdy)[IIDX::IIP], (*uinsf.dqdz)[IIDX::IIP]);
 
-	iinv.spc = 0;
+	/*iinv.spc = 0;
 
 	for (int fId = 0; fId < ug.nFace; ++fId)
 	{
@@ -687,7 +693,7 @@ void UINsVisterm::CmpINsSrc()
 		iinv.spc[ug.lc] += iinv.ai[ug.fId][0];
 		iinv.spc[ug.rc] += iinv.ai[ug.fId][1];
 
-	}
+	}*/
 
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
