@@ -312,6 +312,10 @@ void UINsInvterm::Initflux()
 
 void UINsInvterm::CmpInvMassFlux()
 {
+	iinv.spc = 0;
+	iinv.buc = 0;
+	iinv.bvc = 0;
+	iinv.bwc = 0;
 
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
@@ -843,12 +847,12 @@ void UINsInvterm::CmpCorrectPresscoef()
 			{
 				if (ug.cId == ug.lc)
 				{
-					iinv.sjp[ug.cId][iFace] = -iinv.ajp[ug.fId]; //求解压力修正方程的非零系数
+					iinv.sjp[ug.cId][iFace] = iinv.ajp[ug.fId]; //求解压力修正方程的非零系数
 					iinv.sjd[ug.cId][iFace] = ug.rc;
 				}
 				else if (ug.cId == ug.rc)
 				{
-					iinv.sjp[ug.cId][iFace] = -iinv.ajp[ug.fId];
+					iinv.sjp[ug.cId][iFace] = iinv.ajp[ug.fId];
 					iinv.sjd[ug.cId][iFace] = ug.lc;
 				}
 	
