@@ -218,7 +218,7 @@ void INsInvterm::CmpINsBcinvTerm()
 		iinv.ai[ug.fId][1] = clr;//crl;
 
 		iinv.spc[ug.lc] += clr;
-		iinv.spc[ug.rc] -= crl;
+		iinv.spc[ug.rc] += crl;
 
 		iinv.buc[ug.lc] += crl * iinv.uf[ug.fId];//crl * iinv.uf[ug.fId];
 		iinv.buc[ug.rc] = 0;

@@ -814,7 +814,7 @@ void UINsInvterm::CmpCorrectPresscoef()
 		ug.rc = (*ug.rcf)[ug.fId];
 
 		iinv.spp[ug.lc] += iinv.ajp[ug.fId];
-		iinv.spp[ug.rc] += -iinv.ajp[ug.fId];
+		iinv.spp[ug.rc] += iinv.ajp[ug.fId];
 
 		iinv.bp[ug.lc] += -iinv.fq[ug.fId];
 		iinv.bp[ug.rc] += iinv.fq[ug.fId];
@@ -852,7 +852,7 @@ void UINsInvterm::CmpCorrectPresscoef()
 				}
 				else if (ug.cId == ug.rc)
 				{
-					iinv.sjp[ug.cId][iFace] = iinv.ajp[ug.fId];
+					iinv.sjp[ug.cId][iFace] = -iinv.ajp[ug.fId];
 					iinv.sjd[ug.cId][iFace] = ug.lc;
 				}
 	
@@ -876,7 +876,17 @@ void UINsInvterm::CmpNewMomCoe()
 		ug.rc = (*ug.rcf)[ug.fId];
 
 		iinv.spc[ug.lc] += iinv.ai[ug.fId][1] + iinv.Fn[ug.fId];
-		iinv.spc[ug.rc] += -iinv.ai[ug.fId][0]- iinv.Fn[ug.fId];
+		iinv.spc[ug.rc] += iinv.ai[ug.fId][0]+ iinv.Fn[ug.fId];
+	}
+
+	for (int fId = 0; fId < ug.nFace; ++fId)
+	{
+		ug.fId = fId;
+		ug.lc = (*ug.lcf)[ug.fId];
+		ug.rc = (*ug.rcf)[ug.fId];
+
+		iinv.ai[ug.fId][0]+=iinv.Fn[ug.fId];
+		iinv.ai[ug.fId][1]+=iinv.Fn[ug.fId];
 	}
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
@@ -1545,24 +1555,21 @@ void UINsInvterm::UpdateINsRes()
 
 			if (ug.cId == ug.lc)
 			{
-				iinv.mu[ug.cId] += (iinv.ai[ug.fId][0]-iinv.Fn[ug.fId]) * (iinv.up[ug.rc] - iinv.uc[ug.rc]);  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
-				iinv.mv[ug.cId] += (iinv.ai[ug.fId][0]- iinv.Fn[ug.fId]) * (iinv.vp[ug.rc] - iinv.vc[ug.rc]);
-				iinv.mw[ug.cId] += (iinv.ai[ug.fId][0]- iinv.Fn[ug.fId]) * (iinv.wp[ug.rc] - iinv.wc[ug.rc]);
-				//iinv.mpp[ug.cId] += -iinv.ajp[ug.fId] * iinv.pp[ug.rc];
+				iinv.mu[ug.cId] += iinv.ai[ug.fId][0] * (iinv.up[ug.rc] - iinv.uc[ug.rc]);  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
+				iinv.mv[ug.cId] += iinv.ai[ug.fId][0] * (iinv.vp[ug.rc] - iinv.vc[ug.rc]);
+				iinv.mw[ug.cId] += iinv.ai[ug.fId][0] * (iinv.wp[ug.rc] - iinv.wc[ug.rc]);
 			}
 			else if (ug.cId == ug.rc)
 			{
-				iinv.mu[ug.cId] += (iinv.ai[ug.fId][1] + iinv.Fn[ug.fId]) * (iinv.up[ug.lc] - iinv.uc[ug.lc]);  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
-				iinv.mv[ug.cId] += (iinv.ai[ug.fId][1] + iinv.Fn[ug.fId]) * (iinv.vp[ug.lc] - iinv.vc[ug.lc]);
-				iinv.mw[ug.cId] += (iinv.ai[ug.fId][1] + iinv.Fn[ug.fId]) * (iinv.wp[ug.lc] - iinv.wc[ug.lc]);
-				//iinv.mpp[ug.cId] += -iinv.ajp[ug.fId] * iinv.pp[ug.lc];
+				iinv.mu[ug.cId] += iinv.ai[ug.fId][1]* (iinv.up[ug.lc] - iinv.uc[ug.lc]);  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
+				iinv.mv[ug.cId] += iinv.ai[ug.fId][1]* (iinv.vp[ug.lc] - iinv.vc[ug.lc]);
+				iinv.mw[ug.cId] += iinv.ai[ug.fId][1]* (iinv.wp[ug.lc] - iinv.wc[ug.lc]);
 			}
 		}
 
 		iinv.mua[ug.cId] = iinv.spc[ug.cId] * (iinv.up[ug.cId] - iinv.uc[ug.cId]) + iinv.mu[ug.cId];
 		iinv.mva[ug.cId] = iinv.spc[ug.cId] * (iinv.vp[ug.cId] - iinv.vc[ug.cId]) + iinv.mv[ug.cId];
 		iinv.mwa[ug.cId] = iinv.spc[ug.cId] * (iinv.wp[ug.cId] - iinv.wc[ug.cId]) + iinv.mw[ug.cId];
-		//iinv.mppa[ug.cId] = iinv.spp[ug.cId] * iinv.pp[ug.cId] + iinv.mpp[ug.cId];
 
 		iinv.res_up[ug.cId] = iinv.mua[ug.cId] * iinv.mua[ug.cId];
 		iinv.res_vp[ug.cId] = iinv.mva[ug.cId] * iinv.mva[ug.cId];
@@ -1576,10 +1583,15 @@ void UINsInvterm::UpdateINsRes()
 	}
 
 
+
 	iinv.remax_up = sqrt(iinv.remax_up);
 	iinv.remax_vp = sqrt(iinv.remax_vp);
 	iinv.remax_wp = sqrt(iinv.remax_wp);
 	iinv.remax_pp = sqrt(iinv.remax_pp);
+
+	iinv.remax_up = 0.01;
+	iinv.remax_vp = 0.01;
+	iinv.remax_wp = 0.01;
 
 	cout << "iinv.remax_up:" << iinv.remax_up << endl;
 	cout << "iinv.remax_vp:" << iinv.remax_vp << endl;
