@@ -420,12 +420,12 @@ void UINsInvterm::MomPre()
 			{
 				if (cId == ug.lc)
 				{
-					Rank.TempA[n + iFace] = -iinv.ai[fId][0];
+					Rank.TempA[n + iFace] = iinv.ai[fId][0];
 					Rank.TempJA[n + iFace] = ug.rc;
 				}
 				else if (cId == ug.rc)
 				{
-					Rank.TempA[n + iFace] = -iinv.ai[fId][1];
+					Rank.TempA[n + iFace] = iinv.ai[fId][1];
 					Rank.TempJA[n + iFace] = ug.lc;
 				}
 			}
@@ -484,12 +484,12 @@ void UINsInvterm::MomPre()
 			{
 				if (cId == ug.lc)
 				{
-					Rank.TempA[n + iFace] = -iinv.ai[fId][0];
+					Rank.TempA[n + iFace] = iinv.ai[fId][0];
 					Rank.TempJA[n + iFace] = ug.rc;
 				}
 				else if (cId == ug.rc)
 				{
-					Rank.TempA[n + iFace] = -iinv.ai[fId][1];
+					Rank.TempA[n + iFace] = iinv.ai[fId][1];
 					Rank.TempJA[n + iFace] = ug.lc;
 				}
 			}
@@ -550,12 +550,12 @@ void UINsInvterm::MomPre()
 			{
 				if (cId == ug.lc)
 				{
-					Rank.TempA[n + iFace] = -iinv.ai[fId][0];
+					Rank.TempA[n + iFace] = iinv.ai[fId][0];
 					Rank.TempJA[n + iFace] = ug.rc;
 				}
 				else if (cId == ug.rc)
 				{
-					Rank.TempA[n + iFace] = -iinv.ai[fId][1];
+					Rank.TempA[n + iFace] = iinv.ai[fId][1];
 					Rank.TempJA[n + iFace] = ug.lc;
 				}
 			}
@@ -814,7 +814,7 @@ void UINsInvterm::CmpCorrectPresscoef()
 		ug.rc = (*ug.rcf)[ug.fId];
 
 		iinv.spp[ug.lc] += iinv.ajp[ug.fId];
-		iinv.spp[ug.rc] += iinv.ajp[ug.fId];
+		iinv.spp[ug.rc] += -iinv.ajp[ug.fId];
 
 		iinv.bp[ug.lc] += -iinv.fq[ug.fId];
 		iinv.bp[ug.rc] += iinv.fq[ug.fId];
@@ -852,7 +852,7 @@ void UINsInvterm::CmpCorrectPresscoef()
 				}
 				else if (ug.cId == ug.rc)
 				{
-					iinv.sjp[ug.cId][iFace] = -iinv.ajp[ug.fId];
+					iinv.sjp[ug.cId][iFace] = iinv.ajp[ug.fId];
 					iinv.sjd[ug.cId][iFace] = ug.lc;
 				}
 	
@@ -876,7 +876,7 @@ void UINsInvterm::CmpNewMomCoe()
 		ug.rc = (*ug.rcf)[ug.fId];
 
 		iinv.spc[ug.lc] += iinv.ai[ug.fId][1] + iinv.Fn[ug.fId];
-		iinv.spc[ug.rc] += iinv.ai[ug.fId][0] + iinv.Fn[ug.fId];
+		iinv.spc[ug.rc] += -iinv.ai[ug.fId][0]- iinv.Fn[ug.fId];
 	}
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
@@ -1027,7 +1027,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 	}
 
 
-	/*ug.nRegion = ug.bcRecord->bcInfo->bcType.size();
+	ug.nRegion = ug.bcRecord->bcInfo->bcType.size();
 	BcInfo * bcInfo = ug.bcRecord->bcInfo;
 
 	for (int ir = 0; ir < ug.nRegion; ++ir)
@@ -1127,7 +1127,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 			}
 		}
 
-	}*/
+	}
 }
 
 
@@ -1334,7 +1334,7 @@ void UINsInvterm::UpdateSpeed()
 	}
 
 
-	/*ug.nRegion = ug.bcRecord->bcInfo->bcType.size();
+	ug.nRegion = ug.bcRecord->bcInfo->bcType.size();
 	BcInfo * bcInfo = ug.bcRecord->bcInfo;
 
 	for (int ir = 0; ir < ug.nRegion; ++ir)
@@ -1467,7 +1467,7 @@ void UINsInvterm::UpdateSpeed()
 			}
 		}
 
-	}*/
+	}
 }
 
 void UINsInvterm::UpdateINsRes()
@@ -1545,16 +1545,16 @@ void UINsInvterm::UpdateINsRes()
 
 			if (ug.cId == ug.lc)
 			{
-				iinv.mu[ug.cId] += -iinv.ai[ug.fId][0] * (iinv.up[ug.rc] - iinv.uc[ug.rc]);  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
-				iinv.mv[ug.cId] += -iinv.ai[ug.fId][0] * (iinv.vp[ug.rc] - iinv.vc[ug.rc]);
-				iinv.mw[ug.cId] += -iinv.ai[ug.fId][0] * (iinv.wp[ug.rc] - iinv.wc[ug.rc]);
+				iinv.mu[ug.cId] += (iinv.ai[ug.fId][0]-iinv.Fn[ug.fId]) * (iinv.up[ug.rc] - iinv.uc[ug.rc]);  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
+				iinv.mv[ug.cId] += (iinv.ai[ug.fId][0]- iinv.Fn[ug.fId]) * (iinv.vp[ug.rc] - iinv.vc[ug.rc]);
+				iinv.mw[ug.cId] += (iinv.ai[ug.fId][0]- iinv.Fn[ug.fId]) * (iinv.wp[ug.rc] - iinv.wc[ug.rc]);
 				//iinv.mpp[ug.cId] += -iinv.ajp[ug.fId] * iinv.pp[ug.rc];
 			}
 			else if (ug.cId == ug.rc)
 			{
-				iinv.mu[ug.cId] += -iinv.ai[ug.fId][1] * (iinv.up[ug.lc] - iinv.uc[ug.lc]);  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
-				iinv.mv[ug.cId] += -iinv.ai[ug.fId][1] * (iinv.vp[ug.lc] - iinv.vc[ug.lc]);
-				iinv.mw[ug.cId] += -iinv.ai[ug.fId][1] * (iinv.wp[ug.lc] - iinv.wc[ug.lc]);
+				iinv.mu[ug.cId] += (iinv.ai[ug.fId][1] + iinv.Fn[ug.fId]) * (iinv.up[ug.lc] - iinv.uc[ug.lc]);  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
+				iinv.mv[ug.cId] += (iinv.ai[ug.fId][1] + iinv.Fn[ug.fId]) * (iinv.vp[ug.lc] - iinv.vc[ug.lc]);
+				iinv.mw[ug.cId] += (iinv.ai[ug.fId][1] + iinv.Fn[ug.fId]) * (iinv.wp[ug.lc] - iinv.wc[ug.lc]);
 				//iinv.mpp[ug.cId] += -iinv.ajp[ug.fId] * iinv.pp[ug.lc];
 			}
 		}

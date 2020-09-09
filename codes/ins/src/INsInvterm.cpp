@@ -200,11 +200,11 @@ void INsInvterm::CmpINsinvTerm()
 
 		Real crl = clr - iinv.fq[ug.fId];   //从界面右侧单元流入左侧单元的质量流量
 		
-		iinv.ai[ug.fId][0] = crl;//非对角线元素
+		iinv.ai[ug.fId][0] = -crl;//非对角线元素
 		iinv.ai[ug.fId][1] = clr;//非对角线元素
 
 		iinv.spc[ug.lc] += clr;
-		iinv.spc[ug.rc] += crl;
+		iinv.spc[ug.rc] -= crl;
 }
 
 void INsInvterm::CmpINsBcinvTerm()
@@ -214,11 +214,11 @@ void INsInvterm::CmpINsBcinvTerm()
 		Real crl = clr - iinv.fq[ug.fId];   //从界面右侧单元流入左侧单元的初始质量流量
 
 
-		iinv.ai[ug.fId][0] = crl;//clr;
+		iinv.ai[ug.fId][0] = -crl;//clr;
 		iinv.ai[ug.fId][1] = clr;//crl;
 
 		iinv.spc[ug.lc] += clr;
-		iinv.spc[ug.rc] += crl;
+		iinv.spc[ug.rc] -= crl;
 
 		iinv.buc[ug.lc] += crl * iinv.uf[ug.fId];//crl * iinv.uf[ug.fId];
 		iinv.buc[ug.rc] = 0;
@@ -274,7 +274,7 @@ void INsInvterm::CmpINsFaceflux()
 
 	Real crl = clr - iinv.fq[ug.fId];   //从界面右侧单元流入左侧单元的初始质量流量
 
-	iinv.ai[ug.fId][0] = crl;
+	iinv.ai[ug.fId][0] = -crl;
 	iinv.ai[ug.fId][1] = clr;
 
 }
@@ -374,7 +374,7 @@ void INsInvterm::CmpINsBcFaceflux()
 
 	Real crl = clr - iinv.fq[ug.fId];   //从界面右侧单元流入左侧单元的初始质量流量
 
-	iinv.ai[ug.fId][0] = crl;
+	iinv.ai[ug.fId][0] = -crl;
 	iinv.ai[ug.fId][1] = clr;
 									  
 }

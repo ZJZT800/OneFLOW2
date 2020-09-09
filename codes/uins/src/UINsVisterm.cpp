@@ -432,11 +432,11 @@ void UINsVisterm::CmpFaceVisterm()
 	iinv.FtvT2 = iinv.Pvd*(*ug.farea)[ug.fId]*(-2/3)*iinv.vis;
 	iinv.FtwT2 = iinv.Pwd*(*ug.farea)[ug.fId]*(-2/3)*iinv.vis;
 
-	iinv.ai[ug.fId][0] += iinv.Fn[ug.fId];
+	iinv.ai[ug.fId][0] -= iinv.Fn[ug.fId];
 	iinv.ai[ug.fId][1] += iinv.Fn[ug.fId];
 
 	iinv.spc[ug.lc] += iinv.Fn[ug.fId];
-	iinv.spc[ug.rc] += iinv.Fn[ug.fId];
+	iinv.spc[ug.rc] -= iinv.Fn[ug.fId];
 	
 	iinv.buc[ug.lc] += iinv.Ftu1 + iinv.Ftu2;// +iinv.FtuT1 + iinv.FtuT2;
 	iinv.buc[ug.rc] += -iinv.Ftu1 - iinv.Ftu2;// -iinv.FtuT1 - iinv.FtuT2;
@@ -596,11 +596,11 @@ void UINsVisterm::CmpBcFaceVisterm()
 	iinv.FtvT2 = iinv.Pvd*(*ug.farea)[ug.fId] * (-2 / 3)*iinv.vis;
 	iinv.FtwT2 = iinv.Pwd*(*ug.farea)[ug.fId] * (-2 / 3)*iinv.vis;
 
-	iinv.ai[ug.fId][0] += iinv.Fn[ug.fId];
+	iinv.ai[ug.fId][0] -= iinv.Fn[ug.fId];
 	iinv.ai[ug.fId][1] += iinv.Fn[ug.fId];
 
 	iinv.spc[ug.lc] += iinv.Fn[ug.fId];
-	iinv.spc[ug.rc] += iinv.Fn[ug.fId];
+	iinv.spc[ug.rc] -= iinv.Fn[ug.fId];
 
 	iinv.buc[ug.lc] += iinv.Fbu +iinv.Ftu1 + iinv.Ftu2;
 	iinv.buc[ug.rc] += 0;
@@ -725,12 +725,12 @@ void UINsVisterm::CmpINsSrc()
 			{
 				if (ug.cId == ug.lc)
 				{
-					iinv.sj[ug.cId][iFace] = -iinv.ai[ug.fId][0];  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
+					iinv.sj[ug.cId][iFace] = iinv.ai[ug.fId][0];  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
 					iinv.sd[ug.cId][iFace] = ug.rc;
 				}
 				else if (ug.cId == ug.rc)
 				{
-					iinv.sj[ug.cId][iFace] = -iinv.ai[ug.fId][1];  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
+					iinv.sj[ug.cId][iFace] = iinv.ai[ug.fId][1];  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
 					iinv.sd[ug.cId][iFace] = ug.lc;
 				}
 			}
