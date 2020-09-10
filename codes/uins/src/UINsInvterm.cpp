@@ -875,11 +875,11 @@ void UINsInvterm::CmpNewMomCoe()
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
 
-		iinv.spc[ug.lc] += iinv.ai[ug.fId][1] + iinv.Fn[ug.fId];
-		iinv.spc[ug.rc] += iinv.ai[ug.fId][0] + iinv.Fn[ug.fId];
-
 		iinv.ai[ug.fId][1] += iinv.Fn[ug.fId];
 		iinv.ai[ug.fId][0] += iinv.Fn[ug.fId];
+
+		iinv.spc[ug.lc] += iinv.ai[ug.fId][1];
+		iinv.spc[ug.rc] += iinv.ai[ug.fId][0];
 	}
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
@@ -986,7 +986,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 
 		else if (ug.bctype == BC::INFLOW)
 		{
-			iinv.ppf[ug.fId] = 0;//iinv.pp[ug.lc];//Neumann
+			iinv.ppf[ug.fId] = iinv.pp[ug.lc];//Neumann
 		}
 	}
 
