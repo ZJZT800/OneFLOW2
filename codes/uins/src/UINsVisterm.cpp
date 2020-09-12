@@ -348,21 +348,6 @@ void UINsVisterm::CmpFaceVisterm()
 
 	iinv.Fn[ug.fId] = iinv.vis * (*ug.farea)[ug.fId] / iinv.dist;
 
-	Real dx1 = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];
-	Real dy1 = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
-	Real dz1 = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
-
-	Real dx2 = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.rc];
-	Real dy2 = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.rc];
-	Real dz2 = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.rc];
-
-	Real de1 = DIST(dx1, dy1, dz1);
-	Real de2 = DIST(dx2, dy2, dz2);
-	Real de = 1.0 / (de1 + de2);
-
-	iinv.f1[ug.fId] = de2 * de;  //左单元权重
-	iinv.f2[ug.fId] = de1 * de;  //右单元权重
-
 	iinv.Puf = (iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.rc])*(*ug.xfn)[ug.fId] +
 		               (iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIU][ug.rc])*(*ug.yfn)[ug.fId] +
 		               (iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIU][ug.rc])*(*ug.zfn)[ug.fId];  //▽q*n
@@ -438,14 +423,14 @@ void UINsVisterm::CmpFaceVisterm()
 	iinv.spc[ug.lc] += iinv.Fn[ug.fId];
 	iinv.spc[ug.rc] += iinv.Fn[ug.fId];
 	
-	iinv.buc[ug.lc] += iinv.Ftu1 + iinv.Ftu2;// +iinv.FtuT1 + iinv.FtuT2;
-	iinv.buc[ug.rc] += -iinv.Ftu1 - iinv.Ftu2;// -iinv.FtuT1 - iinv.FtuT2;
+	iinv.buc[ug.lc] += iinv.Ftu1 + iinv.Ftu2;
+	iinv.buc[ug.rc] += -iinv.Ftu1 - iinv.Ftu2;
 
-	iinv.bvc[ug.lc] += iinv.Ftv1 + iinv.Ftv2;// +iinv.FtvT1 + iinv.FtvT2;
-	iinv.bvc[ug.rc] += -iinv.Ftv1 - iinv.Ftv2;// -iinv.FtvT1 - iinv.FtvT2;
+	iinv.bvc[ug.lc] += iinv.Ftv1 + iinv.Ftv2;
+	iinv.bvc[ug.rc] += -iinv.Ftv1 - iinv.Ftv2;
 
-	iinv.bwc[ug.lc] += iinv.Ftw1 + iinv.Ftw2;// +iinv.FtwT1 + iinv.FtwT2;
-	iinv.bwc[ug.rc] += -iinv.Ftw1 - iinv.Ftw2;// -iinv.FtwT1 - iinv.FtwT2;
+	iinv.bwc[ug.lc] += iinv.Ftw1 + iinv.Ftw2;
+	iinv.bwc[ug.rc] += -iinv.Ftw1 - iinv.Ftw2;
 }
 
 void UINsVisterm::CmpBcFaceVisterm()
@@ -457,21 +442,6 @@ void UINsVisterm::CmpBcFaceVisterm()
 	iinv.c2d = sqrt(iinv.l2rdx * iinv.l2rdx + iinv.l2rdy * iinv.l2rdy + iinv.l2rdz * iinv.l2rdz);
 
 	iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc]);
-
-	Real dx1 = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];
-	Real dy1 = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
-	Real dz1 = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
-
-	Real dx2 = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.rc];
-	Real dy2 = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.rc];
-	Real dz2 = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.rc];
-
-	Real de1 = DIST(dx1, dy1, dz1);
-	Real de2 = DIST(dx2, dy2, dz2);
-	Real de = 1.0 / (de1 + de2);
-
-	iinv.f1[ug.fId] = de2 * de;  //左单元权重
-	iinv.f2[ug.fId] = de1 * de;  //右单元权重
 
 	iinv.vis = 1 / inscom.reynolds;  //动力粘度
 
@@ -494,18 +464,6 @@ void UINsVisterm::CmpBcFaceVisterm()
 		iinv.Pdv = -((iinv.vf[ug.fId] - (*uinsf.q)[IIDX::IIV][ug.lc])*(*ug.xfn)[ug.fId] * iinv.l2rdx + (iinv.vf[ug.fId] - (*uinsf.q)[IIDX::IIV][ug.lc])*(*ug.yfn)[ug.fId] * iinv.l2rdy + (iinv.vf[ug.fId] - (*uinsf.q)[IIDX::IIV][ug.lc])*(*ug.zfn)[ug.fId] * iinv.l2rdz) / (iinv.dist*iinv.dist);
 
 		iinv.Pdw = -((iinv.wf[ug.fId] - (*uinsf.q)[IIDX::IIW][ug.lc])*(*ug.xfn)[ug.fId] * iinv.l2rdx + (iinv.wf[ug.fId] - (*uinsf.q)[IIDX::IIW][ug.lc])*(*ug.yfn)[ug.fId] * iinv.l2rdy + (iinv.wf[ug.fId] - (*uinsf.q)[IIDX::IIW][ug.lc])*(*ug.zfn)[ug.fId] * iinv.l2rdz) / (iinv.dist*iinv.dist);
-		
-		/*iinv.Puf = 0;  //▽q*n
-
-		iinv.Pvf =0;
-
-		iinv.Pwf = 0;
-
-		iinv.Pdu = 0;
-
-		iinv.Pdv = 0;
-
-		iinv.Pdw = 0;*/
 
 	}
 	else if (ug.bctype == BC::INFLOW)
@@ -521,18 +479,6 @@ void UINsVisterm::CmpBcFaceVisterm()
 		iinv.Pdv = -((iinv.vf[ug.fId] - (*uinsf.q)[IIDX::IIV][ug.lc])*(*ug.xfn)[ug.fId] * iinv.l2rdx + (iinv.vf[ug.fId] - (*uinsf.q)[IIDX::IIV][ug.lc])*(*ug.yfn)[ug.fId] * iinv.l2rdy + (iinv.vf[ug.fId] - (*uinsf.q)[IIDX::IIV][ug.lc])*(*ug.zfn)[ug.fId] * iinv.l2rdz) / (iinv.dist*iinv.dist);
 
 		iinv.Pdw = -((iinv.wf[ug.fId] - (*uinsf.q)[IIDX::IIW][ug.lc])*(*ug.xfn)[ug.fId] * iinv.l2rdx + (iinv.wf[ug.fId] - (*uinsf.q)[IIDX::IIW][ug.lc])*(*ug.yfn)[ug.fId] * iinv.l2rdy + (iinv.wf[ug.fId] - (*uinsf.q)[IIDX::IIW][ug.lc])*(*ug.zfn)[ug.fId] * iinv.l2rdz) / (iinv.dist*iinv.dist);
-		
-		/*iinv.Puf = 0;  //▽q*n
-
-		iinv.Pvf = 0;
-
-		iinv.Pwf = 0;
-
-		iinv.Pdu = 0;
-
-		iinv.Pdv = 0;
-
-		iinv.Pdw = 0;*/
 
 	}
 	else
