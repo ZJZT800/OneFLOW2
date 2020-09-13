@@ -36,7 +36,9 @@ License
 #include "CmxTask.h"
 #include "BgField.h"
 #include "TimeSpan.h"
+#include "UINsSolver.h"
 #include <iostream>
+#include <Rhs.h>
 using namespace std;
 
 
@@ -131,7 +133,9 @@ void MG::Run()
 		TimeSpan * timeSpan = new TimeSpan();
 		while (SimuIterState::Running())
 		{
-
+            Rhs* uINsSolver = new Rhs;
+            uINsSolver->FieldInit();
+            delete uINsSolver;
 			while (iinv.remax_up > rhs_u || iinv.remax_vp > rhs_v || iinv.remax_wp > rhs_w)
 			{
 
@@ -342,15 +346,17 @@ void MG::SolveMultigridFlowField( int gl )
 
 void MG::SolveInnerIter()
 {
-    if ( MG::iterMode == 0 )
-    {
-        this->WeakIter();
-    }
-    else
-    {
-        this->StrongIter();
-    }
-
+	/*if ( MG::iterMode == 0 )
+	{
+		this->WeakIter();
+	}
+	else
+	{
+		this->StrongIter();
+	}*/
+    Rhs* uINsSolver = new Rhs;
+    uINsSolver->UINsSolver();
+    delete uINsSolver;
     this->InnerProcess();
 }
 
@@ -389,7 +395,6 @@ void MG::StrongIter()
 		this->SolveMultigridFlowField(0);
 	}
 }
-
 
 bool DoNotNeedMultigridMethod( int gl )
 {

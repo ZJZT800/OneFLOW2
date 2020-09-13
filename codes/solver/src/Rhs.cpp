@@ -162,7 +162,7 @@ void NsCmpDualTimeStepSrc()
 
 void Rhs::UpdateINsResiduals()
 {
-	INsCmpRHS();
+	//INsCmpRHS();
 }
 
 void INsCmpBc()
@@ -203,20 +203,25 @@ void INSCmpGamaT(int flag)
 	}
 }
 
-void INsCmpRHS()
+void Rhs::FieldInit()
+{
+	INsPreflux();      //流场变量初始化
+}
+
+void Rhs::UINsSolver()
 {
 
 		//INsCmpTimestep();
 
-		INsPreflux();
+		//INsPreflux();     //加入了时间和迭代步的判断，只有第一步迭代会进入该程序
 
 		INsCmpInv(); //计算对流项
 
 		INsCmpVis(); //计算扩散项
 
-		INsCmpUnstead(); //计算非稳态项
+		//INsCmpUnstead(); //计算非稳态项
 
-		INsCmpSrc(); //计算源项和动量方程系数
+		INsCmpSrc(); //计算压力梯度和动量方程系数
 
 		INsMomPre(); //求解动量方程
 
