@@ -1,4 +1,3 @@
-﻿results/aero.dat
-results/wallaero.dat
+﻿results/wallaero.dat
 results/res.dat
 results/turbres.dat
