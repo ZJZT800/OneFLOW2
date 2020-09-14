@@ -770,7 +770,7 @@ void UINsInvterm::AddFlux()
 
 void UINsInvterm::CmpCorrectPresscoef()
 {
-	this->CmpNewMomCoe();
+	//this->CmpNewMomCoe();
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
 		ug.fId = fId;
@@ -1304,12 +1304,12 @@ void UINsInvterm::CmpUpdateINsBcFaceflux()
 		iinv.fq[ug.fId] = iinv.fq[ug.fId] +iinv.fux;
 	}
 
-	Real clr = MAX(0, iinv.fq[ug.fId]);  //从界面左侧单元流入右侧单元的初始质量流量
+	/*Real clr = MAX(0, iinv.fq[ug.fId]);  //从界面左侧单元流入右侧单元的初始质量流量
 
 	Real crl = clr - iinv.fq[ug.fId];   //从界面右侧单元流入左侧单元的初始质量流量
 
 	iinv.ai[ug.fId][0] = crl;
-	iinv.ai[ug.fId][1] = clr;
+	iinv.ai[ug.fId][1] = clr;*/
 
 }
 
@@ -1330,12 +1330,12 @@ void UINsInvterm::CmpUpdateINsFaceflux()
 	iinv.fux = iinv.rf[ug.fId] * ((*ug.xfn)[ug.fId] * iinv.uuj[ug.fId] + (*ug.yfn)[ug.fId] * iinv.vvj[ug.fId] + (*ug.zfn)[ug.fId] * iinv.wwj[ug.fId]) * (*ug.farea)[ug.fId];
 	iinv.fq[ug.fId] = iinv.fq[ug.fId]+iinv.fux;
 
-	Real clr = MAX(0, iinv.fq[ug.fId]);  //从界面左侧单元流入右侧单元的初始质量流量
+	/*Real clr = MAX(0, iinv.fq[ug.fId]);  //从界面左侧单元流入右侧单元的初始质量流量
 
 	Real crl = clr - iinv.fq[ug.fId];   //从界面右侧单元流入左侧单元的初始质量流量
 
 	iinv.ai[ug.fId][0] = crl;
-	iinv.ai[ug.fId][1] = clr;
+	iinv.ai[ug.fId][1] = clr;*/
 }
 
 void UINsInvterm::UpdateSpeed()
@@ -1602,9 +1602,10 @@ void UINsInvterm::UpdateINsRes()
 	{
 		ug.cId = cId;
 
-		iinv.res_up[ug.cId] = (iinv.buc[ug.cId])* (iinv.buc[ug.cId]);
-		iinv.res_vp[ug.cId] = (iinv.bvc[ug.cId]) * (iinv.bvc[ug.cId]);
-		iinv.res_wp[ug.cId] = (iinv.bwc[ug.cId]) * (iinv.bwc[ug.cId]);
+		iinv.res_up[ug.cId] = (iinv.buc[ug.cId]- iinv.spc[ug.cId]*iinv.up[ug.cId])* (iinv.buc[ug.cId] - iinv.spc[ug.cId] * iinv.up[ug.cId]);
+		iinv.res_vp[ug.cId] = (iinv.bvc[ug.cId]- iinv.spc[ug.cId] * iinv.vp[ug.cId]) * (iinv.bvc[ug.cId] - iinv.spc[ug.cId] * iinv.vp[ug.cId]);
+		iinv.res_wp[ug.cId] = (iinv.bwc[ug.cId] - iinv.spc[ug.cId] * iinv.wp[ug.cId]) * (iinv.bwc[ug.cId] - iinv.spc[ug.cId] * iinv.wp[ug.cId]);
+
 		iinv.res_pp[ug.cId] = iinv.bp[ug.cId] * iinv.bp[ug.cId];
 
 		iinv.remax_up += iinv.res_up[ug.cId];
@@ -1624,8 +1625,6 @@ void UINsInvterm::UpdateINsRes()
 	iinv.remax_vp = 0;
 	iinv.remax_wp = 0;
 	iinv.remax_pp = 0;
-
-	this->CmpNewMomCoe();
 
 	for (int fId = 0; fId < ug.nFace; ++fId)
 	{

@@ -337,12 +337,12 @@ void INsInvterm::CmpINsFaceflux()
 	iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * (*ug.farea)[ug.fId];  //下一时刻界面预测通量
 
 
-	Real clr = MAX(0, iinv.fq[ug.fId]);  //从界面左侧单元流入右侧单元的初始质量流量
+	/*Real clr = MAX(0, iinv.fq[ug.fId]);  //从界面左侧单元流入右侧单元的初始质量流量
 
 	Real crl = clr - iinv.fq[ug.fId];   //从界面右侧单元流入左侧单元的初始质量流量
 
 	iinv.ai[ug.fId][0] = crl;
-	iinv.ai[ug.fId][1] = clr;
+	iinv.ai[ug.fId][1] = clr;*/
 
 }
 
@@ -369,7 +369,6 @@ void INsInvterm::CmpINsBcFaceflux()
 	iinv.Bpe = ((iinv.pf[ug.fId]-iinv.pl) *gcom.xfn* (dx1)+(iinv.pf[ug.fId] - iinv.pl) *gcom.yfn * (dy1)+(iinv.pf[ug.fId] - iinv.pl) *gcom.zfn* (dz1))/ iinv.dist -
 		(iinv.pf[ug.fId] - iinv.pl);
 
-	//iinv.Bpe = ((iinv.pf[ug.fId] - (*uinsf.q)[IIDX::IIP][ug.lc]) / abs(iinv.dist))*(dx1 + dy1 + dz1)-(iinv.pf[ug.fId] - iinv.pl);
 
 	if (ug.bctype == BC::SOLID_SURFACE)
 	{
@@ -441,12 +440,12 @@ void INsInvterm::CmpINsBcFaceflux()
 	}
 
 
-	Real clr = MAX(0, iinv.fq[ug.fId]);  //从界面左侧单元流入右侧单元的初始质量流量
+	/*Real clr = MAX(0, iinv.fq[ug.fId]);  //从界面左侧单元流入右侧单元的初始质量流量
 
 	Real crl = clr - iinv.fq[ug.fId];   //从界面右侧单元流入左侧单元的初始质量流量
 
 	iinv.ai[ug.fId][0] = crl;
-	iinv.ai[ug.fId][1] = clr;
+	iinv.ai[ug.fId][1] = clr;*/
 									  
 }
 
