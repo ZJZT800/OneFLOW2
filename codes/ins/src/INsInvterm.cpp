@@ -366,9 +366,11 @@ void INsInvterm::CmpINsBcFaceflux()
 	Real dy1 = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
 	Real dz1 = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
 
-	iinv.Bpe = ((iinv.pf[ug.fId]-iinv.pl) *gcom.xfn* (dx1)+(iinv.pf[ug.fId] - iinv.pl) *gcom.yfn * (dy1)+(iinv.pf[ug.fId] - iinv.pl) *gcom.zfn* (dz1))/ iinv.dist -
-		(iinv.pf[ug.fId] - iinv.pl);
+	//iinv.Bpe = ((iinv.pf[ug.fId]-iinv.pl) *gcom.xfn* (dx1)+(iinv.pf[ug.fId] - iinv.pl) *gcom.yfn * (dy1)+(iinv.pf[ug.fId] - iinv.pl) *gcom.zfn* (dz1))/ iinv.dist -
+	//	(iinv.pf[ug.fId] - iinv.pl);
 
+	iinv.Bpe = (*uinsf.dqdx)[IIDX::IIP][ug.lc] * (dx1)+(*uinsf.dqdy)[IIDX::IIP][ug.lc] * (dy1)+(*uinsf.dqdz)[IIDX::IIP][ug.lc] * (dz1)-
+		(iinv.pf[ug.fId] - iinv.pl);
 
 	if (ug.bctype == BC::SOLID_SURFACE)
 	{
