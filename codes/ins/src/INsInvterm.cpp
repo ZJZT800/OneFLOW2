@@ -284,7 +284,7 @@ void INsInvterm::CmpINsBcinvTerm()
 		}
 		else if (bcType == BC::OUTFLOW)
 		{
-				iinv.spc[ug.lc] += crl;
+				iinv.spc[ug.lc] += clr;
 
 				iinv.buc[ug.lc] += crl * iinv.uf[ug.fId];
 				iinv.bvc[ug.lc] += crl * iinv.vf[ug.fId];
