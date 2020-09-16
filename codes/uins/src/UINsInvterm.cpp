@@ -190,6 +190,7 @@ void UINsInvterm::INsPreflux()
 	}
 
 }
+
 void UINsInvterm::Initflux()
 {
 	iinv.f1.resize(ug.nFace);

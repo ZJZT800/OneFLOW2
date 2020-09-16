@@ -88,25 +88,38 @@ void INsInvterm::Solve()
 void INsInvterm::CmpINsinvFlux()
 {
 
-		INsExtract(iinv.prim1, iinv.rl, iinv.ul, iinv.vl, iinv.wl, iinv.pl);
+	INsExtract(iinv.prim1, iinv.rl, iinv.ul, iinv.vl, iinv.wl, iinv.pl);
 
-		INsExtract(iinv.prim2, iinv.rr, iinv.ur, iinv.vr, iinv.wr, iinv.pr);
+	INsExtract(iinv.prim2, iinv.rr, iinv.ur, iinv.vr, iinv.wr, iinv.pr);
 
+	Real dx1 = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];
+	Real dy1 = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
+	Real dz1 = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
 
+	Real dx2 = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.rc];
+	Real dy2 = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.rc];
+	Real dz2 = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.rc];
 
-		iinv.rf[ug.fId] = (iinv.rl + iinv.rr) * half;    //初始界面上的值（u、v、w ）
+	Real de1 = DIST(dx1, dy1, dz1);
+	Real de2 = DIST(dx2, dy2, dz2);
+	Real de = 1.0 / (de1 + de2);
 
-		iinv.uf[ug.fId] = (iinv.ul + iinv.ur) * half;
+	iinv.f1[ug.fId] = de2 * de;  //左单元权重
+	iinv.f2[ug.fId] = de1 * de;  //右单元权重
 
-		iinv.vf[ug.fId] = (iinv.vl + iinv.vr) * half;
+	iinv.rf[ug.fId] = iinv.f1[ug.fId] * iinv.rl + iinv.f2[ug.fId] * iinv.rr;    //初始界面上的值（u、v、w ）
 
-		iinv.wf[ug.fId] = (iinv.wl + iinv.wr) * half;
+	iinv.uf[ug.fId] = iinv.f1[ug.fId] * iinv.ul + iinv.f2[ug.fId] * iinv.ur;
 
-		iinv.pf[ug.fId] = (iinv.pl + iinv.pr) * half;
+	iinv.vf[ug.fId] = iinv.f1[ug.fId] * iinv.vl + iinv.f2[ug.fId] * iinv.vr;
 
-		iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;  //初始界面上 V*n
+	iinv.wf[ug.fId] = iinv.f1[ug.fId] * iinv.wl + iinv.f2[ug.fId] * iinv.wr;
 
-		iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * gcom.farea; //初始界面上的质量通量
+	iinv.pf[ug.fId] = iinv.f1[ug.fId] * iinv.pl + iinv.f2[ug.fId] * iinv.pr;
+
+	iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;  //初始界面上 V*n
+
+	iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * gcom.farea; //初始界面上的质量通量
 
 }
 
@@ -398,9 +411,9 @@ void INsInvterm::CmpINsBcFaceflux()
 void INsInvterm::CmpINsFaceCorrectPresscoef()
 {
 
-	iinv.Vdvu[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] /(iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc]  / (iinv.spc[ug.rc]));  // -Mf*n，用于求面速度修正量
-	iinv.Vdvv[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc] / (iinv.spc[ug.rc]));
-	iinv.Vdvw[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc]  / (iinv.spc[ug.rc]));
+	iinv.Vdvu[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] /iinv.spc[ug.lc]) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc]  / iinv.spc[ug.rc]);  // -Mf*n，用于求面速度修正量
+	iinv.Vdvv[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] / iinv.spc[ug.lc]) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc] / iinv.spc[ug.rc]);
+	iinv.Vdvw[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] / iinv.spc[ug.lc]) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc] / iinv.spc[ug.rc]);
 	
 	
 	iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc]);
@@ -410,11 +423,11 @@ void INsInvterm::CmpINsFaceCorrectPresscoef()
 
 void INsInvterm::CmpINsBcFaceCorrectPresscoef()
 {
-		iinv.Vdvu[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc] / (iinv.spc[ug.rc]));  // -Mf*n，用于求面速度修正量
-		iinv.Vdvv[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc] / (iinv.spc[ug.rc]));
-		iinv.Vdvw[ug.fId] = iinv.f1[ug.fId] * ((*ug.cvol1)[ug.lc] / (iinv.spc[ug.lc])) + iinv.f2[ug.fId] * ((*ug.cvol2)[ug.rc] / (iinv.spc[ug.rc]));
+		iinv.Vdvu[ug.fId] = ((*ug.cvol1)[ug.lc] / iinv.spc[ug.lc]);  // -Mf*n，用于求面速度修正量
+		iinv.Vdvv[ug.fId] = ((*ug.cvol1)[ug.lc] / iinv.spc[ug.lc]);
+		iinv.Vdvw[ug.fId] = ((*ug.cvol1)[ug.lc] / iinv.spc[ug.lc]);
 
-		iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc]);
+		iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc]);
 
 		iinv.ajp[ug.fId] = iinv.rf[ug.fId] * (iinv.Vdvu[ug.fId] * (*ug.xfn)[ug.fId] * (*ug.xfn)[ug.fId] + iinv.Vdvv[ug.fId] * (*ug.yfn)[ug.fId] * (*ug.yfn)[ug.fId] + iinv.Vdvw[ug.fId] * (*ug.zfn)[ug.fId] * (*ug.zfn)[ug.fId]) * (*ug.farea)[ug.fId] / iinv.dist;
 }
