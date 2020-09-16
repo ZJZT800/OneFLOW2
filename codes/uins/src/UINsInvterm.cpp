@@ -1395,9 +1395,9 @@ void UINsInvterm::UpdateSpeed()
 		{
 			iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc]);
 			
-			iinv.uuf[ug.fId] = 0.8*iinv.Vdvu[ug.fId] * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]) * (*ug.xfn)[ug.fId] / iinv.dist;
-			iinv.vvf[ug.fId] = 0.8*iinv.Vdvv[ug.fId] * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]) * (*ug.yfn)[ug.fId] / iinv.dist;
-			iinv.wwf[ug.fId] = 0.8*iinv.Vdvw[ug.fId] * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]) * (*ug.zfn)[ug.fId] / iinv.dist;
+			iinv.uuf[ug.fId] = iinv.Vdvu[ug.fId] * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]) * (*ug.xfn)[ug.fId] / iinv.dist;
+			iinv.vvf[ug.fId] = iinv.Vdvv[ug.fId] * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]) * (*ug.yfn)[ug.fId] / iinv.dist;
+			iinv.wwf[ug.fId] = iinv.Vdvw[ug.fId] * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]) * (*ug.zfn)[ug.fId] / iinv.dist;
 
 			iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuf[ug.fId];//iinv.VdU[ug.lc] * iinv.dqqdx[ug.lc] * 0.8;
 			iinv.vf[ug.fId] = iinv.vf[ug.fId] + iinv.vvf[ug.fId];//iinv.VdV[ug.lc] * iinv.dqqdy[ug.lc] * 0.8;

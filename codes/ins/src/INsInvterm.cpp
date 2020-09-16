@@ -429,13 +429,13 @@ void INsInvterm::CmpINsBcFaceflux()
 
 		iinv.rf[ug.fId] = iinv.rl;    //初始界面上的值（u、v、w ）
 
-		iinv.uf[ug.fId] = iinv.ul + iinv.Deun * iinv.Bpe;
+		iinv.uf[ug.fId] = iinv.ul + iinv.Deun;
 
-		iinv.vf[ug.fId] = iinv.vl + iinv.Devn * iinv.Bpe;
+		iinv.vf[ug.fId] = iinv.vl + iinv.Devn;
 
-		iinv.wf[ug.fId] = iinv.wl + iinv.Dewn * iinv.Bpe;
+		iinv.wf[ug.fId] = iinv.wl + iinv.Dewn;
 
-		iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;
+		iinv.vnflow = gcom.xfn * (iinv.ul + iinv.Deun * iinv.Bpe) + gcom.yfn * (iinv.vl + iinv.Devn * iinv.Bpe) + gcom.zfn * (iinv.wl + iinv.Dewn * iinv.Bpe) - gcom.vfn;
 
 		iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * gcom.farea;
 

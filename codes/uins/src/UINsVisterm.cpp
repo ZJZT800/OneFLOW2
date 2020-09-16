@@ -622,7 +622,7 @@ void UINsVisterm::CmpINsSrc()
 		Real cr = delt1 * delta;
 
 		(*uinsf.qf)[IIDX::IIP][ug.fId] = cl * (*uinsf.q)[IIDX::IIP][ug.lc] + cr * (*uinsf.q)[IIDX::IIP][ug.rc];
-		
+
 	}
 
 	ONEFLOW::CmpINsGrad((*uinsf.qf)[IIDX::IIP], (*uinsf.dqdx)[IIDX::IIP], (*uinsf.dqdy)[IIDX::IIP], (*uinsf.dqdz)[IIDX::IIP]);
