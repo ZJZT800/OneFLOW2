@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+Ôªø/*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -23,6 +23,7 @@ License
 #include "UINsVisterm.h"
 #include "INsInvterm.h"
 #include "UINsInvterm.h"
+#include "BcData.h"
 #include "INsVisterm.h"
 #include "Iteration.h"
 #include "HeatFlux.h"
@@ -90,9 +91,6 @@ void UINsVisterm::DeAlloc()
 
 void UINsVisterm::PrepareField()
 {
-	//uins_grad.Init();
-	//uins_grad.CmpGrad();  //º∆À„Ã›∂»
-    //ut_grad.CmpGradDebug();
 	this->CmpPreandVisGrad();
 }
 
@@ -147,11 +145,6 @@ void UINsVisterm::CmpPreandVisGrad()
 		Real value2 = cl * (*uinsf.q)[IIDX::IIV][ug.lc] + cr * (*uinsf.q)[IIDX::IIV][ug.rc];
 		Real value3 = cl * (*uinsf.q)[IIDX::IIW][ug.lc] + cr * (*uinsf.q)[IIDX::IIW][ug.rc];
 		Real value4 = cl * (*uinsf.q)[IIDX::IIP][ug.lc] + cr * (*uinsf.q)[IIDX::IIP][ug.rc];
-
-		/*Real value1 = 0.5 * (*uinsf.q)[IIDX::IIU][ug.lc] + 0.5 * (*uinsf.q)[IIDX::IIU][ug.rc];
-		Real value2 = 0.5 * (*uinsf.q)[IIDX::IIV][ug.lc] + 0.5 * (*uinsf.q)[IIDX::IIV][ug.rc];
-		Real value3 = 0.5 * (*uinsf.q)[IIDX::IIW][ug.lc] + 0.5 * (*uinsf.q)[IIDX::IIW][ug.rc];
-		Real value4 = 0.5 * (*uinsf.q)[IIDX::IIP][ug.lc] + 0.5 * (*uinsf.q)[IIDX::IIP][ug.rc];*/
 
 		Real fnxa = (*ug.xfn)[ug.fId] * (*ug.farea)[ug.fId];
 		Real fnya = (*ug.yfn)[ug.fId] * (*ug.farea)[ug.fId];
@@ -231,7 +224,7 @@ void UINsVisterm::CmpPreandVisGrad()
 
 void UINsVisterm::CmpVisterm()
 {
-    for ( int fId = 0; fId < ug.nFace; ++ fId )
+    for ( int fId = ug.nBFace; fId < ug.nFace; ++ fId )
     {
         ug.fId = fId;
 
@@ -242,240 +235,225 @@ void UINsVisterm::CmpVisterm()
         {
             int kkk = 1;
         }
-		
-		//iinv.ukl[ug.fId] = (*limf->qf1)[IIDX::IIU][ug.fId];
-		//iinv.ukr[ug.fId] = (*limf->qf2)[IIDX::IIU][ug.fId];
-		//iinv.vkl[ug.fId] = (*limf->qf1)[IIDX::IIV][ug.fId];
-		//iinv.vkr[ug.fId] = (*limf->qf2)[IIDX::IIV][ug.fId];
-		//iinv.wkl[ug.fId] = (*limf->qf1)[IIDX::IIW][ug.fId];
-		//iinv.wkr[ug.fId] = (*limf->qf2)[IIDX::IIW][ug.fId];
 
-        this->CmpFaceVisterm();  //“™∏ƒ∂Ø
+        this->CmpFaceVisterm();  //Ë¶ÅÊîπÂä®
 
     }
 
-	/*for (int fId = 0; fId < ug.nBFace; ++fId)
+	ug.nRegion = ug.bcRecord->bcInfo->bcType.size();
+	BcInfo * bcInfo = ug.bcRecord->bcInfo;
+
+	for (int ir = 0; ir < ug.nRegion; ++ir)
 	{
-		ug.fId = fId;
+		ug.ir = ir;
+		ug.bctype = ug.bcRecord->bcInfo->bcType[ir];
+		ug.nRBFace = ug.bcRecord->bcInfo->bcFace[ir].size();
 
-		ug.lc = (*ug.lcf)[ug.fId];
-		ug.rc = (*ug.rcf)[ug.fId];
-
-		if (fId == 147489)
+		for (int ibc = 0; ibc < ug.nRBFace; ++ibc)
 		{
-			int kkk = 1;
+			ug.bcfId = ibc;
+
+			BcInfo * bcInfo = ug.bcRecord->bcInfo;
+
+			ug.fId = bcInfo->bcFace[ug.ir][ibc];
+			ug.bcr = bcInfo->bcRegion[ug.ir][ibc];
+
+			ug.bcdtkey = bcInfo->bcdtkey[ug.ir][ibc];
+
+			ug.lc = (*ug.lcf)[ug.fId];
+			ug.rc = (*ug.rcf)[ug.fId];
+
+			inscom.bcdtkey = 0;
+			if (ug.bcr == -1) return; //interface
+			int dd = bcdata.r2d[ug.bcr];
+			if (dd != -1)
+			{
+				inscom.bcdtkey = 1;
+				inscom.bcflow = &bcdata.dataList[dd];
+			}
+
+			this->CmpBcFaceVisterm();
 		}
-
-		//iinv.ukl[ug.fId] = (*limf->qf1)[IIDX::IIU][ug.fId];
-		//iinv.ukr[ug.fId] = (*limf->qf2)[IIDX::IIU][ug.fId];
-		//iinv.vkl[ug.fId] = (*limf->qf1)[IIDX::IIV][ug.fId];
-		//iinv.vkr[ug.fId] = (*limf->qf2)[IIDX::IIV][ug.fId];
-		//iinv.wkl[ug.fId] = (*limf->qf1)[IIDX::IIW][ug.fId];
-		//iinv.wkr[ug.fId] = (*limf->qf2)[IIDX::IIW][ug.fId];
-
-		this->CmpBcFaceVisterm();  //“™∏ƒ∂Ø
-
-	}*/
-
+	}
 }
 
 void UINsVisterm::CmpFaceVisterm()
 {
 
-	iinv.l2rdx = (*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc];  //ΩÁ√Ê◊Û”“µ•‘™÷––ƒæ‡
+	iinv.l2rdx = (*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc];  //ÁïåÈù¢Â∑¶Âè≥ÂçïÂÖÉ‰∏≠ÂøÉË∑ù
 	iinv.l2rdy = (*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc];
 	iinv.l2rdz = (*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc];
 
 	iinv.c2d = sqrt(iinv.l2rdx * iinv.l2rdx + iinv.l2rdy * iinv.l2rdy + iinv.l2rdz * iinv.l2rdz);
 
-	iinv.vis = 1 / inscom.reynolds;  //∂Ø¡¶’≥∂»
+	iinv.vis = 1 * 0.2 / inscom.reynolds;  //Âä®ÂäõÁ≤òÂ∫¶
 
 	iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc]);
 
-	iinv.Fn[ug.fId] = iinv.vis * (*ug.farea)[ug.fId] / iinv.dist;
-
-	Real dx1 = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];
-	Real dy1 = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
-	Real dz1 = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
-
-	Real dx2 = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.rc];
-	Real dy2 = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.rc];
-	Real dz2 = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.rc];
-
-	Real de1 = DIST(dx1, dy1, dz1);
-	Real de2 = DIST(dx2, dy2, dz2);
-	Real de = 1.0 / (de1 + de2);
-
-	iinv.f1[ug.fId] = de2 * de;  //◊Ûµ•‘™»®÷ÿ
-	iinv.f2[ug.fId] = de1 * de;  //”“µ•‘™»®÷ÿ
+	iinv.Fn[ug.fId] = iinv.vis * (*ug.farea)[ug.fId] / (iinv.dist);
 
 	iinv.Puf = (iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.rc])*(*ug.xfn)[ug.fId] +
-		               (iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIU][ug.rc])*(*ug.yfn)[ug.fId] +
-		               (iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIU][ug.rc])*(*ug.zfn)[ug.fId];  //®åq*n
+		(iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIU][ug.rc])*(*ug.yfn)[ug.fId] +
+		(iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIU][ug.rc])*(*ug.zfn)[ug.fId];  //‚ñΩq*n
 
 	iinv.Pvf = (iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIV][ug.rc])*(*ug.xfn)[ug.fId] +
-		               (iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.rc])*(*ug.yfn)[ug.fId] +
-		               (iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIV][ug.rc])*(*ug.zfn)[ug.fId];
-	
+		(iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.rc])*(*ug.yfn)[ug.fId] +
+		(iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIV][ug.rc])*(*ug.zfn)[ug.fId];
+
 	iinv.Pwf = (iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIW][ug.rc])*(*ug.xfn)[ug.fId] +
-		               (iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIW][ug.rc])*(*ug.yfn)[ug.fId] +
-		               (iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.rc])*(*ug.zfn)[ug.fId];
-	
-	iinv.Pdu = -((iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.rc])*iinv.l2rdx+
-		                (iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIU][ug.rc])*iinv.l2rdy+
-	 	                (iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIU][ug.rc])*iinv.l2rdz)/ iinv.dist;
+		(iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIW][ug.rc])*(*ug.yfn)[ug.fId] +
+		(iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.rc])*(*ug.zfn)[ug.fId];
 
-	iinv.Pdv = -((iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIV][ug.rc])*iinv.l2rdx  +
-		                (iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.rc])*iinv.l2rdy  +
-		                (iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIV][ug.rc])*iinv.l2rdz) / iinv.dist;
+	iinv.Pdu = -((iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.rc])*iinv.l2rdx +
+		(iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIU][ug.rc])*iinv.l2rdy +
+		(iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIU][ug.rc])*iinv.l2rdz) / (iinv.dist);
 
-	iinv.Pdw = -((iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIW][ug.rc])*iinv.l2rdx  +
-		                (iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIW][ug.rc])*iinv.l2rdy  +
-		                (iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.rc])*iinv.l2rdz ) / iinv.dist;
+	iinv.Pdv = -((iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIV][ug.rc])*iinv.l2rdx +
+		(iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.rc])*iinv.l2rdy +
+		(iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIV][ug.rc])*iinv.l2rdz) / (iinv.dist);
 
-	
-	iinv.Ftu1 = iinv.Puf *(*ug.farea)[ug.fId]* iinv.vis;   //¿©…¢œÓ÷–πÈ»Î‘¥œÓµƒ≤ø∑÷1
-    iinv.Ftv1 = iinv.Pvf *(*ug.farea)[ug.fId]* iinv.vis;
-	iinv.Ftw1 = iinv.Pwf *(*ug.farea)[ug.fId]* iinv.vis;
+	iinv.Pdw = -((iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIW][ug.rc])*iinv.l2rdx +
+		(iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIW][ug.rc])*iinv.l2rdy +
+		(iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.rc])*iinv.l2rdz) / (iinv.dist);
 
-	iinv.Ftu2 = iinv.Pdu*(*ug.farea)[ug.fId] * iinv.vis;   //¿©…¢œÓ÷–πÈ»Î‘¥œÓµƒ≤ø∑÷2
+
+	iinv.Ftu1 = iinv.Puf *(*ug.farea)[ug.fId] * iinv.vis;   //Êâ©Êï£È°π‰∏≠ÂΩíÂÖ•Ê∫êÈ°πÁöÑÈÉ®ÂàÜ1
+	iinv.Ftv1 = iinv.Pvf *(*ug.farea)[ug.fId] * iinv.vis;
+	iinv.Ftw1 = iinv.Pwf *(*ug.farea)[ug.fId] * iinv.vis;
+
+	iinv.Ftu2 = iinv.Pdu*(*ug.farea)[ug.fId] * iinv.vis;   //Êâ©Êï£È°π‰∏≠ÂΩíÂÖ•Ê∫êÈ°πÁöÑÈÉ®ÂàÜ2
 	iinv.Ftv2 = iinv.Pdv*(*ug.farea)[ug.fId] * iinv.vis;
 	iinv.Ftw2 = iinv.Pdw*(*ug.farea)[ug.fId] * iinv.vis;
 
 
 
 	iinv.PufT = ((iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.rc])*(*ug.xfn)[ug.fId] +
-		                 (iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIV][ug.rc])*(*ug.yfn)[ug.fId] +
-		                 (iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.rc])*(*ug.zfn)[ug.fId]);
+		(iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIV][ug.rc])*(*ug.yfn)[ug.fId] +
+		(iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.rc])*(*ug.zfn)[ug.fId]);
 
 	iinv.PvfT = ((iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIU][ug.rc])*(*ug.xfn)[ug.fId] +
-		                 (iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.rc])*(*ug.yfn)[ug.fId] +
-		                 (iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIW][ug.rc])*(*ug.zfn)[ug.fId]);
+		(iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.rc])*(*ug.yfn)[ug.fId] +
+		(iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIW][ug.rc])*(*ug.zfn)[ug.fId]);
 
 	iinv.PwfT = ((iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIU][ug.rc])*(*ug.xfn)[ug.fId] +
-		                 (iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIV][ug.rc])*(*ug.yfn)[ug.fId] +
-		                 (iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.rc])*(*ug.zfn)[ug.fId]);
+		(iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIV][ug.rc])*(*ug.yfn)[ug.fId] +
+		(iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.rc])*(*ug.zfn)[ug.fId]);
 
 
 
 	iinv.Pud = ((iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.rc]) +
-		                (iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.rc]) +
-		                (iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.rc]))*(*ug.xfn)[ug.fId];
+		(iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.rc]) +
+		(iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.rc]))*(*ug.xfn)[ug.fId];
 
-    iinv.Pvd = ((iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.rc]) +
-		                (iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.rc]) +
-		                (iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.rc]))*(*ug.yfn)[ug.fId];
+	iinv.Pvd = ((iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.rc]) +
+		(iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.rc]) +
+		(iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.rc]))*(*ug.yfn)[ug.fId];
 
-	iinv.Pwd =((iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.rc]) +
-		               (iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.rc]) +
-		               (iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.rc]))*(*ug.zfn)[ug.fId];
+	iinv.Pwd = ((iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.rc]) +
+		(iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.rc]) +
+		(iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.rc]))*(*ug.zfn)[ug.fId];
 
-	iinv.FtuT = iinv.PufT * (*ug.farea)[ug.fId] * iinv.vis;  //ß§(®åV)T£¨±Ì√Ê‘¥œÓ
-	iinv.FtvT = iinv.PvfT * (*ug.farea)[ug.fId] * iinv.vis;
-	iinv.FtwT = iinv.PwfT * (*ug.farea)[ug.fId] * iinv.vis;
+	/*iinv.FtuT1 = iinv.PufT * (*ug.farea)[ug.fId] * iinv.vis;  //–ì(‚ñΩV)TÔºåË°®Èù¢Ê∫êÈ°π
+	iinv.FtvT1 = iinv.PvfT * (*ug.farea)[ug.fId] * iinv.vis;
+	iinv.FtwT1 = iinv.PwfT * (*ug.farea)[ug.fId] * iinv.vis;
+
+	iinv.FtuT2 = iinv.Pud*(*ug.farea)[ug.fId] * (-2 / 3)*iinv.vis; //Œª(‚àá‚àôV ‚Éó)I‚àô(n_n ) ‚ÉódS Ë°®Èù¢Ê∫êÈ°π
+	iinv.FtvT2 = iinv.Pvd*(*ug.farea)[ug.fId] * (-2 / 3)*iinv.vis;
+	iinv.FtwT2 = iinv.Pwd*(*ug.farea)[ug.fId] * (-2 / 3)*iinv.vis;*/
 
 	iinv.ai[ug.fId][0] += iinv.Fn[ug.fId];
 	iinv.ai[ug.fId][1] += iinv.Fn[ug.fId];
-	
-	iinv.biu[ug.fId][0] = iinv.Ftu1 + iinv.Ftu2;
-	iinv.biu[ug.fId][1] = -iinv.Ftu1 - iinv.Ftu2;
 
-	iinv.biv[ug.fId][0] = iinv.Ftv1 + iinv.Ftv2;
-	iinv.biv[ug.fId][1] = -iinv.Ftv1 - iinv.Ftv2;
+	iinv.spc[ug.lc] += iinv.Fn[ug.fId];
+	iinv.spc[ug.rc] += iinv.Fn[ug.fId];
 
-	iinv.biw[ug.fId][0] = iinv.Ftw1 + iinv.Ftw2;
-	iinv.biw[ug.fId][1] = -iinv.Ftw1 - iinv.Ftw2;
+	iinv.buc[ug.lc] += iinv.Ftu1 + iinv.Ftu2;
+	iinv.buc[ug.rc] += -iinv.Ftu1 - iinv.Ftu2;
+
+	iinv.bvc[ug.lc] += iinv.Ftv1 + iinv.Ftv2;
+	iinv.bvc[ug.rc] += -iinv.Ftv1 - iinv.Ftv2;
+
+	iinv.bwc[ug.lc] += iinv.Ftw1 + iinv.Ftw2;
+	iinv.bwc[ug.rc] += -iinv.Ftw1 - iinv.Ftw2;
 }
 
-/*void UINsVisterm::CmpBcFaceVisterm()
+void UINsVisterm::CmpBcFaceVisterm()
 {
-	iinv.l2rdx[ug.fId] = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];  //ΩÁ√Ê◊Û”“µ•‘™÷––ƒæ‡
-	iinv.l2rdy[ug.fId] = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
-	iinv.l2rdz[ug.fId] = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
+	iinv.l2rdx = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];  //ÁïåÈù¢Â∑¶Âè≥ÂçïÂÖÉ‰∏≠ÂøÉË∑ù
+	iinv.l2rdy = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
+	iinv.l2rdz = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
 
-	iinv.c2d = sqrt(iinv.l2rdx[ug.fId] * iinv.l2rdx[ug.fId] + iinv.l2rdy[ug.fId] * iinv.l2rdy[ug.fId] + iinv.l2rdz[ug.fId] * iinv.l2rdz[ug.fId]);
+	iinv.c2d = sqrt(iinv.l2rdx * iinv.l2rdx + iinv.l2rdy * iinv.l2rdy + iinv.l2rdz * iinv.l2rdz);
 
-	iinv.dist[ug.fId] = (*ug.xfn)[ug.fId] * ((*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc]);
+	iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc]);
 
-	iinv.Fn[ug.fId] = iinv.vis * (*ug.farea)[ug.fId] / 2*iinv.dist[ug.fId];
+	iinv.vis = 1 * 0.2 / inscom.reynolds;  //Âä®ÂäõÁ≤òÂ∫¶
+
+	iinv.Fn[ug.fId] = iinv.vis * (*ug.farea)[ug.fId] / iinv.dist;
+
+	iinv.Fbu = iinv.vis * (*ug.farea)[ug.fId] * iinv.uf[ug.fId] / (iinv.dist);
+	iinv.Fbv = iinv.vis * (*ug.farea)[ug.fId] * iinv.vf[ug.fId] / (iinv.dist);
+	iinv.Fbw = iinv.vis * (*ug.farea)[ug.fId] * iinv.wf[ug.fId] / (iinv.dist);
 
 
-	iinv.Puf[ug.fId] = ((*uinsf.dqdx)[IIDX::IIU][ug.lc])*(*ug.xfn)[ug.fId] +
-		((*uinsf.dqdy)[IIDX::IIU][ug.lc])*(*ug.yfn)[ug.fId] +
-		((*uinsf.dqdz)[IIDX::IIU][ug.lc])*(*ug.zfn)[ug.fId];  //®åq*n
 
-	iinv.Pvf[ug.fId] = ((*uinsf.dqdx)[IIDX::IIV][ug.lc] )*(*ug.xfn)[ug.fId] +
-		((*uinsf.dqdy)[IIDX::IIV][ug.lc])*(*ug.yfn)[ug.fId] +
-		((*uinsf.dqdz)[IIDX::IIV][ug.lc])*(*ug.zfn)[ug.fId];
+	iinv.Puf = ((*uinsf.dqdx)[IIDX::IIU][ug.lc])*(*ug.xfn)[ug.fId] + ((*uinsf.dqdy)[IIDX::IIU][ug.lc])*(*ug.yfn)[ug.fId] + ((*uinsf.dqdz)[IIDX::IIU][ug.lc])*(*ug.zfn)[ug.fId];  //‚ñΩq*n
 
-	iinv.Pwf[ug.fId] = ((*uinsf.dqdx)[IIDX::IIW][ug.lc])*(*ug.xfn)[ug.fId] +
-		((*uinsf.dqdy)[IIDX::IIW][ug.lc])*(*ug.yfn)[ug.fId] +
+	iinv.Pvf = ((*uinsf.dqdx)[IIDX::IIV][ug.lc])*(*ug.xfn)[ug.fId] + ((*uinsf.dqdy)[IIDX::IIV][ug.lc])*(*ug.yfn)[ug.fId] + ((*uinsf.dqdz)[IIDX::IIV][ug.lc])*(*ug.zfn)[ug.fId];
+
+	iinv.Pwf = ((*uinsf.dqdx)[IIDX::IIW][ug.lc])*(*ug.xfn)[ug.fId] + ((*uinsf.dqdy)[IIDX::IIW][ug.lc])*(*ug.yfn)[ug.fId] + ((*uinsf.dqdz)[IIDX::IIW][ug.lc])*(*ug.zfn)[ug.fId];
+
+	iinv.Pdu = -((*uinsf.dqdx)[IIDX::IIU][ug.lc] * iinv.l2rdx + (*uinsf.dqdy)[IIDX::IIU][ug.lc] * iinv.l2rdy + (*uinsf.dqdz)[IIDX::IIU][ug.lc] * iinv.l2rdz) / iinv.dist;
+
+	iinv.Pdv = -((*uinsf.dqdx)[IIDX::IIV][ug.lc] * iinv.l2rdx + (*uinsf.dqdy)[IIDX::IIV][ug.lc] * iinv.l2rdy + (*uinsf.dqdz)[IIDX::IIV][ug.lc] * iinv.l2rdz) / iinv.dist;
+
+	iinv.Pdw = -((*uinsf.dqdx)[IIDX::IIW][ug.lc] * iinv.l2rdx + (*uinsf.dqdy)[IIDX::IIW][ug.lc] * iinv.l2rdy + (*uinsf.dqdz)[IIDX::IIW][ug.lc] * iinv.l2rdz) / iinv.dist;
+
+
+	iinv.Ftu1 = iinv.Puf *(*ug.farea)[ug.fId] * iinv.vis;   //Êâ©Êï£È°π‰∏≠ÂΩíÂÖ•Ê∫êÈ°πÁöÑÈÉ®ÂàÜ1
+	iinv.Ftv1 = iinv.Pvf *(*ug.farea)[ug.fId] * iinv.vis;
+	iinv.Ftw1 = iinv.Pwf *(*ug.farea)[ug.fId] * iinv.vis;
+
+	iinv.Ftu2 = iinv.Pdu*(*ug.farea)[ug.fId] * iinv.vis;   //Êâ©Êï£È°π‰∏≠ÂΩíÂÖ•Ê∫êÈ°πÁöÑÈÉ®ÂàÜ2
+	iinv.Ftv2 = iinv.Pdv*(*ug.farea)[ug.fId] * iinv.vis;
+	iinv.Ftw2 = iinv.Pdw*(*ug.farea)[ug.fId] * iinv.vis;
+
+
+	iinv.PufT = ((*uinsf.dqdx)[IIDX::IIU][ug.lc])*(*ug.xfn)[ug.fId] + ((*uinsf.dqdx)[IIDX::IIV][ug.lc])*(*ug.yfn)[ug.fId] +
+		((*uinsf.dqdx)[IIDX::IIW][ug.lc])*(*ug.zfn)[ug.fId];
+
+	iinv.PvfT = ((*uinsf.dqdy)[IIDX::IIU][ug.lc])*(*ug.xfn)[ug.fId] + ((*uinsf.dqdy)[IIDX::IIV][ug.lc])*(*ug.yfn)[ug.fId] +
+		((*uinsf.dqdy)[IIDX::IIW][ug.lc])*(*ug.zfn)[ug.fId];
+
+	iinv.PwfT = ((*uinsf.dqdz)[IIDX::IIU][ug.lc])*(*ug.xfn)[ug.fId] + ((*uinsf.dqdz)[IIDX::IIV][ug.lc])*(*ug.yfn)[ug.fId] +
 		((*uinsf.dqdz)[IIDX::IIW][ug.lc])*(*ug.zfn)[ug.fId];
 
-	iinv.Pdu[ug.fId] = -(((*uinsf.dqdx)[IIDX::IIU][ug.lc])*iinv.l2rdx[ug.fId] +
-		((*uinsf.dqdy)[IIDX::IIU][ug.lc] )*iinv.l2rdy[ug.fId] +
-		((*uinsf.dqdz)[IIDX::IIU][ug.lc] )*iinv.l2rdz[ug.fId]) / iinv.dist[ug.fId];
 
-	iinv.Pdv[ug.fId] = -(((*uinsf.dqdx)[IIDX::IIV][ug.lc])*iinv.l2rdx[ug.fId] +
-		((*uinsf.dqdy)[IIDX::IIV][ug.lc])*iinv.l2rdy[ug.fId] +
-		((*uinsf.dqdz)[IIDX::IIV][ug.lc])*iinv.l2rdz[ug.fId]) / iinv.dist[ug.fId];
+	iinv.Pud = ((*uinsf.dqdx)[IIDX::IIU][ug.lc] + (*uinsf.dqdy)[IIDX::IIV][ug.lc] + (*uinsf.dqdz)[IIDX::IIW][ug.lc])*(*ug.xfn)[ug.fId];
 
-	iinv.Pdw[ug.fId] = -(((*uinsf.dqdx)[IIDX::IIW][ug.lc])*iinv.l2rdx[ug.fId] +
-		((*uinsf.dqdy)[IIDX::IIW][ug.lc])*iinv.l2rdy[ug.fId] +
-		((*uinsf.dqdz)[IIDX::IIW][ug.lc] )*iinv.l2rdz[ug.fId]) / iinv.dist[ug.fId];
+	iinv.Pvd = ((*uinsf.dqdx)[IIDX::IIU][ug.lc] + (*uinsf.dqdy)[IIDX::IIV][ug.lc] + (*uinsf.dqdz)[IIDX::IIW][ug.lc])*(*ug.yfn)[ug.fId];
 
-	iinv.Ftu1[ug.fId] = iinv.Puf[ug.fId] * (*ug.farea)[ug.fId] * iinv.visu[ug.fId];   //¿©…¢œÓ÷–πÈ»Î‘¥œÓµƒ≤ø∑÷1
-	iinv.Ftv1[ug.fId] = iinv.Pvf[ug.fId] * (*ug.farea)[ug.fId] * iinv.visv[ug.fId];
-	iinv.Ftw1[ug.fId] = iinv.Pwf[ug.fId] * (*ug.farea)[ug.fId] * iinv.visw[ug.fId];
+	iinv.Pwd = ((*uinsf.dqdx)[IIDX::IIU][ug.lc] + (*uinsf.dqdy)[IIDX::IIV][ug.lc] + (*uinsf.dqdz)[IIDX::IIW][ug.lc])*(*ug.zfn)[ug.fId];
 
-	iinv.Ftu2[ug.fId] = iinv.Pdu[ug.fId] * (*ug.farea)[ug.fId] * iinv.visu[ug.fId];   //¿©…¢œÓ÷–πÈ»Î‘¥œÓµƒ≤ø∑÷2
-	iinv.Ftv2[ug.fId] = iinv.Pdv[ug.fId] * (*ug.farea)[ug.fId] * iinv.visv[ug.fId];
-	iinv.Ftw2[ug.fId] = iinv.Pdw[ug.fId] * (*ug.farea)[ug.fId] * iinv.visw[ug.fId];
+	/*iinv.FtuT1 = iinv.PufT * (*ug.farea)[ug.fId] * iinv.vis;  //–ì(‚ñΩV)TÔºåË°®Èù¢Ê∫êÈ°π
+	iinv.FtvT1 = iinv.PvfT * (*ug.farea)[ug.fId] * iinv.vis;
+	iinv.FtwT1 = iinv.PwfT * (*ug.farea)[ug.fId] * iinv.vis;
 
+	iinv.FtuT2 = iinv.Pud*(*ug.farea)[ug.fId] * (-2 / 3)*iinv.vis; //Œª(‚àá‚àôV ‚Éó)I‚àô(n_n ) ‚ÉódS Ë°®Èù¢Ê∫êÈ°π
+	iinv.FtvT2 = iinv.Pvd*(*ug.farea)[ug.fId] * (-2 / 3)*iinv.vis;
+	iinv.FtwT2 = iinv.Pwd*(*ug.farea)[ug.fId] * (-2 / 3)*iinv.vis;*/
 
+	iinv.ai[ug.fId][0] += iinv.Fn[ug.fId];
+	iinv.ai[ug.fId][1] += iinv.Fn[ug.fId];
 
-	iinv.PufT[ug.fId] = (((*uinsf.dqdx)[IIDX::IIU][ug.lc] )*(*ug.xfn)[ug.fId] +
-		((*uinsf.dqdx)[IIDX::IIV][ug.lc])*(*ug.yfn)[ug.fId] +
-		((*uinsf.dqdx)[IIDX::IIW][ug.lc])*(*ug.zfn)[ug.fId]);
+	iinv.spc[ug.lc] += iinv.Fn[ug.fId];
 
-	iinv.PvfT[ug.fId] = (((*uinsf.dqdy)[IIDX::IIU][ug.lc])*(*ug.xfn)[ug.fId] +
-		((*uinsf.dqdy)[IIDX::IIV][ug.lc])*(*ug.yfn)[ug.fId] +
-		((*uinsf.dqdy)[IIDX::IIW][ug.lc])*(*ug.zfn)[ug.fId]);
+	iinv.buc[ug.lc] += iinv.Fbu + iinv.Ftu1 + iinv.Ftu2;
 
-	iinv.PwfT[ug.fId] = (((*uinsf.dqdz)[IIDX::IIU][ug.lc])*(*ug.xfn)[ug.fId] +
-		((*uinsf.dqdz)[IIDX::IIV][ug.lc])*(*ug.yfn)[ug.fId] +
-		((*uinsf.dqdz)[IIDX::IIW][ug.lc] )*(*ug.zfn)[ug.fId]);
+	iinv.bvc[ug.lc] += iinv.Fbv + iinv.Ftv1 + iinv.Ftv2;
 
-
-
-	iinv.Pud[ug.fId] = (((*uinsf.dqdx)[IIDX::IIU][ug.lc]) +
-		((*uinsf.dqdy)[IIDX::IIV][ug.lc]) +
-		((*uinsf.dqdz)[IIDX::IIW][ug.lc]))*(*ug.xfn)[ug.fId];
-
-	iinv.Pvd[ug.fId] = (((*uinsf.dqdx)[IIDX::IIU][ug.lc]) +
-		((*uinsf.dqdy)[IIDX::IIV][ug.lc]) +
-		((*uinsf.dqdz)[IIDX::IIW][ug.lc]))*(*ug.yfn)[ug.fId];
-
-	iinv.Pwd[ug.fId] = (((*uinsf.dqdx)[IIDX::IIU][ug.lc]) +
-		((*uinsf.dqdy)[IIDX::IIV][ug.lc]) +
-		((*uinsf.dqdz)[IIDX::IIW][ug.lc]))*(*ug.zfn)[ug.fId];
-
-	iinv.FtuT[ug.fId] = iinv.PufT[ug.fId] * (*ug.farea)[ug.fId] * iinv.visu[ug.fId];  //ß§(®åV)T£¨±Ì√Ê‘¥œÓ
-	iinv.FtvT[ug.fId] = iinv.PvfT[ug.fId] * (*ug.farea)[ug.fId] * iinv.visv[ug.fId];
-	iinv.FtwT[ug.fId] = iinv.PwfT[ug.fId] * (*ug.farea)[ug.fId] * iinv.visw[ug.fId];
-
-	iinv.ai[0][ug.fId] += iinv.Fn[ug.fId];
-	iinv.ai[1][ug.fId] += iinv.Fn[ug.fId];
-
-	iinv.biu[0][ug.fId] = iinv.Ftu1[ug.fId] + iinv.Ftu2[ug.fId];
-	iinv.biu[1][ug.fId] = -iinv.Ftu1[ug.fId] - iinv.Ftu2[ug.fId];
-
-	iinv.biv[0][ug.fId] = iinv.Ftv1[ug.fId] + iinv.Ftv2[ug.fId];
-	iinv.biv[1][ug.fId] = -iinv.Ftv1[ug.fId] - iinv.Ftv2[ug.fId];
-
-	iinv.biw[0][ug.fId] = iinv.Ftw1[ug.fId] + iinv.Ftw2[ug.fId];
-	iinv.biw[1][ug.fId] = -iinv.Ftw1[ug.fId] - iinv.Ftw2[ug.fId];
-}*/
+	iinv.bwc[ug.lc] += iinv.Fbw + iinv.Ftw1 + iinv.Ftw2;
+}
 
 void UINsVisterm::CmpUnsteadcoff()
 {
@@ -483,7 +461,7 @@ void UINsVisterm::CmpUnsteadcoff()
 	{
 		ug.cId = cId;
 
-		iinv.spt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId]/ iinv.timestep;  //æÿ’Û∂‘Ω«œﬂ‘™Àÿµƒ∑«Œ»Ã¨œÓ
+		iinv.spt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId]/ iinv.timestep;  //Áü©ÈòµÂØπËßíÁ∫øÂÖÉÁ¥†ÁöÑÈùûÁ®≥ÊÄÅÈ°π
 		
 		if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
 		{
@@ -491,74 +469,16 @@ void UINsVisterm::CmpUnsteadcoff()
 			iinv.vp[ug.cId] = (*uinsf.q)[IIDX::IIV][ug.cId];
 			iinv.wp[ug.cId] = (*uinsf.q)[IIDX::IIW][ug.cId];
 
-			iinv.but[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId]* iinv.up[ug.cId] / iinv.timestep; //‘¥œÓµƒ∑«Œ»Ã¨œÓ
+			iinv.but[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId]* iinv.up[ug.cId] / iinv.timestep; //Ê∫êÈ°πÁöÑÈùûÁ®≥ÊÄÅÈ°π
 			iinv.bvt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId]* iinv.vp[ug.cId] / iinv.timestep;
 			iinv.bwt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId]* iinv.wp[ug.cId]/ iinv.timestep;
 		}
 		else
 		{
-			iinv.but[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.up[ug.cId] / iinv.timestep; //‘¥œÓµƒ∑«Œ»Ã¨œÓ
+			iinv.but[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.up[ug.cId] / iinv.timestep; //Ê∫êÈ°πÁöÑÈùûÁ®≥ÊÄÅÈ°π
 			iinv.bvt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.vp[ug.cId] / iinv.timestep;
 			iinv.bwt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.wp[ug.cId] / iinv.timestep;
 		}
-	}
-
-	/*for (int fId = 0; fId < ug.nBFace; ++fId)
-	{
-		ug.fId = fId;
-		ug.lc = (*ug.lcf)[ug.fId];
-		ug.rc = (*ug.rcf)[ug.fId];
-
-		iinv.spt[ug.rc] = (*ug.cvol)[ug.lc] * (*uinsf.q)[IIDX::IIR][ug.rc] / iinv.timestep;
-
-		if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
-		{
-			iinv.up[ug.rc] = (*uinsf.q)[IIDX::IIU][ug.rc];
-			iinv.vp[ug.rc] = (*uinsf.q)[IIDX::IIV][ug.rc];
-			iinv.wp[ug.rc] = (*uinsf.q)[IIDX::IIW][ug.rc];
-
-
-			iinv.but[ug.rc] = (*ug.cvol)[ug.lc] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.up[ug.rc] / iinv.timestep; //‘¥œÓµƒ∑«Œ»Ã¨œÓ
-			iinv.bvt[ug.rc] = (*ug.cvol)[ug.lc] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.vp[ug.rc] / iinv.timestep;
-			iinv.bwt[ug.rc] = (*ug.cvol)[ug.lc] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.wp[ug.rc] / iinv.timestep;
-
-		}
-		else
-		{
-			iinv.but[ug.cId] = (*ug.cvol)[ug.lc] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.up[ug.rc] / iinv.timestep; //‘¥œÓµƒ∑«Œ»Ã¨œÓ
-			iinv.bvt[ug.cId] = (*ug.cvol)[ug.lc] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.vp[ug.rc] / iinv.timestep;
-			iinv.bwt[ug.cId] = (*ug.cvol)[ug.lc] * (*uinsf.q)[IIDX::IIR][ug.rc] * iinv.wp[ug.rc] / iinv.timestep;
-		}
-
-	}*/
-
-
-	for (int cId = ug.nCell; cId < ug.nTCell; ++cId)
-	{
-		ug.cId = cId;
-
-		iinv.spt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] / iinv.timestep;  //æÿ’Û∂‘Ω«œﬂ‘™Àÿµƒ∑«Œ»Ã¨œÓ
-		
-		if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
-	
-		{
-			iinv.up[ug.cId] = (*uinsf.q)[IIDX::IIU][ug.cId];
-			iinv.vp[ug.cId] = (*uinsf.q)[IIDX::IIV][ug.cId];
-			iinv.wp[ug.cId] = (*uinsf.q)[IIDX::IIW][ug.cId];
-
-			iinv.but[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.up[ug.cId] / iinv.timestep; //‘¥œÓµƒ∑«Œ»Ã¨œÓ
-			iinv.bvt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.vp[ug.cId] / iinv.timestep;
-			iinv.bwt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.wp[ug.cId] / iinv.timestep;
-
-
-		}
-		else
-		{
-			iinv.but[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.up[ug.cId] / iinv.timestep; //‘¥œÓµƒ∑«Œ»Ã¨œÓ
-			iinv.bvt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.vp[ug.cId] / iinv.timestep;
-			iinv.bwt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.wp[ug.cId] / iinv.timestep;
-		}
-
 	}
 
 }
@@ -567,49 +487,24 @@ void UINsVisterm::CmpUnsteadcoff()
 
 void UINsVisterm::CmpINsSrc()
 {
-	iinv.spc = 0;
-	iinv.buc = 0;
-	iinv.bvc = 0;
-	iinv.bwc = 0;
 
-	for (int fId = 0; fId < ug.nFace; ++fId)
-	{
-		ug.fId = fId;
-		ug.lc = (*ug.lcf)[ug.fId];
-		ug.rc = (*ug.rcf)[ug.fId];
-
-		iinv.spc[ug.lc] += iinv.ai[ug.fId][0];
-		iinv.spc[ug.rc] += iinv.ai[ug.fId][1];
-
-		iinv.buc[ug.lc] += iinv.biu[ug.fId][0];
-		iinv.buc[ug.rc] += iinv.biu[ug.fId][1];
-
-		iinv.bvc[ug.lc] += iinv.biv[ug.fId][0];
-		iinv.bvc[ug.rc] += iinv.biv[ug.fId][1];
-
-		iinv.bwc[ug.lc] += iinv.biw[ug.fId][0];
-		iinv.bwc[ug.rc] += iinv.biw[ug.fId][1];
-
-	}
-
-	for (int cId = 0; cId < ug.nTCell; ++cId)
+	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		ug.cId = cId;
 
 		iinv.spc[ug.cId] += iinv.spt[ug.cId];
 
-		iinv.buc[ug.cId] += iinv.but[ug.cId]- (*ug.cvol)[ug.cId] * (*uinsf.dqdx)[IIDX::IIP][ug.cId];
-		iinv.bvc[ug.cId] += iinv.bvt[ug.cId] -(*ug.cvol)[ug.cId] * (*uinsf.dqdy)[IIDX::IIP][ug.cId];
+		iinv.buc[ug.cId] += iinv.but[ug.cId] - (*ug.cvol)[ug.cId] * (*uinsf.dqdx)[IIDX::IIP][ug.cId];
+		iinv.bvc[ug.cId] += iinv.bvt[ug.cId] - (*ug.cvol)[ug.cId] * (*uinsf.dqdy)[IIDX::IIP][ug.cId];
 		iinv.bwc[ug.cId] += iinv.bwt[ug.cId] - (*ug.cvol)[ug.cId] * (*uinsf.dqdz)[IIDX::IIP][ug.cId];
 
-		//cout << "iinv.buc=" << iinv.buc[ug.cId] <<"cId="<< ug.cId<< "\n";
-
 		int fn = (*ug.c2f)[ug.cId].size();
+		iinv.dj[ug.cId] = fn;
 
 		if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
 		{
-			iinv.sj.resize(ug.nTCell, fn);
-			iinv.sd.resize(ug.nTCell, fn);
+			iinv.sj.resize(ug.nCell, fn);
+			iinv.sd.resize(ug.nCell, fn);
 		}
 		for (int iFace = 0; iFace < fn; ++iFace)
 		{
@@ -618,22 +513,31 @@ void UINsVisterm::CmpINsSrc()
 			ug.lc = (*ug.lcf)[ug.fId];
 			ug.rc = (*ug.rcf)[ug.fId];
 
-			if (ug.cId == ug.lc)
+			if (fId > ug.nBFace - 1)
 			{
-				iinv.sj[ug.cId][iFace] = -iinv.ai[ug.fId][0];  //æÿ’Û∑«¡„œµ ˝£¨∂Ø¡ø∑Ω≥Ã÷–”Î÷˜µ•‘™œ‡¡⁄µƒµ•‘™√ÊÕ®¡ø
-				iinv.sd[ug.cId][iFace] = ug.rc;
+				if (ug.cId == ug.lc)
+				{
+					iinv.sj[ug.cId][iFace] = -iinv.ai[ug.fId][0];  //Áü©ÈòµÈùûÈõ∂Á≥ªÊï∞ÔºåÂä®ÈáèÊñπÁ®ã‰∏≠‰∏é‰∏ªÂçïÂÖÉÁõ∏ÈÇªÁöÑÂçïÂÖÉÈù¢ÈÄöÈáè
+					iinv.sd[ug.cId][iFace] = ug.rc;
+				}
+				else if (ug.cId == ug.rc)
+				{
+					iinv.sj[ug.cId][iFace] = -iinv.ai[ug.fId][1];  //Áü©ÈòµÈùûÈõ∂Á≥ªÊï∞ÔºåÂä®ÈáèÊñπÁ®ã‰∏≠‰∏é‰∏ªÂçïÂÖÉÁõ∏ÈÇªÁöÑÂçïÂÖÉÈù¢ÈÄöÈáè
+					iinv.sd[ug.cId][iFace] = ug.lc;
+				}
 			}
-			else if (ug.cId == ug.rc)
+			else
 			{
-				iinv.sj[ug.cId][iFace] = -iinv.ai[ug.fId][1];  //æÿ’Û∑«¡„œµ ˝£¨∂Ø¡ø∑Ω≥Ã÷–”Î÷˜µ•‘™œ‡¡⁄µƒµ•‘™√ÊÕ®¡ø
-				iinv.sd[ug.cId][iFace] = ug.lc;
+				iinv.dj[ug.cId] -= 1;
 			}
 
 		}
 
 
 	}
+
 }
+
 
 
 
