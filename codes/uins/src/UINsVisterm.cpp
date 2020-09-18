@@ -342,7 +342,9 @@ void UINsVisterm::CmpFaceVisterm()
 
 	iinv.c2d = sqrt(iinv.l2rdx * iinv.l2rdx + iinv.l2rdy * iinv.l2rdy + iinv.l2rdz * iinv.l2rdz);
 
-	iinv.vis = 1*0.2/ inscom.reynolds;  //动力粘度
+	iinv.chalength = GetDataValue< Real >("chara_length");
+
+	iinv.vis = 1* iinv.chalength / inscom.reynolds;  //动力粘度
 
 	iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc]);
 
@@ -443,7 +445,9 @@ void UINsVisterm::CmpBcFaceVisterm()
 
 	iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc]);
 
-	iinv.vis = 1*0.2/ inscom.reynolds;  //动力粘度
+	iinv.chalength = GetDataValue< Real >("chara_length");
+
+	iinv.vis = 1 * iinv.chalength / inscom.reynolds;  //动力粘度
 
 	iinv.Fn[ug.fId] = iinv.vis * (*ug.farea)[ug.fId]/ iinv.dist;
 

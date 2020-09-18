@@ -1626,6 +1626,7 @@ void UINsInvterm::UpdateINsRes()
 	iinv.remax_wp = 0;
 	iinv.remax_pp = 0;
 
+
 	for (int fId = 0; fId < ug.nFace; ++fId)
 	{
 		ug.fId = fId;
@@ -1635,6 +1636,7 @@ void UINsInvterm::UpdateINsRes()
 		iinv.bp[ug.lc] += -iinv.fq[ug.fId];
 		iinv.bp[ug.rc] += iinv.fq[ug.fId];
 	}
+
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
