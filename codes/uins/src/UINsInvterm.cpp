@@ -885,6 +885,20 @@ void UINsInvterm::CmpCorrectPresscoef()
 			}
 		}
 	}
+
+	iinv.remax_pp = 0;
+
+	for (int cId = 0; cId < ug.nCell; ++cId)
+	{
+		ug.cId = cId;
+
+		iinv.res_pp[ug.cId] = (iinv.bp[ug.cId] - iinv.spp[ug.cId] * iinv.pp[ug.cId]) * (iinv.bp[ug.cId] - iinv.spp[ug.cId] * iinv.pp[ug.cId]);
+
+		iinv.remax_pp += iinv.res_pp[ug.cId];
+	}
+
+	iinv.remax_pp = sqrt(iinv.remax_pp);
+
 }
 
 void UINsInvterm::CmpNewMomCoe()
@@ -1582,8 +1596,9 @@ void UINsInvterm::UpdateINsRes()
 	fileres_pp << iinv.remax_pp << endl;
 	fileres_pp.close();*/
 
+	/*iinv.timestep = GetDataValue< Real >("global_dt");
 
-	/*iinv.remax_up = 0;
+	iinv.remax_up = 0;
 	iinv.remax_vp = 0;
 	iinv.remax_wp = 0;
 	iinv.remax_pp = 0;
@@ -1602,9 +1617,9 @@ void UINsInvterm::UpdateINsRes()
 	{
 		ug.cId = cId;
 
-		iinv.res_up[ug.cId] = (iinv.buc[ug.cId]- iinv.spc[ug.cId]*iinv.up[ug.cId])* (iinv.buc[ug.cId] - iinv.spc[ug.cId] * iinv.up[ug.cId]);
-		iinv.res_vp[ug.cId] = (iinv.bvc[ug.cId]- iinv.spc[ug.cId] * iinv.vp[ug.cId]) * (iinv.bvc[ug.cId] - iinv.spc[ug.cId] * iinv.vp[ug.cId]);
-		iinv.res_wp[ug.cId] = (iinv.bwc[ug.cId] - iinv.spc[ug.cId] * iinv.wp[ug.cId]) * (iinv.bwc[ug.cId] - iinv.spc[ug.cId] * iinv.wp[ug.cId]);
+		iinv.res_up[ug.cId] = (iinv.buc[ug.cId]- iinv.but[ug.cId])* (iinv.buc[ug.cId] - iinv.but[ug.cId]);
+		iinv.res_vp[ug.cId] = (iinv.bvc[ug.cId] - iinv.bvt[ug.cId])* (iinv.bvc[ug.cId] - iinv.bvt[ug.cId]);
+		iinv.res_wp[ug.cId] = (iinv.bwc[ug.cId] - iinv.bwt[ug.cId])* (iinv.bwc[ug.cId] - iinv.bwt[ug.cId]);
 
 		iinv.res_pp[ug.cId] = iinv.bp[ug.cId] * iinv.bp[ug.cId];
 
@@ -1621,11 +1636,7 @@ void UINsInvterm::UpdateINsRes()
 
 
 
-	iinv.remax_up = 0;
-	iinv.remax_vp = 0;
-	iinv.remax_wp = 0;
-	iinv.remax_pp = 0;
-
+/*	iinv.remax_pp = 0;
 
 	for (int fId = 0; fId < ug.nFace; ++fId)
 	{
@@ -1637,62 +1648,16 @@ void UINsInvterm::UpdateINsRes()
 		iinv.bp[ug.rc] += iinv.fq[ug.fId];
 	}
 
-
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		ug.cId = cId;
 
-		int fn = (*ug.c2f)[ug.cId].size();
+		iinv.res_pp[ug.cId] = (iinv.bp[ug.cId]-iinv.spp[ug.cId]*iinv.pp[ug.cId]) * (iinv.bp[ug.cId]- iinv.spp[ug.cId] * iinv.pp[ug.cId]);
 
-		for (int iFace = 0; iFace < fn; ++iFace)
-		{
-			int fId = (*ug.c2f)[ug.cId][iFace];
-			ug.fId = fId;
-			ug.lc = (*ug.lcf)[ug.fId];
-			ug.rc = (*ug.rcf)[ug.fId];
-
-			if (fId > ug.nBFace - 1)
-			{
-				if (ug.cId == ug.lc)
-				{
-					iinv.mu[ug.cId] += -iinv.ai[ug.fId][0] * (iinv.up[ug.rc] - iinv.uc[ug.rc]);  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
-					iinv.mv[ug.cId] += -iinv.ai[ug.fId][0] * (iinv.vp[ug.rc] - iinv.vc[ug.rc]);
-					iinv.mw[ug.cId] += -iinv.ai[ug.fId][0] * (iinv.wp[ug.rc] - iinv.wc[ug.rc]);
-				}
-				else if (ug.cId == ug.rc)
-				{
-					iinv.mu[ug.cId] += -iinv.ai[ug.fId][1] * (iinv.up[ug.lc] - iinv.uc[ug.lc]);  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
-					iinv.mv[ug.cId] += -iinv.ai[ug.fId][1] * (iinv.vp[ug.lc] - iinv.vc[ug.lc]);
-					iinv.mw[ug.cId] += -iinv.ai[ug.fId][1] * (iinv.wp[ug.lc] - iinv.wc[ug.lc]);
-				}
-			}
-			else
-			{
-				iinv.mu[ug.cId] += -iinv.ai[ug.fId][0]*iinv.uuf[ug.fId];
-				iinv.mv[ug.cId] += -iinv.ai[ug.fId][0]*iinv.vvf[ug.fId];
-				iinv.mu[ug.cId] += -iinv.ai[ug.fId][0]*iinv.wwf[ug.fId];
-			}
-		}
-
-		iinv.mua[ug.cId] = iinv.spc[ug.cId] * (iinv.up[ug.cId]- iinv.uc[ug.cId]) + iinv.mu[ug.cId];
-		iinv.mva[ug.cId] = iinv.spc[ug.cId] * (iinv.vp[ug.cId]- iinv.vc[ug.cId]) + iinv.mv[ug.cId];
-		iinv.mwa[ug.cId] = iinv.spc[ug.cId] * (iinv.wp[ug.cId]- iinv.wc[ug.cId]) + iinv.mw[ug.cId];
-
-		iinv.res_up[ug.cId] = (iinv.mua[ug.cId]) * (iinv.mua[ug.cId]);
-		iinv.res_vp[ug.cId] = (iinv.mva[ug.cId]) * (iinv.mva[ug.cId]);
-		iinv.res_wp[ug.cId] = (iinv.mwa[ug.cId]) * (iinv.mwa[ug.cId]);
-		iinv.res_pp[ug.cId] = iinv.bp[ug.cId] * iinv.bp[ug.cId];
-
-		iinv.remax_up += iinv.res_up[ug.cId];
-		iinv.remax_vp += iinv.res_vp[ug.cId];
-		iinv.remax_wp += iinv.res_wp[ug.cId];
 		iinv.remax_pp += iinv.res_pp[ug.cId];
 	}
 
-	iinv.remax_up = sqrt(iinv.remax_up);
-	iinv.remax_vp = sqrt(iinv.remax_vp);
-	iinv.remax_wp = sqrt(iinv.remax_wp);
-	iinv.remax_pp = sqrt(iinv.remax_pp);
+	iinv.remax_pp = sqrt(iinv.remax_pp);*/
 
 
 	cout << "iinv.remax_up:" << iinv.remax_up << endl;
