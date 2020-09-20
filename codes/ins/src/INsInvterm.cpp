@@ -323,22 +323,9 @@ void INsInvterm::CmpINsFaceflux()
 	iinv.vf[ug.fId] = iinv.f1[ug.fId] * iinv.vl + iinv.f2[ug.fId] * iinv.vr;
 	iinv.wf[ug.fId] = iinv.f1[ug.fId] * iinv.wl + iinv.f2[ug.fId] * iinv.wr;
 
-	/*iinv.uf[ug.fId] = (iinv.f1[ug.fId] * iinv.ul + iinv.f2[ug.fId] * iinv.ur)+iinv.Deun * iinv.Bpe;  //下一时刻的界面预测速度
-	iinv.vf[ug.fId] = (iinv.f1[ug.fId] * iinv.vl + iinv.f2[ug.fId] * iinv.vr)+iinv.Devn * iinv.Bpe;
-	iinv.wf[ug.fId] = (iinv.f1[ug.fId] * iinv.wl + iinv.f2[ug.fId] * iinv.wr)+iinv.Dewn * iinv.Bpe;*/
-	
-
 	iinv.vnflow = (*ug.xfn)[ug.fId] * (iinv.uf[ug.fId]+iinv.Deun * iinv.Bpe) + (*ug.yfn)[ug.fId] * (iinv.vf[ug.fId]+iinv.Devn * iinv.Bpe) + (*ug.zfn)[ug.fId] * (iinv.wf[ug.fId]+iinv.Dewn * iinv.Bpe);
 
 	iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * (*ug.farea)[ug.fId];  //下一时刻界面预测通量
-
-
-	/*Real clr = MAX(0, iinv.fq[ug.fId]);  //从界面左侧单元流入右侧单元的初始质量流量
-
-	Real crl = clr - iinv.fq[ug.fId];   //从界面右侧单元流入左侧单元的初始质量流量
-
-	iinv.ai[ug.fId][0] = crl;
-	iinv.ai[ug.fId][1] = clr;*/
 
 }
 
@@ -361,9 +348,6 @@ void INsInvterm::CmpINsBcFaceflux()
 	Real dx1 = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];
 	Real dy1 = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
 	Real dz1 = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
-
-	//iinv.Bpe = ((iinv.pf[ug.fId]-iinv.pl) *gcom.xfn* (dx1)+(iinv.pf[ug.fId] - iinv.pl) *gcom.yfn * (dy1)+(iinv.pf[ug.fId] - iinv.pl) *gcom.zfn* (dz1))/ iinv.dist -
-	//	(iinv.pf[ug.fId] - iinv.pl);
 
 	iinv.Bpe = (*uinsf.dqdx)[IIDX::IIP][ug.lc] * (dx1)+(*uinsf.dqdy)[IIDX::IIP][ug.lc] * (dy1)+(*uinsf.dqdz)[IIDX::IIP][ug.lc] * (dz1)-
 		(iinv.pf[ug.fId] - iinv.pl);
@@ -436,14 +420,6 @@ void INsInvterm::CmpINsBcFaceflux()
 		iinv.fq[ug.fId] = iinv.rf[ug.fId] * iinv.vnflow * gcom.farea;
 
 	}
-
-
-	/*Real clr = MAX(0, iinv.fq[ug.fId]);  //从界面左侧单元流入右侧单元的初始质量流量
-
-	Real crl = clr - iinv.fq[ug.fId];   //从界面右侧单元流入左侧单元的初始质量流量
-
-	iinv.ai[ug.fId][0] = crl;
-	iinv.ai[ug.fId][1] = clr;*/
 									  
 }
 
