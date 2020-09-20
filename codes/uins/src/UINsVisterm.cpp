@@ -680,9 +680,10 @@ void UINsVisterm::CmpINsSrc()
 	}
 
 
-	iinv.remax_up = 0;
+	/*iinv.remax_up = 0;
 	iinv.remax_vp = 0;
 	iinv.remax_wp = 0;
+
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
@@ -701,35 +702,45 @@ void UINsVisterm::CmpINsSrc()
 			{
 				if (ug.cId == ug.lc)
 				{
-					iinv.sj[ug.cId][iFace] = -iinv.ai[ug.fId][0];  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
-					iinv.sd[ug.cId][iFace] = ug.rc;
+					iinv.mu[ug.cId] += iinv.ai[ug.fId][0] * (iinv.up[ug.rc]-iinv.uc[ug.rc]);  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
+					iinv.mv[ug.cId] += iinv.ai[ug.fId][0] * (iinv.vp[ug.rc]-iinv.vc[ug.rc]);
+					iinv.mw[ug.cId] += iinv.ai[ug.fId][0] * (iinv.wp[ug.rc]-iinv.wc[ug.rc]);
 				}
 				else if (ug.cId == ug.rc)
 				{
-					iinv.sj[ug.cId][iFace] = -iinv.ai[ug.fId][1];  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
-					iinv.sd[ug.cId][iFace] = ug.lc;
+					iinv.mu[ug.cId] += iinv.ai[ug.fId][1] * (iinv.up[ug.lc] - iinv.uc[ug.lc]);  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
+					iinv.mv[ug.cId] += iinv.ai[ug.fId][1] * (iinv.vp[ug.lc] - iinv.vc[ug.lc]);
+					iinv.mw[ug.cId] += iinv.ai[ug.fId][1] * (iinv.wp[ug.lc] - iinv.wc[ug.lc]);
 				}
 			}
 			else
 			{
-				iinv.dj[ug.cId] -= 1;
+				iinv.mu[ug.cId] += iinv.ai[ug.fId][0] * iinv.uuf[ug.fId];
+				iinv.mv[ug.cId] += iinv.ai[ug.fId][0] * iinv.vvf[ug.fId];
+				iinv.mu[ug.cId] += iinv.ai[ug.fId][0] * iinv.wwf[ug.fId];
 			}
-
 		}
 
-		iinv.res_up[ug.cId] = (iinv.buc[ug.cId] - iinv.spc[ug.cId]* iinv.up[ug.cId])* (iinv.buc[ug.cId] - iinv.spc[ug.cId] * iinv.up[ug.cId]);
-		iinv.res_vp[ug.cId] = (iinv.bvc[ug.cId] - iinv.spc[ug.cId] * iinv.vp[ug.cId])* (iinv.bvc[ug.cId] - iinv.spc[ug.cId] * iinv.vp[ug.cId]);
-		iinv.res_wp[ug.cId] = (iinv.bwc[ug.cId] - iinv.spc[ug.cId] * iinv.wp[ug.cId])* (iinv.bwc[ug.cId] - iinv.spc[ug.cId] * iinv.wp[ug.cId]);
-	
+		iinv.mua[ug.cId] = iinv.mu[ug.cId]-iinv.spc[ug.cId] * (iinv.up[ug.cId] - iinv.uc[ug.cId]);
+		iinv.mva[ug.cId] = iinv.mv[ug.cId]-iinv.spc[ug.cId] * (iinv.vp[ug.cId] - iinv.vc[ug.cId]);
+		iinv.mwa[ug.cId] = iinv.mw[ug.cId]-iinv.spc[ug.cId] * (iinv.wp[ug.cId] - iinv.wc[ug.cId]);
+
+		iinv.res_up[ug.cId] = (iinv.mua[ug.cId]) * (iinv.mua[ug.cId]);
+		iinv.res_vp[ug.cId] = (iinv.mva[ug.cId]) * (iinv.mva[ug.cId]);
+		iinv.res_wp[ug.cId] = (iinv.mwa[ug.cId]) * (iinv.mwa[ug.cId]);
+
 		iinv.remax_up += iinv.res_up[ug.cId];
 		iinv.remax_vp += iinv.res_vp[ug.cId];
 		iinv.remax_wp += iinv.res_wp[ug.cId];
+
 	}
 
 	iinv.remax_up = sqrt(iinv.remax_up);
 	iinv.remax_vp = sqrt(iinv.remax_vp);
 	iinv.remax_wp = sqrt(iinv.remax_wp);
-	iinv.remax_pp = sqrt(iinv.remax_pp);
+	iinv.remax_pp = sqrt(iinv.remax_pp);*/
+
+
 
 	DeAlloc();
 }
