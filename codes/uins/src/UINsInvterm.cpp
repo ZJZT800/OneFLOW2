@@ -305,6 +305,14 @@ void UINsInvterm::Initflux()
 	iinv.uu = 0;
 	iinv.vv = 0;
 	iinv.ww = 0;
+
+	/*for (int cId = 0; cId < ug.nTCell; ++cId)
+	{
+		ug.cId = cId;
+
+		(*uinsf.q)[IIDX::IIP][ug.cId] = 0;
+	}*/
+
 }
 
 void UINsInvterm::CmpInvMassFlux()

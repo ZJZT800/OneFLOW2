@@ -245,27 +245,8 @@ void INsInvterm::CmpINsBcinvTerm()
 
 		if (bcType == BC::SOLID_SURFACE)
 		{
-			/*iinv.spc[ug.lc] += clr;
-
-			iinv.buc[ug.lc] += crl * iinv.uf[ug.fId];
-			iinv.bvc[ug.lc] += crl * iinv.vf[ug.fId];
-			iinv.bwc[ug.lc] += crl * iinv.wf[ug.fId];*/
-
 			;
 		}
-
-		/*if(bcType == BC::INFLOW|| bcType == BC::OUTFLOW)
-		{
-			if (iinv.fq[ug.fId] < 0)
-			{
-				iinv.spc[ug.lc] += crl;
-
-				iinv.buc[ug.lc] += crl * iinv.uf[ug.fId];
-				iinv.bvc[ug.lc] += crl * iinv.vf[ug.fId];
-				iinv.bwc[ug.lc] += crl * iinv.wf[ug.fId];
-			}
-		}*/
-
 
 		if (bcType == BC::INFLOW)
 		{
