@@ -40,6 +40,7 @@ public:
 public:
     void CmpViscoff();
     void PrepareField();
+    void CmpVisGrad();
 	void CmpPreandVisGrad();
     
 	void CmpVisterm();
@@ -49,6 +50,8 @@ public:
     void Alloc();
     void DeAlloc();
 	void CmpINsSrc();
+    void DifEquaMom();
+    void RelaxMom(Real a);
 	//void Addcoff();
 
 	void CmpUnsteadcoff();

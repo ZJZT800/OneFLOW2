@@ -108,6 +108,7 @@ private:
     void ComputeFaceNormal2D();
     void ComputeFaceCenter2D();
     void ComputeCellCenterVol2D();
+    void ComputeFaceWeight2D();
 private:
     void ComputeFaceNormal3D();
     void ComputeFaceCenter3D();

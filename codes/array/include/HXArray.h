@@ -30,6 +30,7 @@ BeginNameSpace( ONEFLOW )
 typedef Marray< Real > MRField;
 
 typedef Multiarray< Real, 3 > Field3D;
+typedef Multiarray< Field3D, 3> FieldTensor;
 typedef Multiarray< int, 3 > Int3D;
 
 

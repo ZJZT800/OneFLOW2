@@ -26,6 +26,7 @@ License
 #include "HXMath.h"
 #include "Ctrl.h"
 #include "Chemical.h"
+#include "UCom.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -121,15 +122,32 @@ void INsCom::Init()
     tt2.resize( nTModel );
 }
 
-void INsExtract(RealField & prim, Real & rm, Real & um, Real & vm, Real & wm, Real & pm)
+void INsExtract(RealField& prim, Real& rm, Real& um, Real& vm, Real& wm, Real& pm)
 {
-	rm = prim[IIDX::IIR];
-	um = prim[IIDX::IIU];
-	vm = prim[IIDX::IIV];
-	wm = prim[IIDX::IIW];
-	pm = prim[IIDX::IIP];
+    rm = prim[IIDX::IIR];
+    um = prim[IIDX::IIR];
+    vm = prim[IIDX::IIR];
+    wm = prim[IIDX::IIR];
+    pm = prim[IIDX::IIR];
 }
 
+void INsExtractl(MRField & q, Real & rm, Real & um, Real & vm, Real & wm, Real & pm)
+{
+	rm = q[IIDX::IIR][ug.lc];
+	um = q[IIDX::IIU][ug.lc];
+	vm = q[IIDX::IIV][ug.lc];
+	wm = q[IIDX::IIW][ug.lc];
+	pm = q[IIDX::IIP][ug.lc];
+}
+
+void INsExtractr(MRField& q, Real& rm, Real& um, Real& vm, Real& wm, Real& pm)
+{
+    rm = q[IIDX::IIR][ug.rc];
+    um = q[IIDX::IIU][ug.rc];
+    vm = q[IIDX::IIV][ug.rc];
+    wm = q[IIDX::IIW][ug.rc];
+    pm = q[IIDX::IIP][ug.rc];
+}
 
 bool INsCheckFunction( RealField & q )
 {

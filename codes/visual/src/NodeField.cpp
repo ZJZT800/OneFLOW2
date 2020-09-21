@@ -92,10 +92,9 @@ void CmpNodeVar( RealField & qNodeField, RealField & qField )
     }  
 
     FixBcNodeVar( qNodeField, qField, nCount, BC::SYMMETRY     , true );
-    FixBcNodeVar( qNodeField, qField, nCount, BC::SOLID_SURFACE, true);
+    FixBcNodeVar( qNodeField, qField, nCount, BC::SOLID_SURFACE, true );
     FixBcNodeVar( qNodeField, qField, nCount, BC::INTERFACE    , true );
     FixBcNodeVar( qNodeField, qField, nCount, BC::FARFIELD     , true );
-
 
     for ( int iNode = 0; iNode < nNode; ++ iNode )
     {
