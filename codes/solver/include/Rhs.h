@@ -33,7 +33,9 @@ public:
     ~Rhs();
 public:
     void UpdateNsResiduals();
-	void UpdateINsResiduals();
+	//void UpdateINsResiduals();
+	void FieldInit();
+	void UINsSolver();
 };
 
 void NsCmpBc();

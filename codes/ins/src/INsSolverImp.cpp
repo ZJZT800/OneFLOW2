@@ -44,7 +44,7 @@ void RegisterINsFunc()
     REGISTER_DATA_CLASS( INsInitFinal );
     REGISTER_DATA_CLASS( INsVisual );
     REGISTER_DATA_CLASS( INsCmpTimeStep );
-    REGISTER_DATA_CLASS( INsUpdateResiduals );
+    //REGISTER_DATA_CLASS( INsUpdateResiduals );
     REGISTER_DATA_CLASS( INsImplicitMethod );
     REGISTER_DATA_CLASS( INsPostprocess );
     REGISTER_DATA_CLASS( INsFinalPostprocess );
@@ -99,12 +99,12 @@ void INsCmpTimeStep( StringField & data )
     delete uTimestep;
 }
 
-void INsUpdateResiduals( StringField & data )
+/*void INsUpdateResiduals( StringField & data )
 {
     Rhs * rhs = new Rhs();
     rhs->UpdateINsResiduals();
     delete rhs;
-}
+}*/
 
 void INsImplicitMethod( StringField & data )
 {

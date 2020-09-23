@@ -54,10 +54,13 @@ public:
 	void CmpINsMomRes();
 	void CmpINsPreRes();
 	void CmpCorrectPresscoef();
+	void DifEquaPre();
+	void RelaxPre(Real a);
 	void CmpNewMomCoe();
 	void CmpPressCorrectEqu();
 	void UpdateFaceflux();
 	void CmpUpdateINsFaceflux();
+	void CmpDun();
 	void CmpUpdateINsBcFaceflux();
 	void UpdateSpeed();
 	void UpdateINsRes();

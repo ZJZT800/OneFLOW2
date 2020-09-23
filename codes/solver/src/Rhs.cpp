@@ -160,10 +160,10 @@ void NsCmpDualTimeStepSrc()
     delete unsUnsteady;
 }
 
-void Rhs::UpdateINsResiduals()
+/*void Rhs::UpdateINsResiduals()
 {
 	INsCmpRHS();
-}
+}*/
 
 void INsCmpBc()
 {
@@ -203,12 +203,17 @@ void INSCmpGamaT(int flag)
 	}
 }
 
-void INsCmpRHS()
+void Rhs::FieldInit()
+{
+	INsPreflux();      //流场变量初始化
+}
+
+void Rhs::UINsSolver()
 {
 
 		//INsCmpTimestep();
 
-		INsPreflux();
+		//INsPreflux();
 
 		INsCmpInv(); //计算对流项
 
