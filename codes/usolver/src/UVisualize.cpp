@@ -32,6 +32,7 @@ License
 #include "ActionState.h"
 #include "Dimension.h"
 #include "NsIdx.h"
+#include "INsIdx.h"
 #include "Zone.h"
 #include "ZoneState.h"
 #include "StrUtil.h"
@@ -466,8 +467,15 @@ void UVisualize::Visual()
 {
     VisualTool visualTool;
     visualTool.Init();
-
-    this->CmpNodeField( & visualTool );
+	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
+	if (startStrategy == 2 || startStrategy == 3)
+	{
+		this->CmpInsNodeField(&visualTool);
+	}
+	else
+	{
+		this->CmpNodeField(&visualTool);
+	}
 
     ostringstream oss;
 
@@ -611,6 +619,34 @@ void UVisualize::ShowBcDebugTest( ostringstream & oss, VisualTool * visualTool )
         bcVisual.DumpDebug( oss, visualTool, bcTitle );
     }
 }
+
+void UVisualize::CmpInsNodeField(VisualTool * visualTool)
+{
+	UnsGrid * grid = Zone::GetUnsGrid();
+	MRField * q = ONEFLOW::GetFieldPointer< MRField >(grid, "q");
+
+	MRField * rn = visualTool->AddField((*q)[IIDX::IIR], "r");
+	MRField * un = visualTool->AddField((*q)[IIDX::IIU], "u");
+	MRField * vn = visualTool->AddField((*q)[IIDX::IIV], "v");
+	MRField * wn = visualTool->AddField((*q)[IIDX::IIW], "w");
+	MRField * pn = visualTool->AddField((*q)[IIDX::IIP], "p");
+
+	MRField * gaman = CreateNodeVar("gama");
+	MRField * machn = visualTool->CreateField("mach");
+	CmpMach(rn, un, vn, wn, pn, gaman, machn);
+	delete gaman;
+
+	MRField * tempr = ONEFLOW::GetFieldPointer< MRField >(grid, "tempr");
+	visualTool->AddField((*tempr)[IDX::ITT], "tempr");
+
+	if (vis_model.vismodel > 0)
+	{
+		visualTool->AddField("visl");
+		visualTool->AddField("vist");
+	}
+}
+
+
 
 void UVisualize::CmpNodeField( VisualTool * visualTool )
 {
