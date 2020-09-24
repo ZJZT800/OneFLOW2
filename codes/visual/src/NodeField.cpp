@@ -107,6 +107,20 @@ void CmpInsNodeVar(RealField & qNodeField, RealField & qField)
 
 		for (int iNode = 0; iNode < fnNode; ++iNode)
 		{
+			int nodeId = f2c[iFace][iNode];
+
+			qNodeField[nodeId] = 0;
+			nCount[nodeId] = 0;
+		}
+	}
+
+
+	for (int iFace = 0; iFace < nBFace; ++iFace)
+	{
+		int fnNode = f2c[iFace].size();
+
+		for (int iNode = 0; iNode < fnNode; ++iNode)
+		{
 			int lc = faceTopo->lCell[iFace];
 			int rc = faceTopo->rCell[iFace];
 
