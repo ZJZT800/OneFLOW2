@@ -573,7 +573,7 @@ void UINsVisterm::CmpUnsteadcoff()
 
 		iinv.spt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId]/ iinv.timestep;  //矩阵对角线元素的非稳态项
 		
-		if (ctrl.currTime == 0.0005 && Iteration::innerSteps == 1)
+		if (ctrl.currTime == iinv.timestep  && Iteration::innerSteps == 1)
 		{
 			iinv.up[ug.cId] = (*uinsf.q)[IIDX::IIU][ug.cId];
 			iinv.vp[ug.cId] = (*uinsf.q)[IIDX::IIV][ug.cId];
