@@ -125,6 +125,7 @@ void UINsVisterm::PrepareField()
 		(*uinsf.qf)[IIDX::IIU][ug.fId] = cl * (*uinsf.q)[IIDX::IIU][ug.lc] + cr * (*uinsf.q)[IIDX::IIU][ug.rc];
 		(*uinsf.qf)[IIDX::IIV][ug.fId] = cl * (*uinsf.q)[IIDX::IIV][ug.lc] + cr * (*uinsf.q)[IIDX::IIV][ug.rc];
 		(*uinsf.qf)[IIDX::IIW][ug.fId] = cl * (*uinsf.q)[IIDX::IIW][ug.lc] + cr * (*uinsf.q)[IIDX::IIW][ug.rc];
+
 	}
 
 	ONEFLOW::CmpINsGrad((*uinsf.qf)[IIDX::IIU], (*uinsf.dqdx)[IIDX::IIU], (*uinsf.dqdy)[IIDX::IIU], (*uinsf.dqdz)[IIDX::IIU]);
@@ -572,7 +573,7 @@ void UINsVisterm::CmpUnsteadcoff()
 
 		iinv.spt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId]/ iinv.timestep;  //矩阵对角线元素的非稳态项
 		
-		if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
+		if (ctrl.currTime == 0.0005 && Iteration::innerSteps == 1)
 		{
 			iinv.up[ug.cId] = (*uinsf.q)[IIDX::IIU][ug.cId];
 			iinv.vp[ug.cId] = (*uinsf.q)[IIDX::IIV][ug.cId];
@@ -644,7 +645,7 @@ void UINsVisterm::CmpINsSrc()
 		int fn = (*ug.c2f)[ug.cId].size();
 		iinv.dj[ug.cId] = fn;
 
-		if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
+		if (ctrl.currTime == iinv.timestep && Iteration::innerSteps == 1)
 		{
 			iinv.sj.resize(ug.nCell, fn);
 			iinv.sd.resize(ug.nCell, fn);

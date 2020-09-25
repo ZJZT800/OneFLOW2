@@ -108,7 +108,9 @@ void UINsInvterm::CmpINsTimestep()
 }
 void UINsInvterm::CmpINsPreflux()
 {
-	if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
+	iinv.timestep = GetDataValue< Real >("global_dt");
+
+	if (ctrl.currTime == iinv.timestep && Iteration::innerSteps == 1)
 	{
 		if (inscom.icmpInv == 0) return;
 		iinv.Init();
@@ -853,7 +855,7 @@ void UINsInvterm::CmpCorrectPresscoef()
 		int fn = (*ug.c2f)[ug.cId].size();
 		iinv.dj[ug.cId] = fn;
 
-		if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
+		if (ctrl.currTime == iinv.timestep && Iteration::innerSteps == 1)
 		{
 			iinv.sjp.resize(ug.nCell, fn);
 			iinv.sjd.resize(ug.nCell, fn);
@@ -1076,6 +1078,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 		Real cr = delt1 * delta;
 
 		iinv.ppf[ug.fId] = cl * iinv.pp[ug.lc] + cr * iinv.pp[ug.rc];
+
 	}
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
