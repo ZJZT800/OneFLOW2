@@ -131,7 +131,6 @@ void UINsVisterm::PrepareField()
 	ONEFLOW::CmpINsGrad((*uinsf.qf)[IIDX::IIU], (*uinsf.dqdx)[IIDX::IIU], (*uinsf.dqdy)[IIDX::IIU], (*uinsf.dqdz)[IIDX::IIU]);
 	ONEFLOW::CmpINsGrad((*uinsf.qf)[IIDX::IIV], (*uinsf.dqdx)[IIDX::IIV], (*uinsf.dqdy)[IIDX::IIV], (*uinsf.dqdz)[IIDX::IIV]);
 	ONEFLOW::CmpINsGrad((*uinsf.qf)[IIDX::IIW], (*uinsf.dqdx)[IIDX::IIW], (*uinsf.dqdy)[IIDX::IIW], (*uinsf.dqdz)[IIDX::IIW]);
-
 }
 
 void UINsVisterm::CmpPreandVisGrad()
@@ -555,11 +554,11 @@ void UINsVisterm::CmpBcFaceVisterm()
 
 	iinv.spc[ug.lc] += iinv.Fn[ug.fId];
 	
-	iinv.buc[ug.lc] += iinv.Fbu +iinv.Ftu1 + iinv.Ftu2;
+	iinv.buc[ug.lc] += iinv.Fbu+iinv.Ftu1 + iinv.Ftu2;
 
-	iinv.bvc[ug.lc] += iinv.Fbv+ iinv.Ftv1 + iinv.Ftv2;
+	iinv.bvc[ug.lc] += iinv.Fbv+iinv.Ftv1 + iinv.Ftv2;
 
-	iinv.bwc[ug.lc] += iinv.Fbw+ iinv.Ftw1 + iinv.Ftw2;
+	iinv.bwc[ug.lc] += iinv.Fbw+iinv.Ftw1 + iinv.Ftw2;
 }
 
 
@@ -582,6 +581,7 @@ void UINsVisterm::CmpUnsteadcoff()
 			iinv.but[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId]* iinv.up[ug.cId] / iinv.timestep; //源项的非稳态项
 			iinv.bvt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId]* iinv.vp[ug.cId] / iinv.timestep;
 			iinv.bwt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId]* iinv.wp[ug.cId]/ iinv.timestep;
+
 		}
 		else
 		{
@@ -638,9 +638,9 @@ void UINsVisterm::CmpINsSrc()
 
 		iinv.spc[ug.cId] += iinv.spt[ug.cId];
 
-		iinv.buc[ug.cId] += iinv.but[ug.cId]- (*ug.cvol)[ug.cId] * (*uinsf.dqdx)[IIDX::IIP][ug.cId];
-		iinv.bvc[ug.cId] += iinv.bvt[ug.cId] -(*ug.cvol)[ug.cId] * (*uinsf.dqdy)[IIDX::IIP][ug.cId];
-		iinv.bwc[ug.cId] += iinv.bwt[ug.cId] - (*ug.cvol)[ug.cId] * (*uinsf.dqdz)[IIDX::IIP][ug.cId];
+		iinv.buc[ug.cId] += iinv.but[ug.cId]-(*ug.cvol)[ug.cId] * (*uinsf.dqdx)[IIDX::IIP][ug.cId];
+		iinv.bvc[ug.cId] += iinv.bvt[ug.cId]-(*ug.cvol)[ug.cId] * (*uinsf.dqdy)[IIDX::IIP][ug.cId];
+		iinv.bwc[ug.cId] += iinv.bwt[ug.cId]-(*ug.cvol)[ug.cId] * (*uinsf.dqdz)[IIDX::IIP][ug.cId];
 
 		int fn = (*ug.c2f)[ug.cId].size();
 		iinv.dj[ug.cId] = fn;

@@ -210,7 +210,7 @@ void INsInvterm::CmpINsBcinvFlux()
 
 		iinv.wf[ug.fId] = inscom.inflow[IIDX::IIW];
 
-		iinv.pf[ug.fId] = inscom.inflow[IIDX::IIP];
+		iinv.pf[ug.fId] = iinv.pl;//inscom.inflow[IIDX::IIP];
 
 		iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;
 
@@ -271,7 +271,7 @@ void INsInvterm::CmpINsBcinvTerm()
 		{
 			if (iinv.fq[ug.fId] < 0)
 			{
-				iinv.spc[ug.lc] += crl;
+				iinv.spc[ug.lc] += clr;
 
 				iinv.buc[ug.lc] += crl * iinv.uf[ug.fId];
 				iinv.bvc[ug.lc] += crl * iinv.vf[ug.fId];
@@ -394,11 +394,11 @@ void INsInvterm::CmpINsBcFaceflux()
 	{
 		iinv.rf[ug.fId] =  inscom.inflow[IIDX::IIR];    //初始界面上的值（u、v、w ）
 
-		iinv.uf[ug.fId] =  inscom.inflow[IIDX::IIU];
+		iinv.uf[ug.fId] =  iinv.uc[ug.lc]; //inscom.inflow[IIDX::IIU];
 
-		iinv.vf[ug.fId] =  inscom.inflow[IIDX::IIV];
+		iinv.vf[ug.fId] = iinv.vc[ug.lc]; //inscom.inflow[IIDX::IIV];
 
-		iinv.wf[ug.fId] =  inscom.inflow[IIDX::IIW];
+		iinv.wf[ug.fId] = iinv.wc[ug.lc]; //inscom.inflow[IIDX::IIW];
 
 		iinv.vnflow = gcom.xfn * iinv.uf[ug.fId] + gcom.yfn * iinv.vf[ug.fId] + gcom.zfn * iinv.wf[ug.fId] - gcom.vfn;
 
@@ -411,11 +411,11 @@ void INsInvterm::CmpINsBcFaceflux()
 
 		iinv.rf[ug.fId] = iinv.rl;    //初始界面上的值（u、v、w ）
 
-		iinv.uf[ug.fId] = iinv.ul + iinv.Deun;
+		iinv.uf[ug.fId] = iinv.ul;// +iinv.Deun;
 
-		iinv.vf[ug.fId] = iinv.vl + iinv.Devn;
+		iinv.vf[ug.fId] = iinv.vl;//+iinv.Devn;
 
-		iinv.wf[ug.fId] = iinv.wl + iinv.Dewn;
+		iinv.wf[ug.fId] = iinv.wl;// +iinv.Dewn;
 
 		iinv.vnflow = gcom.xfn * (iinv.ul + iinv.Deun * iinv.Bpe) + gcom.yfn * (iinv.vl + iinv.Devn * iinv.Bpe) + gcom.zfn * (iinv.wl + iinv.Dewn * iinv.Bpe) - gcom.vfn;
 

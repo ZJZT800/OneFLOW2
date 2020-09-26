@@ -307,6 +307,15 @@ void UINsInvterm::Initflux()
 	iinv.uu = 0;
 	iinv.vv = 0;
 	iinv.ww = 0;
+
+	for (int cId = 0; cId < ug.nTCell; ++cId)
+	{
+		ug.cId = cId;
+	
+		(*uinsf.q)[IIDX::IIP][ug.cId] = 0;
+
+	}
+
 }
 
 void UINsInvterm::CmpInvMassFlux()
@@ -848,9 +857,9 @@ void UINsInvterm::CmpCorrectPresscoef()
 	{
 		ug.cId = cId;
 
-		iinv.VdU[ug.cId] = -(*ug.cvol)[ug.cId] / ((1+1)*iinv.spc[ug.cId]); //用于求单元修正速度量;
-		iinv.VdV[ug.cId] = -(*ug.cvol)[ug.cId] / ((1+1)*iinv.spc[ug.cId]);
-		iinv.VdW[ug.cId] = -(*ug.cvol)[ug.cId] / ((1+1)*iinv.spc[ug.cId]);
+		iinv.VdU[ug.cId] = -(*ug.cvol)[ug.cId] / (iinv.spc[ug.cId]); //用于求单元修正速度量;
+		iinv.VdV[ug.cId] = -(*ug.cvol)[ug.cId] / (iinv.spc[ug.cId]);
+		iinv.VdW[ug.cId] = -(*ug.cvol)[ug.cId] / (iinv.spc[ug.cId]);
 
 		int fn = (*ug.c2f)[ug.cId].size();
 		iinv.dj[ug.cId] = fn;
@@ -1382,9 +1391,9 @@ void UINsInvterm::UpdateSpeed()
 			iinv.vvj[ug.fId] = 0;
 			iinv.vvj[ug.fId] = 0;
 
-			iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuj[ug.fId];
-			iinv.vf[ug.fId] = iinv.vf[ug.fId] + iinv.vvj[ug.fId];
-			iinv.wf[ug.fId] = iinv.wf[ug.fId] + iinv.wwj[ug.fId];
+			iinv.uf[ug.fId] = iinv.up[ug.lc];//iinv.uf[ug.fId] + iinv.uuj[ug.fId];
+			iinv.vf[ug.fId] = iinv.vp[ug.lc];//iinv.vf[ug.fId] + iinv.vvj[ug.fId];
+			iinv.wf[ug.fId] = iinv.wp[ug.lc];//iinv.wf[ug.fId] + iinv.wwj[ug.fId];
 		}
 
 		else if (bcType == BC::OUTFLOW)
@@ -1395,9 +1404,9 @@ void UINsInvterm::UpdateSpeed()
 			iinv.vvj[ug.fId] = iinv.Vdvv[ug.fId] * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]) * (*ug.yfn)[ug.fId] / iinv.dist;
 			iinv.wwj[ug.fId] = iinv.Vdvw[ug.fId] * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]) * (*ug.zfn)[ug.fId] / iinv.dist;
 
-			iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuj[ug.fId];
-			iinv.vf[ug.fId] = iinv.vf[ug.fId] + iinv.vvj[ug.fId];
-			iinv.wf[ug.fId] = iinv.wf[ug.fId] + iinv.wwj[ug.fId];
+			iinv.uf[ug.fId] = iinv.up[ug.lc];// iinv.uf[ug.fId] + iinv.uuj[ug.fId];
+			iinv.vf[ug.fId] = iinv.vp[ug.lc];//iinv.vf[ug.fId] + iinv.vvj[ug.fId];
+			iinv.wf[ug.fId] = iinv.wp[ug.lc];// iinv.wf[ug.fId] + iinv.wwj[ug.fId];
 
 		}
 	}
@@ -1504,9 +1513,9 @@ void UINsInvterm::UpdateSpeed()
 				iinv.vp[ug.rc] = -(iinv.f1[ug.fId] / iinv.f2[ug.fId])*iinv.vp[ug.lc]+ (1 / iinv.f2[ug.fId]) *inscom.inflow[IIDX::IIV];
 				iinv.wp[ug.rc] = -(iinv.f1[ug.fId] / iinv.f2[ug.fId])*iinv.wp[ug.lc]+ (1 / iinv.f2[ug.fId]) *inscom.inflow[IIDX::IIW];*/
 
-				iinv.up[ug.rc] = inscom.inflow[IIDX::IIU];
-				iinv.vp[ug.rc] = inscom.inflow[IIDX::IIV];
-				iinv.wp[ug.rc] = inscom.inflow[IIDX::IIW];
+				iinv.up[ug.rc] = iinv.uf[ug.fId]; //inscom.inflow[IIDX::IIU];
+				iinv.vp[ug.rc] = iinv.vf[ug.fId];//inscom.inflow[IIDX::IIV];
+				iinv.wp[ug.rc] = iinv.wf[ug.fId];//inscom.inflow[IIDX::IIW];
 
 				(*uinsf.q)[IIDX::IIU][ug.rc] = iinv.up[ug.rc];
 				(*uinsf.q)[IIDX::IIV][ug.rc] = iinv.vp[ug.rc];
