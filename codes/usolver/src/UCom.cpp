@@ -69,7 +69,13 @@ void UGeom::Init()
     ug.yfn = & faceMesh->yfn;
     ug.zfn = & faceMesh->zfn;
     ug.vfn = & faceMesh->vfn;
-    ug.farea = & faceMesh->area;
+	ug.farea = &faceMesh->area;
+
+	ug.a1 = &faceMesh->a1;
+	ug.a2 = &faceMesh->a2;
+	ug.a3 = &faceMesh->a3;
+	ug.fl = &faceMesh->fl;
+	ug.fr = &faceMesh->fr;
 
     ug.vfx = & faceMesh->vfx;
     ug.vfy = & faceMesh->vfy;

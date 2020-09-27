@@ -103,6 +103,10 @@ void FaceMesh::ComputeFaceNormal1D( NodeMesh * nodeMesh, CellMesh * cellMesh )
         zfn[ iFace ] = factor * dz;
 
         area[ iFace ] = 1.0;
+
+		a1[iFace] = xfn[iFace] * area[iFace];
+		a2[iFace] = yfn[iFace] * area[iFace];
+		a3[iFace] = zfn[iFace] * area[iFace];
     }
 }
 
@@ -126,6 +130,11 @@ void FaceMesh::ComputeFaceNormal2D( NodeMesh * nodeMesh )
         zfn[ iFace ]  = 0.0;
 
         area[ iFace ] = ONEFLOW::DIST( xfn[ iFace ], yfn[ iFace ], zfn[ iFace ] );
+
+		a1[iFace] = xfn[iFace];
+		a2[iFace] = yfn[iFace];
+		a3[iFace] = zfn[iFace];
+
     }
 
     for ( UInt iFace = 0; iFace < nFace; ++ iFace )
@@ -194,6 +203,10 @@ void FaceMesh::ComputeFaceNormal3D( NodeMesh * nodeMesh )
             zfn[ iFace ] += half * ( dx1 * dy2 - dx2 * dy1 );
         }
         area[ iFace ] = ONEFLOW::DIST( xfn[ iFace ], yfn[ iFace ], zfn[ iFace ] );
+
+		a1[iFace] = xfn[iFace];
+		a2[iFace] = yfn[iFace];
+		a3[iFace] = zfn[iFace];
     }
 
     for ( UInt iFace = 0; iFace < nFace; ++ iFace )
@@ -285,24 +298,29 @@ void FaceMesh::ComputeFaceCenter3D( NodeMesh * nodeMesh )
 
 void FaceMesh::AllocateMetrics()
 {
-    UInt nFace = this->GetNFace();
-    this->xfc.resize( nFace );
-    this->yfc.resize( nFace );
-    this->zfc.resize( nFace );
-    this->xfn.resize( nFace );
-    this->yfn.resize( nFace );
-    this->zfn.resize( nFace );
-    this->area.resize( nFace );
-    this->vfx.resize( nFace );
-    this->vfy.resize( nFace );
-    this->vfz.resize( nFace );
-    this->vfn.resize( nFace );
-    this->vfx = 0;
-    this->vfy = 0;
-    this->vfz = 0;
-    this->vfn = 0;
-    UInt nBFace = this->GetNBFace();
-    this->faceTopo->bcManager->bcRecord->bcType.resize( nBFace );
+	UInt nFace = this->GetNFace();
+	this->xfc.resize(nFace);
+	this->yfc.resize(nFace);
+	this->zfc.resize(nFace);
+	this->xfn.resize(nFace);
+	this->yfn.resize(nFace);
+	this->zfn.resize(nFace);
+	this->area.resize(nFace);
+	this->a1.resize(nFace);
+	this->a2.resize(nFace);
+	this->a3.resize(nFace);
+	this->vfx.resize(nFace);
+	this->vfy.resize(nFace);
+	this->vfz.resize(nFace);
+	this->vfn.resize(nFace);
+	this->fl.resize(nFace);
+	this->fr.resize(nFace);
+	this->vfx = 0;
+	this->vfy = 0;
+	this->vfz = 0;
+	this->vfn = 0;
+	UInt nBFace = this->GetNBFace();
+	this->faceTopo->bcManager->bcRecord->bcType.resize(nBFace);
 }
 
 EndNameSpace
