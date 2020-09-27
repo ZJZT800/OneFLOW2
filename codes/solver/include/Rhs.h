@@ -34,6 +34,8 @@ public:
 public:
     void UpdateNsResiduals();
 	void UpdateINsResiduals();
+    void FieldInit();
+    void UINsSolver();
 };
 
 void NsCmpBc();
@@ -48,7 +50,7 @@ void NsCmpDualTimeStepSrc();
 
 void INsCmpBc();
 void INSCmpGamaT(int flag);
-void INsCmpRHS();
+//void INsCmpRHS();
 //void INsCmpInvFlux();
 //void INsCmpVisFlux();
 //void INsCmpSrcFlux();
@@ -63,6 +65,8 @@ void INsCmpInv();
 void INsCmpVis();
 void INsCmpUnstead();
 void INsCmpSrc();
+void DifEqua();
+void Relaxation();
 void INsMomPre();
 void INsCmpFaceflux();
 void INsCmpPressCorrectEquandUpdatePress();

@@ -68,6 +68,12 @@ public:
     RealField * vfn;
     RealField * farea;
 
+    RealField * a1;
+    RealField * a2;
+    RealField * a3;
+    RealField * fl;
+    RealField * fr;
+
     RealField * xfc;
     RealField * yfc;
     RealField * zfc;

@@ -162,7 +162,7 @@ void NsCmpDualTimeStepSrc()
 
 void Rhs::UpdateINsResiduals()
 {
-	INsCmpRHS();
+	//INsCmpRHS();
 }
 
 void INsCmpBc()
@@ -196,27 +196,32 @@ void INSCmpGamaT(int flag)
 		{
 			Real & density = ( * uinsf.q )[ IIDX::IIR ][ cId ];
 			Real & pressure = ( * uinsf.q )[ IIDX::IIP ][ cId ];
-			( * uinsf.gama )[ 0 ][ cId ] = inscom.gama_ref;
+			//( * uinsf.gama )[ 0 ][ cId ] = inscom.gama_ref;
 			//( * uinsf.tempr )[ IIDX::IITT ][ cId ] = pressure / ( inscom.statecoef * density * oamw );
-			(*uinsf.tempr)[IIDX::IITT][cId] = 0;
+			//(*uinsf.tempr)[IIDX::IITT][cId] = 0;
 		}
 	}
 }
 
-void INsCmpRHS()
+void Rhs::FieldInit()
 {
+	INsPreflux();      //流场变量初始化
+}
 
-		//INsCmpTimestep();
-
-		INsPreflux();
+void Rhs::UINsSolver()
+{
 
 		INsCmpInv(); //计算对流项
 
 		INsCmpVis(); //计算扩散项
 
-		INsCmpUnstead(); //计算非稳态项
+		//INsCmpUnstead(); //计算非稳态项
 
-		INsCmpSrc(); //计算源项和动量方程系数
+		INsCmpSrc(); //计算压力梯度和动量方程系数
+
+		DifEqua();     //和对流扩散项平级
+
+		Relaxation();
 
 		INsMomPre(); //求解动量方程
 
@@ -274,6 +279,20 @@ void INsCmpSrc()
 {
 	UINsVisterm * uINsVisterm = new UINsVisterm();
 	uINsVisterm->CmpINsSrc();
+	delete uINsVisterm;
+}
+
+void DifEqua()
+{
+	UINsVisterm* uINsVisterm = new UINsVisterm();
+	uINsVisterm->DifEquaMom();
+	delete uINsVisterm;
+}
+
+void Relaxation()
+{
+	UINsVisterm* uINsVisterm = new UINsVisterm();
+	uINsVisterm->RelaxMom(0.8);
 	delete uINsVisterm;
 }
 

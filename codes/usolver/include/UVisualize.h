@@ -76,7 +76,6 @@ public:
     void Visual();
     bool NeedVisualField();
     void CmpNodeField( VisualTool * visualTool );
-	void CmpInsNodeField(VisualTool * visualTool);
     void ShowField( ostringstream & oss, VisualTool * visualTool );
     void ShowBc( ostringstream & oss, VisualTool * visualTool );
     void ShowBcDebugTest( ostringstream & oss, VisualTool * visualTool );

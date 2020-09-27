@@ -30,8 +30,9 @@ License
 #include <iostream>
 using namespace std;
 
-BeginNameSpace( ONEFLOW )
+BeginNameSpace(ONEFLOW)
 
+int BC::FIXP             =   11;
 int BC::PERIODIC         =   99;
 int BC::WAKE             = - 2 ;
 int BC::INTERFACE        = - 1 ;
