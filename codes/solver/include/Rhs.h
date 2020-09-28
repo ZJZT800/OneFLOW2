@@ -65,6 +65,8 @@ void INsCmpInv();
 void INsCmpVis();
 void INsCmpUnstead();
 void INsCmpSrc();
+void DifEqua();
+void Relaxation();
 void INsMomPre();
 void INsCmpFaceflux();
 void INsCmpPressCorrectEquandUpdatePress();

@@ -36,6 +36,7 @@ public:
     BC();
     ~BC();
 public:
+    static int FIXP            ;
     static int PERIODIC        ;
     static int WAKE            ;
     static int INTERFACE       ;

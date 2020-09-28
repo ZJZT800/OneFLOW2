@@ -41,6 +41,7 @@ License
 #include "HXMath.h"
 #include "Boundary.h"
 #include "BcRecord.h"
+#include "BcData.h"
 #include "ULimiter.h"
 #include "UINsLimiter.h"
 #include "FieldImp.h"
@@ -67,16 +68,9 @@ UINsVisterm::~UINsVisterm()
 void UINsVisterm::CmpViscoff()
 {
 	if (vis_model.vismodel == 0) return;
-	ug.Init();
-	uinsf.Init();
-	visQ.Init(inscom.nEqu);
 
-	Alloc();
-
-	this->PrepareField();
 	this->CmpVisterm();
 
-	DeAlloc();
 }
 
 void UINsVisterm::Alloc()
@@ -92,44 +86,9 @@ void UINsVisterm::DeAlloc()
 void UINsVisterm::PrepareField()
 {
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
-	{
-		ug.fId = fId;
-
-		(*uinsf.qf)[IIDX::IIU][ug.fId] = iinv.uf[ug.fId];
-		(*uinsf.qf)[IIDX::IIV][ug.fId] = iinv.vf[ug.fId];
-		(*uinsf.qf)[IIDX::IIW][ug.fId] = iinv.wf[ug.fId];
-
-	}
-	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
-	{
-		ug.fId = fId;
-		ug.lc = (*ug.lcf)[ug.fId];
-		ug.rc = (*ug.rcf)[ug.fId];
-
-		Real dxl = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];
-		Real dyl = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
-		Real dzl = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
-
-		Real dxr = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.rc];
-		Real dyr = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.rc];
-		Real dzr = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.rc];
-
-		Real delt1 = DIST(dxl, dyl, dzl);
-		Real delt2 = DIST(dxr, dyr, dzr);
-		Real delta = 1.0 / (delt1 + delt2);
-
-		Real cl = delt2 * delta;
-		Real cr = delt1 * delta;
-
-		(*uinsf.qf)[IIDX::IIU][ug.fId] = cl * (*uinsf.q)[IIDX::IIU][ug.lc] + cr * (*uinsf.q)[IIDX::IIU][ug.rc];
-		(*uinsf.qf)[IIDX::IIV][ug.fId] = cl * (*uinsf.q)[IIDX::IIV][ug.lc] + cr * (*uinsf.q)[IIDX::IIV][ug.rc];
-		(*uinsf.qf)[IIDX::IIW][ug.fId] = cl * (*uinsf.q)[IIDX::IIW][ug.lc] + cr * (*uinsf.q)[IIDX::IIW][ug.rc];
-	}
-
-	ONEFLOW::CmpINsGrad((*uinsf.qf)[IIDX::IIU], (*uinsf.dqdx)[IIDX::IIU], (*uinsf.dqdy)[IIDX::IIU], (*uinsf.dqdz)[IIDX::IIU]);
-	ONEFLOW::CmpINsGrad((*uinsf.qf)[IIDX::IIV], (*uinsf.dqdx)[IIDX::IIV], (*uinsf.dqdy)[IIDX::IIV], (*uinsf.dqdz)[IIDX::IIV]);
-	ONEFLOW::CmpINsGrad((*uinsf.qf)[IIDX::IIW], (*uinsf.dqdx)[IIDX::IIW], (*uinsf.dqdy)[IIDX::IIW], (*uinsf.dqdz)[IIDX::IIW]);
+	ONEFLOW::CmpINsGrad((*uinsf.q)[IIDX::IIU], (*uinsf.dqdx)[IIDX::IIU], (*uinsf.dqdy)[IIDX::IIU], (*uinsf.dqdz)[IIDX::IIU]);
+	ONEFLOW::CmpINsGrad((*uinsf.q)[IIDX::IIV], (*uinsf.dqdx)[IIDX::IIV], (*uinsf.dqdy)[IIDX::IIV], (*uinsf.dqdz)[IIDX::IIV]);
+	ONEFLOW::CmpINsGrad((*uinsf.q)[IIDX::IIW], (*uinsf.dqdx)[IIDX::IIW], (*uinsf.dqdy)[IIDX::IIW], (*uinsf.dqdz)[IIDX::IIW]);
 
 }
 
@@ -280,19 +239,32 @@ void UINsVisterm::CmpPreandVisGrad()
 
 void UINsVisterm::CmpVisterm()
 {
+	RealField dudx, dudy, dudz;
+	RealField dvdx, dvdy, dvdz;
+	RealField dwdx, dwdy, dwdz;
+
+	dudx.resize(ug.nCell);
+	dudy.resize(ug.nCell);
+	dudz.resize(ug.nCell);
+	dvdx.resize(ug.nCell);
+	dvdy.resize(ug.nCell);
+	dvdz.resize(ug.nCell);
+	dwdx.resize(ug.nCell);
+	dwdy.resize(ug.nCell);
+	dwdz.resize(ug.nCell);
+
+	ONEFLOW::CmpINsGrad(iinv.uf, dudx, dudy, dudz);
+	ONEFLOW::CmpINsGrad(iinv.vf, dvdx, dvdy, dvdz);
+	ONEFLOW::CmpINsGrad(iinv.wf, dwdx, dwdy, dwdz);
+
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
 		ug.fId = fId;
 
-		ug.lc = (*ug.lcf)[ug.fId];
-		ug.rc = (*ug.rcf)[ug.fId];
-
-		if (fId == 147489)
-		{
-			int kkk = 1;
-		}
-
-		this->CmpFaceVisterm();  //要改动
+		ug.lc = (*ug.lcf)[fId];
+		ug.rc = (*ug.rcf)[fId];
+        
+		this->CmpFaceVisterm(dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz);
 
 	}
 
@@ -300,159 +272,92 @@ void UINsVisterm::CmpVisterm()
 	for (int fId = 0; fId < ug.nBFace; ++fId)
 	{
 		ug.fId = fId;
-
 		ug.lc = (*ug.lcf)[ug.fId];
-		ug.rc = (*ug.rcf)[ug.fId];
 
-		if (fId == 147489)
-		{
-			int kkk = 1;
-		}
-
-		this->CmpBcFaceVisterm();  //要改动
+		this->CmpBcFaceVisterm(dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz);
 
 	}
 
 }
 
-void UINsVisterm::CmpFaceVisterm()
+void UINsVisterm::CmpFaceVisterm(RealField & dudx, RealField & dudy, RealField & dudz, RealField & dvdx, RealField & dvdy, RealField & dvdz, RealField & dwdx, RealField& dwdy, RealField& dwdz)
 {
 
-	iinv.l2rdx = (*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc];  //界面左右单元中心距
-	iinv.l2rdy = (*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc];
-	iinv.l2rdz = (*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc];
+	Real l2rdx = (*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc];  
+	Real l2rdy = (*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc];
+	Real l2rdz = (*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc];
 
-	iinv.c2d = sqrt(iinv.l2rdx * iinv.l2rdx + iinv.l2rdy * iinv.l2rdy + iinv.l2rdz * iinv.l2rdz);
+	Real vis = 1 / inscom.reynolds;  
 
-	iinv.vis = 1 / inscom.reynolds;  //动力粘度
+	Real dist = (*ug.a1)[ug.fId] * l2rdx + (*ug.a2)[ug.fId] * l2rdy + (*ug.a3)[ug.fId] * l2rdz;
 
-	iinv.dist = ((*ug.xfn)[ug.fId] * ((*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc]) 
-		+ (*ug.zfn)[ug.fId] * ((*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc])) * (*ug.farea)[ug.fId];
+	Real Fn = (*ug.a1)[ug.fId] * (*ug.a1)[ug.fId] + (*ug.a2)[ug.fId] * (*ug.a2)[ug.fId] + (*ug.a3)[ug.fId] * (*ug.a3)[ug.fId];
 
-	iinv.Fn[ug.fId] = (*ug.farea)[ug.fId] * (*ug.farea)[ug.fId] / iinv.dist;
+	Fn = Fn / dist;
 
-	iinv.spc[ug.lc] += iinv.vis * iinv.Fn[ug.fId];
-	iinv.spc[ug.rc] += iinv.vis * iinv.Fn[ug.fId];
+	Real T1 = (*ug.a1)[ug.fId] - l2rdx * Fn;
+	Real T2 = (*ug.a2)[ug.fId] - l2rdy * Fn;
+	Real T3 = (*ug.a3)[ug.fId] - l2rdz * Fn;
 
-	iinv.ai[ug.fId][0] += iinv.vis * iinv.Fn[ug.fId];
-	iinv.ai[ug.fId][1] += iinv.vis * iinv.Fn[ug.fId];
+	Real fdudx = (*ug.fl)[ug.fId] * dudx[ug.lc] + (1 - (*ug.fl)[ug.fId]) * dudx[ug.rc];
+	Real fdudy = (*ug.fl)[ug.fId] * dudy[ug.lc] + (1 - (*ug.fl)[ug.fId]) * dudy[ug.rc];
+	Real fdudz = (*ug.fl)[ug.fId] * dudz[ug.lc] + (1 - (*ug.fl)[ug.fId]) * dudz[ug.rc];
+	Real fdvdx = (*ug.fl)[ug.fId] * dvdx[ug.lc] + (1 - (*ug.fl)[ug.fId]) * dvdx[ug.rc];
+	Real fdvdy = (*ug.fl)[ug.fId] * dvdy[ug.lc] + (1 - (*ug.fl)[ug.fId]) * dvdy[ug.rc];
+	Real fdvdz = (*ug.fl)[ug.fId] * dvdz[ug.lc] + (1 - (*ug.fl)[ug.fId]) * dvdz[ug.rc];
+	Real fdwdx = (*ug.fl)[ug.fId] * dwdx[ug.lc] + (1 - (*ug.fl)[ug.fId]) * dwdx[ug.rc];
+	Real fdwdy = (*ug.fl)[ug.fId] * dwdy[ug.lc] + (1 - (*ug.fl)[ug.fId]) * dwdy[ug.rc];
+	Real fdwdz = (*ug.fl)[ug.fId] * dwdz[ug.lc] + (1 - (*ug.fl)[ug.fId]) * dwdz[ug.rc];
 
-	Real dx1 = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];
-	Real dy1 = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
-	Real dz1 = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
+	iinv.ai[ug.fId][0] += vis * Fn;
+	iinv.ai[ug.fId][1] += vis * Fn;
 
-	Real dx2 = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.rc];
-	Real dy2 = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.rc];
-	Real dz2 = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.rc];
+	iinv.buc[ug.lc] += vis * (fdudx * T1 + fdudy * T2 + fdudz * T3);
+	iinv.buc[ug.rc] -= vis * (fdudx * T1 + fdudy * T2 + fdudz * T3);
 
-	Real de1 = DIST(dx1, dy1, dz1);
-	Real de2 = DIST(dx2, dy2, dz2);
-	Real de = 1.0 / (de1 + de2);
+	iinv.bvc[ug.lc] += vis * (fdvdx * T1 + fdvdy * T2 + fdvdz * T3);
+	iinv.bvc[ug.rc] -= vis * (fdvdx * T1 + fdvdy * T2 + fdvdz * T3);
 
-	iinv.f1[ug.fId] = de2 * de;  //左单元权重
-	iinv.f2[ug.fId] = de1 * de;  //右单元权重
-
-	iinv.Puf = (iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.rc]) * (*ug.xfn)[ug.fId] +
-		(iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIU][ug.rc]) * (*ug.yfn)[ug.fId] +
-		(iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIU][ug.rc]) * (*ug.zfn)[ug.fId];  //▽q*n
-
-	iinv.Pvf = (iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIV][ug.rc]) * (*ug.xfn)[ug.fId] +
-		(iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.rc]) * (*ug.yfn)[ug.fId] +
-		(iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIV][ug.rc]) * (*ug.zfn)[ug.fId];
-
-	iinv.Pwf = (iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIW][ug.rc]) * (*ug.xfn)[ug.fId] +
-		(iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIW][ug.rc]) * (*ug.yfn)[ug.fId] +
-		(iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.rc]) * (*ug.zfn)[ug.fId];
-
-	iinv.Pdu = -((iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIU][ug.rc]) * iinv.l2rdx +
-		(iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIU][ug.rc]) * iinv.l2rdy +
-		(iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIU][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIU][ug.rc]) * iinv.l2rdz);
-
-	iinv.Pdv = -((iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIV][ug.rc]) * iinv.l2rdx +
-		(iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIV][ug.rc]) * iinv.l2rdy +
-		(iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIV][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIV][ug.rc]) * iinv.l2rdz);
-
-	iinv.Pdw = -((iinv.f1[ug.fId] * (*uinsf.dqdx)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdx)[IIDX::IIW][ug.rc]) * iinv.l2rdx +
-		(iinv.f1[ug.fId] * (*uinsf.dqdy)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdy)[IIDX::IIW][ug.rc]) * iinv.l2rdy +
-		(iinv.f1[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.lc] + iinv.f2[ug.fId] * (*uinsf.dqdz)[IIDX::IIW][ug.rc]) * iinv.l2rdz);
-
-
-	iinv.Ftu1 = iinv.Puf * (*ug.farea)[ug.fId] * iinv.vis;   //扩散项中归入源项的部分1
-	iinv.Ftv1 = iinv.Pvf * (*ug.farea)[ug.fId] * iinv.vis;
-	iinv.Ftw1 = iinv.Pwf * (*ug.farea)[ug.fId] * iinv.vis;
-
-	iinv.Ftu2 = iinv.Pdu * iinv.Fn[ug.fId] * iinv.vis;   //扩散项中归入源项的部分2
-	iinv.Ftv2 = iinv.Pdv * iinv.Fn[ug.fId] * iinv.vis;
-	iinv.Ftw2 = iinv.Pdw * iinv.Fn[ug.fId] * iinv.vis;
-
-
-	//iinv.ai[ug.fId][0] += iinv.Fn[ug.fId];
-	//iinv.ai[ug.fId][1] += iinv.Fn[ug.fId];
-
-	iinv.buc[ug.lc] += iinv.Ftu1 + iinv.Ftu2;
-	iinv.buc[ug.rc] += -iinv.Ftu1 - iinv.Ftu2;
-
-	iinv.bvc[ug.lc] += iinv.Ftv1 + iinv.Ftv2;
-	iinv.bvc[ug.rc] += -iinv.Ftv1 - iinv.Ftv2;
-
-	iinv.bwc[ug.lc] += iinv.Ftw1 + iinv.Ftw2;
-	iinv.bwc[ug.rc] += -iinv.Ftw1 - iinv.Ftw2;
+	iinv.bwc[ug.lc] += vis * (fdwdx * T1 + fdwdy * T2 + fdwdz * T3);
+	iinv.bwc[ug.rc] -= vis * (fdwdx * T1 + fdwdy * T2 + fdwdz * T3);
 }
 
-void UINsVisterm::CmpBcFaceVisterm()
+void UINsVisterm::CmpBcFaceVisterm(RealField& dudx, RealField& dudy, RealField& dudz, RealField& dvdx, RealField& dvdy, RealField& dvdz, RealField& dwdx, RealField& dwdy, RealField& dwdz)
 {
-	iinv.l2rdx = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];  //界面左右单元中心距
-	iinv.l2rdy = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
-	iinv.l2rdz = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
+	Real l2rdx = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];  
+	Real l2rdy = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
+	Real l2rdz = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
 
-	iinv.c2d = sqrt(iinv.l2rdx * iinv.l2rdx + iinv.l2rdy * iinv.l2rdy + iinv.l2rdz * iinv.l2rdz);
+	Real dist = (*ug.a1)[ug.fId] * l2rdx + (*ug.a2)[ug.fId] * l2rdy + (*ug.a3)[ug.fId] * l2rdz;
 
-	iinv.dist = ((*ug.xfn)[ug.fId] * ((*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc])
-		+ (*ug.zfn)[ug.fId] * ((*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc])) * (*ug.farea)[ug.fId];
+	Real Fn = (*ug.a1)[ug.fId] * (*ug.a1)[ug.fId] + (*ug.a2)[ug.fId] * (*ug.a2)[ug.fId] + (*ug.a3)[ug.fId] * (*ug.a3)[ug.fId];
 
-	iinv.Fn[ug.fId] = (*ug.farea)[ug.fId] * (*ug.farea)[ug.fId] / iinv.dist;
-	//iinv.Fn[ug.fId] = iinv.vis * (*ug.farea)[ug.fId] / iinv.dist;       //Add to coefficient matrix
+	Fn = Fn / dist;
 
-	iinv.vis = 1 / inscom.reynolds;  //动力粘度
+	Real vis = 1 / inscom.reynolds;  
 
-	iinv.Fbu = iinv.vis * iinv.Fn[ug.fId] * iinv.uf[ug.fId];
-	iinv.Fbv = iinv.vis * iinv.Fn[ug.fId] * iinv.vf[ug.fId];
-	iinv.Fbw = iinv.vis * iinv.Fn[ug.fId] * iinv.wf[ug.fId];
+	Real T1 = (*ug.a1)[ug.fId] - l2rdx * Fn;
+	Real T2 = (*ug.a2)[ug.fId] - l2rdy * Fn;
+	Real T3 = (*ug.a3)[ug.fId] - l2rdz * Fn;
 
-	iinv.Puf = ((*uinsf.dqdx)[IIDX::IIU][ug.lc]) * (*ug.xfn)[ug.fId] + ((*uinsf.dqdy)[IIDX::IIU][ug.lc]) * (*ug.yfn)[ug.fId]
-		+ ((*uinsf.dqdz)[IIDX::IIU][ug.lc]) * (*ug.zfn)[ug.fId];  //▽q*n
+	Real fdudx = dudx[ug.lc];
+	Real fdudy = dudy[ug.lc];
+	Real fdudz = dudz[ug.lc];
+	Real fdvdx = dvdx[ug.lc];
+	Real fdvdy = dvdy[ug.lc];
+	Real fdvdz = dvdz[ug.lc];
+	Real fdwdx = dwdx[ug.lc];
+	Real fdwdy = dwdy[ug.lc];
+	Real fdwdz = dwdz[ug.lc];
 
-	iinv.Pvf = ((*uinsf.dqdx)[IIDX::IIV][ug.lc]) * (*ug.xfn)[ug.fId] + ((*uinsf.dqdy)[IIDX::IIV][ug.lc]) * (*ug.yfn)[ug.fId]
-		+ ((*uinsf.dqdz)[IIDX::IIV][ug.lc]) * (*ug.zfn)[ug.fId];
+	iinv.rf = iinv.rl;
 
-	iinv.Pwf = ((*uinsf.dqdx)[IIDX::IIW][ug.lc]) * (*ug.xfn)[ug.fId] + ((*uinsf.dqdy)[IIDX::IIW][ug.lc]) * (*ug.yfn)[ug.fId]
-		+ ((*uinsf.dqdz)[IIDX::IIW][ug.lc]) * (*ug.zfn)[ug.fId];
+	iinv.spc[ug.lc] += vis * Fn;
 
-	iinv.Pdu = -((*uinsf.dqdx)[IIDX::IIU][ug.lc] * iinv.l2rdx + (*uinsf.dqdy)[IIDX::IIU][ug.lc] * iinv.l2rdy + (*uinsf.dqdz)[IIDX::IIU][ug.lc] * iinv.l2rdz);
+	iinv.buc[ug.lc] += vis * Fn * iinv.uf[ug.fId] + vis * (fdudx * T1 + fdudy * T2 + fdudz * T3);
+	iinv.bvc[ug.lc] += vis * Fn * iinv.vf[ug.fId] + vis * (fdvdx * T1 + fdvdy * T2 + fdvdz * T3);
+	iinv.bwc[ug.lc] += vis * Fn * iinv.wf[ug.fId] + vis * (fdwdx * T1 + fdwdy * T2 + fdwdz * T3);
 
-	iinv.Pdv = -((*uinsf.dqdx)[IIDX::IIV][ug.lc] * iinv.l2rdx + (*uinsf.dqdy)[IIDX::IIV][ug.lc] * iinv.l2rdy + (*uinsf.dqdz)[IIDX::IIV][ug.lc] * iinv.l2rdz);
-
-	iinv.Pdw = -((*uinsf.dqdx)[IIDX::IIW][ug.lc] * iinv.l2rdx + (*uinsf.dqdy)[IIDX::IIW][ug.lc] * iinv.l2rdy + (*uinsf.dqdz)[IIDX::IIW][ug.lc] * iinv.l2rdz);
-
-
-	iinv.Ftu1 = iinv.Puf * (*ug.farea)[ug.fId] * iinv.vis;   //扩散项中归入源项的部分1
-	iinv.Ftv1 = iinv.Pvf * (*ug.farea)[ug.fId] * iinv.vis;
-	iinv.Ftw1 = iinv.Pwf * (*ug.farea)[ug.fId] * iinv.vis;
-
-	iinv.Ftu2 = iinv.Pdu * iinv.Fn[ug.fId] * iinv.vis;   //扩散项中归入源项的部分2
-	iinv.Ftv2 = iinv.Pdv * iinv.Fn[ug.fId] * iinv.vis;
-	iinv.Ftw2 = iinv.Pdw * iinv.Fn[ug.fId] * iinv.vis;
-
-	iinv.spc[ug.lc] += iinv.vis * iinv.Fn[ug.fId];
-
-	iinv.buc[ug.lc] += iinv.Ftu1 + iinv.Ftu2 + iinv.Fbu;
-	iinv.buc[ug.rc] += 0;
-
-	iinv.bvc[ug.lc] += iinv.Ftv1 + iinv.Ftv2 + iinv.Fbv;
-	iinv.bvc[ug.rc] += 0;
-
-	iinv.bwc[ug.lc] += iinv.Ftw1 + iinv.Ftw2 + iinv.Fbw;
-	iinv.bwc[ug.rc] += 0;
 }
 
 
@@ -487,114 +392,67 @@ void UINsVisterm::CmpUnsteadcoff()
 }
 
 
-
 void UINsVisterm::CmpINsSrc()
 {
-	Alloc();
 
-	for (int fId = 0; fId < ug.nBFace; ++fId)
-	{
-		ug.fId = fId;
-
-		(*uinsf.qf)[IIDX::IIP][ug.fId] = iinv.pf[ug.fId];       
-	}
-	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
-	{
-		ug.fId = fId;
-		ug.lc = (*ug.lcf)[ug.fId];
-		ug.rc = (*ug.rcf)[ug.fId];
-
-		Real dxl = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];
-		Real dyl = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
-		Real dzl = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
-
-		Real dxr = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.rc];
-		Real dyr = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.rc];
-		Real dzr = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.rc];
-
-		Real delt1 = DIST(dxl, dyl, dzl);
-		Real delt2 = DIST(dxr, dyr, dzr);
-		Real delta = 1.0 / (delt1 + delt2);
-
-		Real cl = delt2 * delta;
-		Real cr = delt1 * delta;
-
-		(*uinsf.qf)[IIDX::IIP][ug.fId] = cl * (*uinsf.q)[IIDX::IIP][ug.lc] + cr * (*uinsf.q)[IIDX::IIP][ug.rc];
-
-	}
-
-	ONEFLOW::CmpINsGrad((*uinsf.qf)[IIDX::IIP], (*uinsf.dqdx)[IIDX::IIP], (*uinsf.dqdy)[IIDX::IIP], (*uinsf.dqdz)[IIDX::IIP]);
-
-	//iinv.spc = 0;
-
-	//for (int fId = 0; fId < ug.nFace; ++fId)
-	//{
-	//	ug.fId = fId;
-	//	ug.lc = (*ug.lcf)[ug.fId];
-	//	ug.rc = (*ug.rcf)[ug.fId];
-
-	//	iinv.spc[ug.lc] += iinv.ai[ug.fId][0];   //这里是否需要区分边界面和内部面
-	//	iinv.spc[ug.rc] += iinv.ai[ug.fId][1];
-
-	//}
-
+	RealField dpdx, dpdy, dpdz;
+	dpdx.resize(ug.nCell);
+	dpdy.resize(ug.nCell);
+	dpdz.resize(ug.nCell);
+	ONEFLOW::CmpINsGrad(iinv.pf, dpdx, dpdy, dpdz);
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
-		ug.cId = cId;
-
-		//iinv.spc[ug.cId] += iinv.spt[ug.cId];
-
-		iinv.but = 0;
-		iinv.bvt = 0;
-		iinv.bwt = 0;
-		
-		iinv.buc[ug.cId] += iinv.but[ug.cId] - (*ug.cvol)[ug.cId] * (*uinsf.dqdx)[IIDX::IIP][ug.cId];
-		iinv.bvc[ug.cId] += iinv.bvt[ug.cId] - (*ug.cvol)[ug.cId] * (*uinsf.dqdy)[IIDX::IIP][ug.cId];
-		iinv.bwc[ug.cId] += iinv.bwt[ug.cId] - (*ug.cvol)[ug.cId] * (*uinsf.dqdz)[IIDX::IIP][ug.cId];
-
-		int fn = (*ug.c2f)[ug.cId].size();
-		iinv.dj[ug.cId] = fn;
-
-		if (ctrl.currTime == 0.001 && Iteration::innerSteps == 1)
-		{
-			iinv.sj.resize(ug.nCell, fn);
-			iinv.sd.resize(ug.nCell, fn);
-		}
-		for (int iFace = 0; iFace < fn; ++iFace)
-		{
-			int fId = (*ug.c2f)[ug.cId][iFace];
-			ug.fId = fId;
-			ug.lc = (*ug.lcf)[ug.fId];
-			ug.rc = (*ug.rcf)[ug.fId];
-
-			if (fId > ug.nBFace - 1)
-			{
-				if (ug.cId == ug.lc)
-				{
-					iinv.sj[ug.cId][iFace] = -iinv.ai[ug.fId][0];  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
-					iinv.sd[ug.cId][iFace] = ug.rc;
-				}
-				else if (ug.cId == ug.rc)
-				{
-					iinv.sj[ug.cId][iFace] = -iinv.ai[ug.fId][1];  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
-					iinv.sd[ug.cId][iFace] = ug.lc;
-				}
-			}
-			else
-			{
-				iinv.dj[ug.cId] -= 1;
-			}
-
-		}
-
-
+		Real vol = (*ug.cvol)[cId];
+		iinv.buc[cId] -= vol * dpdx[cId];
+		iinv.bvc[cId] -= vol * dpdy[cId];
+		iinv.bwc[cId] -= vol * dpdz[cId];
 	}
 
-	DeAlloc();
+	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
+	{
+		int lc = (*ug.lcf)[fId];
+		int rc = (*ug.rcf)[fId];
+
+		iinv.spc[lc] += iinv.ai[fId][0];
+		iinv.spc[rc] += iinv.ai[fId][1];
+	}
 }
 
+void UINsVisterm::DifEquaMom()
+{
 
+	for (int fId = ug.nBFace; fId < ug.nFace; fId++)
+	{
+		int lc = (*ug.lcf)[fId];
+		int rc = (*ug.rcf)[fId];
+
+		iinv.buc[lc] += iinv.ai[fId][0] * (*uinsf.q)[IIDX::IIU][rc];
+		iinv.bvc[lc] += iinv.ai[fId][0] * (*uinsf.q)[IIDX::IIV][rc];
+		iinv.bwc[lc] += iinv.ai[fId][0] * (*uinsf.q)[IIDX::IIW][rc];
+
+		iinv.buc[rc] += iinv.ai[fId][1] * (*uinsf.q)[IIDX::IIU][lc];
+		iinv.bvc[rc] += iinv.ai[fId][1] * (*uinsf.q)[IIDX::IIV][lc];
+		iinv.bwc[rc] += iinv.ai[fId][1] * (*uinsf.q)[IIDX::IIW][lc];
+			
+	}
+
+	for (int cId = 0; cId < ug.nCell; cId++)
+	{
+		iinv.buc[cId] -= iinv.spc[cId] * (*uinsf.q)[IIDX::IIU][cId];
+		iinv.bvc[cId] -= iinv.spc[cId] * (*uinsf.q)[IIDX::IIV][cId];
+		iinv.bwc[cId] -= iinv.spc[cId] * (*uinsf.q)[IIDX::IIW][cId];
+	}
+}
+
+void UINsVisterm::RelaxMom(Real a)
+{
+	for (int cId = 0; cId < ug.nCell; cId++)
+	{
+		iinv.spc[cId] = iinv.spc[cId] * (1 + a);
+	}
+
+}
 
 EndNameSpace
 

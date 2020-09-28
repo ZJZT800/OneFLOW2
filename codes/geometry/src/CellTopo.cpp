@@ -103,7 +103,7 @@ void CellTopo::CmpC2f( FaceTopo * faceTopo )
 	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
 	if (startStrategy == 2)
 	{
-		c2f.resize(nCell+nBFace);  //ins时做了修改
+		c2f.resize(nCell);  //ins时做了修改
 	}
 	else
 	{

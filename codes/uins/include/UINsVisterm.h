@@ -44,12 +44,14 @@ public:
 	void CmpPreandVisGrad();
     
 	void CmpVisterm();
-	void CmpFaceVisterm();
-	void CmpBcFaceVisterm();
+	void CmpFaceVisterm(RealField& dudx, RealField& dudy, RealField& dudz, RealField& dvdx, RealField& dvdy, RealField& dvdz, RealField& dwdx, RealField& dwdy, RealField& dwdz);
+	void CmpBcFaceVisterm(RealField& dudx, RealField& dudy, RealField& dudz, RealField& dvdx, RealField& dvdy, RealField& dvdz, RealField& dwdx, RealField& dwdy, RealField& dwdz);
 
     void Alloc();
     void DeAlloc();
 	void CmpINsSrc();
+    void DifEquaMom();
+    void RelaxMom(Real a);
 	//void Addcoff();
 
 	void CmpUnsteadcoff();

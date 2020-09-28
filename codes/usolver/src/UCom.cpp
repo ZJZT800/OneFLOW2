@@ -54,7 +54,7 @@ void UGeom::Init()
     ug.nTCell = grid->nCell + grid->nBFace;
     ug.nFace = grid->nFace;
 
-    this->SetStEd( F_TOTAL );
+    this->SetStEd(F_INNER);
     this->CreateBcRegion();
 
     FaceTopo * faceTopo = grid->faceTopo;
@@ -70,6 +70,12 @@ void UGeom::Init()
     ug.zfn = & faceMesh->zfn;
     ug.vfn = & faceMesh->vfn;
     ug.farea = & faceMesh->area;
+
+    ug.a1 = &faceMesh->a1;
+    ug.a2 = &faceMesh->a2;
+    ug.a3 = &faceMesh->a3;
+    ug.fl = &faceMesh->fl;
+    ug.fr = &faceMesh->fr;
 
     ug.vfx = & faceMesh->vfx;
     ug.vfy = & faceMesh->vfy;

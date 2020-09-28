@@ -503,6 +503,7 @@ void UnsGrid::CmpMetrics2D()
     this->ComputeFaceNormal2D();
     this->ComputeFaceCenter2D();
     this->ComputeCellCenterVol2D();
+    this->ComputeFaceWeight2D();
 }
 
 void UnsGrid::CmpMetrics3D()
@@ -724,6 +725,50 @@ void UnsGrid::ComputeCellCenterVol2D()
             zcc[ iFace + numberOfCells ] = - zcc[ lc ] + 2.0 * zfc[ iFace ];
         }
         vol[ rc ] = vol[ lc ];
+    }
+}
+
+void UnsGrid::ComputeFaceWeight2D()
+{
+    UInt nFace = this->faceMesh->GetNFace();
+    UInt nBFace = this->faceMesh->GetNBFace();
+    UInt numberOfCells = this->cellMesh->GetNumberOfCells();
+
+    RealField& xcc = this->cellMesh->xcc;
+    RealField& ycc = this->cellMesh->ycc;
+    RealField& zcc = this->cellMesh->zcc;
+
+    RealField& xfc = this->faceMesh->xfc;
+    RealField& yfc = this->faceMesh->yfc;
+    RealField& zfc = this->faceMesh->zfc;
+
+    RealField& fl = this->faceMesh->fl;
+    RealField& fr = this->faceMesh->fr;
+
+    CellTopo* cellTopo = this->cellMesh->cellTopo;
+    FaceTopo* faceTopo = this->faceMesh->faceTopo;
+
+    fl = 0;
+    fr = 0;
+
+    for (UInt iFace = nBFace; iFace < nFace; iFace++)
+    {
+        int lc = faceTopo->lCell[iFace];
+        int rc = faceTopo->rCell[iFace];
+
+        Real lfx = xfc[iFace] - xcc[lc];
+        Real lfy = xfc[iFace] - ycc[lc];
+        Real lfz = xfc[iFace] - zcc[lc];
+
+        Real rfx = xfc[iFace] - xcc[rc];
+        Real rfy = xfc[iFace] - ycc[rc];
+        Real rfz = xfc[iFace] - zcc[rc];
+
+        Real dlf = ONEFLOW::DIST(lfx, lfy, lfz);
+        Real drf = ONEFLOW::DIST(rfx, rfy, rfz);
+
+        fl[iFace] = drf / (dlf + drf);
+        fr[iFace] = dlf / (dlf + drf);
     }
 }
 
