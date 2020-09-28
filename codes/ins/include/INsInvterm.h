@@ -105,8 +105,8 @@ public:
 	void CmpINsBcinvFlux();
 	void CmpINsinvTerm();
 	void CmpINsBcinvTerm();
-	void CmpINsFaceflux();
-	void CmpINsBcFaceflux();
+	void CmpINsFaceflux(RealField & dpdx, RealField & dpdy, RealField & dpdz);
+	void CmpINsBcFaceflux(RealField& dpdx, RealField& dpdy, RealField& dpdz);
 	void CmpINsFaceCorrectPresscoef();
 	void CmpINsBcFaceCorrectPresscoef();
 	//void Roe      ();

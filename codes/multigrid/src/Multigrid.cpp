@@ -346,14 +346,6 @@ void MG::SolveMultigridFlowField( int gl )
 
 void MG::SolveInnerIter()
 {
-	/*if ( MG::iterMode == 0 )
-	{
-		this->WeakIter();
-	}
-	else
-	{
-		this->StrongIter();
-	}*/
     Rhs* uINsSolver = new Rhs;
     uINsSolver->UINsSolver();
     delete uINsSolver;
