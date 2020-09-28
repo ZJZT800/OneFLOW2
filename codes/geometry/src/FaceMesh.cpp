@@ -131,9 +131,9 @@ void FaceMesh::ComputeFaceNormal2D( NodeMesh * nodeMesh )
 
         area[ iFace ] = ONEFLOW::DIST( xfn[ iFace ], yfn[ iFace ], zfn[ iFace ] );
 
-        a1[iFace] = xfn[iFace];
-        a2[iFace] = yfn[iFace];
-        a3[iFace] = zfn[iFace];
+		a1[iFace] = xfn[iFace];
+		a2[iFace] = yfn[iFace];
+		a3[iFace] = zfn[iFace];
     }
 
     for ( UInt iFace = 0; iFace < nFace; ++ iFace )
