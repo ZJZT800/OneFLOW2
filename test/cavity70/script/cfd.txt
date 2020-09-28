@@ -1,7 +1,7 @@
 int   startStrategy  = 2；
 int    iexitflag  = 0; //0 maxstep 1 maxtime;
-int    maxSteps   =  100; //总模拟步数
-int    maxIterSteps   =  100 ; //最大迭代步数
+int    maxSteps   = 100; //总模拟步数
+int    maxIterSteps   =  100; //最大迭代步数
 Real   maxTime    =  0.8;    //总模拟时间
 
 //内迭代										       

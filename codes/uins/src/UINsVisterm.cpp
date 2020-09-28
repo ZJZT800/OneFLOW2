@@ -289,7 +289,9 @@ void UINsVisterm::CmpFaceVisterm(RealField & dudx, RealField & dudy, RealField &
 	Real l2rdy = (*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc];
 	Real l2rdz = (*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc];
 
-	Real vis = 1 / inscom.reynolds;  
+	Real chalength = GetDataValue< Real >("chara_length");
+
+	Real vis = 1* chalength / inscom.reynolds;
 
 	Real dist = (*ug.a1)[ug.fId] * l2rdx + (*ug.a2)[ug.fId] * l2rdy + (*ug.a3)[ug.fId] * l2rdz;
 
@@ -336,7 +338,9 @@ void UINsVisterm::CmpBcFaceVisterm(RealField& dudx, RealField& dudy, RealField& 
 
 	Fn = Fn / dist;
 
-	Real vis = 1 / inscom.reynolds;  
+	Real chalength = GetDataValue< Real >("chara_length");
+
+	Real vis = 1 * chalength / inscom.reynolds;
 
 	Real T1 = (*ug.a1)[ug.fId] - l2rdx * Fn;
 	Real T2 = (*ug.a2)[ug.fId] - l2rdy * Fn;
