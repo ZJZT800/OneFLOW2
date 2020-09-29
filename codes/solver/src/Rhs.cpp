@@ -215,8 +215,6 @@ void Rhs::UINsSolver()
 
 		INsCmpVis(); //计算扩散项
 
-		//INsCmpUnstead(); //计算非稳态项
-
 		INsCmpSrc(); //计算压力梯度和动量方程系数
 
 		DifEqua();     //和对流扩散项平级
