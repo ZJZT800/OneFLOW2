@@ -23,6 +23,7 @@ License
 #include "NodeField.h"
 #include "UnsGrid.h"
 #include "Zone.h"
+#include "UCom.h"
 #include "DataBase.h"
 #include "FaceTopo.h"
 #include "BcRecord.h"
@@ -57,8 +58,53 @@ MRField * CreateNodeVar( RealField & qc )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * fn = AllocNodeVar( 1 );
-    CmpNodeVar( ( * fn )[ 0 ], qc );
-    return fn;
+
+	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
+	if (startStrategy == 2 || startStrategy == 3)
+	{
+		CmpInsNodeVar((*fn)[0], qc);
+	}
+	else
+	{
+		CmpNodeVar((*fn)[0], qc);
+	}
+	return fn;
+}
+
+void CmpInsNodeVar(RealField & qNodeField, RealField & qField)
+{
+	UnsGrid * grid = Zone::GetUnsGrid();
+	FaceTopo * faceTopo = grid->faceTopo;
+	LinkField & f2c = faceTopo->f2n;
+
+	int nNode = grid->nNode;
+	int nFace = grid->nFace;
+	RealField nCount(nNode);
+	nCount = 0.0;
+	qNodeField = 0.0;
+
+	for (int iFace = 0; iFace < nFace; ++iFace)
+	{
+		int lc = faceTopo->lCell[iFace];
+		int rc = faceTopo->rCell[iFace];
+
+		int fnNode = f2c[iFace].size();
+		for (int iNode = 0; iNode < fnNode; ++iNode)
+		{
+			int nodeId = f2c[iFace][iNode];
+
+			qNodeField[nodeId] += qField[lc];
+			nCount[nodeId] += 1;
+
+			qNodeField[nodeId] += qField[rc];
+			nCount[nodeId] += 1;
+		}
+	}
+
+	for (int iNode = 0; iNode < nNode; ++iNode)
+	{
+		qNodeField[iNode] /= (nCount[iNode] + SMALL);
+	}
 }
 
 void CmpNodeVar( RealField & qNodeField, RealField & qField )
