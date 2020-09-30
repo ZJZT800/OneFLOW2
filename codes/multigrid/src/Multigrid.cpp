@@ -325,35 +325,38 @@ void MG::FastSolveFlowFieldByMultigridMethod( int gl )
 
 void MG::SolveMultigridFlowField( int gl )
 {
+	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
+	if (startStrategy == 2|| startStrategy == 3)
+	{
+		//this->MWrap(&MG::PreprocessMultigridFlowField, gl);
+		this->MWrap(&MG::PreRelaxationCycle, gl);
+		//this->FastSolveFlowFieldByMultigridMethod(gl);
+		//this->MWrap(&MG::PostRelaxationCycle, gl);
+		//this->MWrap(&MG::PostprocessMultigridFlowField, gl);
+	}
+	else
+	{
 		this->MWrap(&MG::PreprocessMultigridFlowField, gl);
 		this->MWrap(&MG::PreRelaxationCycle, gl);
 		this->FastSolveFlowFieldByMultigridMethod(gl);
 		this->MWrap(&MG::PostRelaxationCycle, gl);
 		this->MWrap(&MG::PostprocessMultigridFlowField, gl);
+	}
 }
 
 void MG::SolveInnerIter()
 {
-	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
-
-	if (startStrategy == 2 || startStrategy == 3)
+	/*if ( MG::iterMode == 0 )
 	{
-		Rhs* uINsSolver = new Rhs;
-		uINsSolver->UINsSolver();
-		delete uINsSolver;
+		this->WeakIter();
 	}
 	else
 	{
-		if (MG::iterMode == 0)
-		{
-			this->WeakIter();
-		}
-		else
-		{
-			this->StrongIter();
-		}
-	}
-
+		this->StrongIter();
+	}*/
+    Rhs* uINsSolver = new Rhs;
+    uINsSolver->UINsSolver();
+    delete uINsSolver;
     this->InnerProcess();
 }
 
@@ -379,11 +382,18 @@ void MG::WeakIter()
 
 void MG::StrongIter()
 {
-
+	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
+	if (startStrategy == 2|| startStrategy == 3)
+	{
+		//this->ZeroResidualsForAllSolvers();
+		this->SolveMultigridFlowField(0);
+	}
+	else
+	{
 		this->ZeroResidualsForAllSolvers();
 
 		this->SolveMultigridFlowField(0);
-
+	}
 }
 
 bool DoNotNeedMultigridMethod( int gl )

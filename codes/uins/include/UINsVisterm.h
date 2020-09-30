@@ -44,6 +44,7 @@ public:
 	void CmpPreandVisGrad();
     
 	void CmpVisterm();
+    void CmpVisCoef(Real& vis);
 	void CmpFaceVisterm(RealField& dudx, RealField& dudy, RealField& dudz, RealField& dvdx, RealField& dvdy, RealField& dvdz, RealField& dwdx, RealField& dwdy, RealField& dwdz);
 	void CmpBcFaceVisterm(RealField& dudx, RealField& dudy, RealField& dudz, RealField& dvdx, RealField& dvdy, RealField& dvdz, RealField& dwdx, RealField& dwdy, RealField& dwdz);
 

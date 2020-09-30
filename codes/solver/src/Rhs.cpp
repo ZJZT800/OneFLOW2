@@ -196,9 +196,6 @@ void INSCmpGamaT(int flag)
 		{
 			Real & density = ( * uinsf.q )[ IIDX::IIR ][ cId ];
 			Real & pressure = ( * uinsf.q )[ IIDX::IIP ][ cId ];
-			//( * uinsf.gama )[ 0 ][ cId ] = inscom.gama_ref;
-			//( * uinsf.tempr )[ IIDX::IITT ][ cId ] = pressure / ( inscom.statecoef * density * oamw );
-			//(*uinsf.tempr)[IIDX::IITT][cId] = 0;
 		}
 	}
 }
@@ -214,6 +211,8 @@ void Rhs::UINsSolver()
 		INsCmpInv(); //计算对流项
 
 		INsCmpVis(); //计算扩散项
+
+		//INsCmpUnstead(); //计算非稳态项
 
 		INsCmpSrc(); //计算压力梯度和动量方程系数
 
@@ -290,7 +289,7 @@ void DifEqua()
 void Relaxation()
 {
 	UINsVisterm* uINsVisterm = new UINsVisterm();
-	uINsVisterm->RelaxMom(0.8);
+	uINsVisterm->RelaxMom(0.7);
 	delete uINsVisterm;
 }
 
