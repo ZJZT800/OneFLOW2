@@ -406,9 +406,9 @@ void UINsVisterm::CmpINsSrc()
 
 		iinv.spc[cId] += vol * (*uinsf.q)[IIDX::IIR][cId] / timestep;
 
-		iinv.buc[cId] -= vol * dpdx[cId]+ vol * iinv.rl * iinv.ul / timestep;
-		iinv.bvc[cId] -= vol * dpdy[cId]+ vol * iinv.rl * iinv.vl / timestep;
-		iinv.bwc[cId] -= vol * dpdz[cId]+ vol * iinv.rl * iinv.wl / timestep;
+		iinv.buc[cId] += -vol * dpdx[cId]+ vol * iinv.rl * iinv.ul / timestep;
+		iinv.bvc[cId] += -vol * dpdy[cId]+ vol * iinv.rl * iinv.vl / timestep;
+		iinv.bwc[cId] += -vol * dpdz[cId]+ vol * iinv.rl * iinv.wl / timestep;
 	}
 
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
@@ -431,21 +431,30 @@ void UINsVisterm::DifEquaMom()
 		{
 			int rc = (*ug.rcf)[fId];
 
-			iinv.buc[lc] += iinv.ai[fId][0] * (*uinsf.q)[IIDX::IIU][rc] - iinv.spc[lc] * (*uinsf.q)[IIDX::IIU][lc];
-			iinv.bvc[lc] += iinv.ai[fId][0] * (*uinsf.q)[IIDX::IIV][rc] - iinv.spc[lc] * (*uinsf.q)[IIDX::IIV][lc];
-			iinv.bwc[lc] += iinv.ai[fId][0] * (*uinsf.q)[IIDX::IIW][rc] - iinv.spc[lc] * (*uinsf.q)[IIDX::IIW][lc];
+			iinv.buc[lc] += iinv.ai[fId][0] * (*uinsf.q)[IIDX::IIU][rc];// -iinv.spc[lc] * (*uinsf.q)[IIDX::IIU][lc];
+			iinv.bvc[lc] += iinv.ai[fId][0] * (*uinsf.q)[IIDX::IIV][rc];// -iinv.spc[lc] * (*uinsf.q)[IIDX::IIV][lc];
+			iinv.bwc[lc] += iinv.ai[fId][0] * (*uinsf.q)[IIDX::IIW][rc];// -iinv.spc[lc] * (*uinsf.q)[IIDX::IIW][lc];
 
-			iinv.buc[rc] += iinv.ai[fId][1] * (*uinsf.q)[IIDX::IIU][lc] - iinv.spc[rc] * (*uinsf.q)[IIDX::IIU][rc];
-			iinv.bvc[rc] += iinv.ai[fId][1] * (*uinsf.q)[IIDX::IIV][lc] - iinv.spc[rc] * (*uinsf.q)[IIDX::IIV][rc];
-			iinv.bwc[rc] += iinv.ai[fId][1] * (*uinsf.q)[IIDX::IIW][lc] - iinv.spc[rc] * (*uinsf.q)[IIDX::IIW][rc];
+			iinv.buc[rc] += iinv.ai[fId][1] * (*uinsf.q)[IIDX::IIU][lc];// -iinv.spc[rc] * (*uinsf.q)[IIDX::IIU][rc];
+			iinv.bvc[rc] += iinv.ai[fId][1] * (*uinsf.q)[IIDX::IIV][lc];// -iinv.spc[rc] * (*uinsf.q)[IIDX::IIV][rc];
+			iinv.bwc[rc] += iinv.ai[fId][1] * (*uinsf.q)[IIDX::IIW][lc];// -iinv.spc[rc] * (*uinsf.q)[IIDX::IIW][rc];
 		}
 		else if (fId < ug.nBFace)
 		{
-			iinv.buc[lc] -= iinv.spc[lc] * (*uinsf.q)[IIDX::IIU][lc];
+			/*iinv.buc[lc] -= iinv.spc[lc] * (*uinsf.q)[IIDX::IIU][lc];
 			iinv.bvc[lc] -= iinv.spc[lc] * (*uinsf.q)[IIDX::IIV][lc];
-			iinv.bwc[lc] -= iinv.spc[lc] * (*uinsf.q)[IIDX::IIW][lc];
+			iinv.bwc[lc] -= iinv.spc[lc] * (*uinsf.q)[IIDX::IIW][lc];*/
+			;
 		}
 	}
+
+	for (int cId = 0; cId < ug.nCell; ++cId)
+	{
+		iinv.buc[cId] -= iinv.spc[cId] * (*uinsf.q)[IIDX::IIU][cId];
+		iinv.bvc[cId] -= iinv.spc[cId] * (*uinsf.q)[IIDX::IIV][cId];
+		iinv.bwc[cId] -= iinv.spc[cId] * (*uinsf.q)[IIDX::IIW][cId];
+	}
+
 }
 
 void UINsVisterm::RelaxMom(Real a)

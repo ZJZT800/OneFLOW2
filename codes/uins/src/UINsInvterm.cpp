@@ -494,7 +494,7 @@ void UINsInvterm::MomPre()
 	bgx.BGMRES();
 	for (int cId = 0; cId < ug.nCell; cId++)
 	{
-		(*uinsf.q)[IIDX::IIU][cId] += 0.2 * Rank.TempX[cId][0];                     
+		(*uinsf.q)[IIDX::IIU][cId] += 0.2 * Rank.TempX[cId][0];
 	}
 	residual_u = Rank.residual;
 	iinv.res_u = residual_u;
@@ -522,7 +522,7 @@ void UINsInvterm::MomPre()
 	bgx.BGMRES();
 	for (int cId = 0; cId < ug.nCell; cId++)
 	{
-		(*uinsf.q)[IIDX::IIW][cId] += 0.2 * Rank.TempX[cId][0];    
+		(*uinsf.q)[IIDX::IIW][cId] += 0.2 * Rank.TempX[cId][0];
 	}
 	residual_w = Rank.residual;
 	iinv.res_w = residual_w;
@@ -794,6 +794,26 @@ void UINsInvterm::CmpPressCorrectEqu()
 
 	for (int fId = 0; fId < ug.nBFace; fId++)
 	{
+		int bcType = ug.bcRecord->bcType[fId];
+		int lc = (*ug.lcf)[fId];
+
+		if (bcType == BC::SOLID_SURFACE)
+		{
+			iinv.pf[fId] = (*uinsf.q)[IIDX::IIP][lc];
+			
+		}
+		else if (ug.bctype == BC::INFLOW)
+		{
+			iinv.pf[fId] = (*uinsf.q)[IIDX::IIP][lc];
+		}
+		else if (bcType == BC::OUTFLOW)
+		{
+			iinv.pf[fId] += 0;
+		}
+	}
+
+	for (int fId = 0; fId < ug.nBFace; fId++)
+	{
 		int rc = (*ug.rcf)[fId];
 		iinv.pf[fId] = iinv.pf[fId] + iinv.ppf[fId];
 		(*uinsf.q)[IIDX::IIP][rc] = iinv.pf[fId];
@@ -1040,9 +1060,9 @@ void UINsInvterm::UpdateSpeed()
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
-		iinv.uu[cId] = iinv.VdU[cId] * dqqdx[cId]; 
-		iinv.vv[cId] = iinv.VdV[cId] * dqqdy[cId];
-		iinv.ww[cId] = iinv.VdW[cId] * dqqdz[cId];
+		iinv.uu[cId] = iinv.VdU[cId] * dqqdx[cId]*0.7; 
+		iinv.vv[cId] = iinv.VdV[cId] * dqqdy[cId]*0.7;
+		iinv.ww[cId] = iinv.VdW[cId] * dqqdz[cId]*0.7;
 
 		(*uinsf.q)[IIDX::IIU][cId] -= iinv.uu[cId];
 		(*uinsf.q)[IIDX::IIV][cId] -= iinv.vv[cId];

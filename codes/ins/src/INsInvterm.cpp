@@ -148,12 +148,12 @@ void INsInvterm::CmpINsFaceflux(RealField & dpdx, RealField & dpdy, RealField & 
 	Real l2rdy = (*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc];
 	Real l2rdz = (*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc];
 
-	iinv.VdU[ug.lc] = (*ug.cvol1)[ug.lc] / iinv.spc[ug.lc];
-	iinv.VdU[ug.rc] = (*ug.cvol1)[ug.rc] / iinv.spc[ug.rc];
-	iinv.VdV[ug.lc] = (*ug.cvol1)[ug.lc] / iinv.spc[ug.lc];
-	iinv.VdV[ug.rc] = (*ug.cvol1)[ug.rc] / iinv.spc[ug.rc];
-	iinv.VdW[ug.lc] = (*ug.cvol1)[ug.lc] / iinv.spc[ug.lc];
-	iinv.VdW[ug.rc] = (*ug.cvol1)[ug.rc] / iinv.spc[ug.rc];
+	iinv.VdU[ug.lc] = (*ug.cvol)[ug.lc] / iinv.spc[ug.lc];
+	iinv.VdU[ug.rc] = (*ug.cvol)[ug.rc] / iinv.spc[ug.rc];
+	iinv.VdV[ug.lc] = (*ug.cvol)[ug.lc] / iinv.spc[ug.lc];
+	iinv.VdV[ug.rc] = (*ug.cvol)[ug.rc] / iinv.spc[ug.rc];
+	iinv.VdW[ug.lc] = (*ug.cvol)[ug.lc] / iinv.spc[ug.lc];
+	iinv.VdW[ug.rc] = (*ug.cvol)[ug.rc] / iinv.spc[ug.rc];
 
 	iinv.Vdvu[ug.fId] = (*ug.fl)[ug.fId] * iinv.VdU[ug.lc] + (*ug.fr)[ug.fId] * iinv.VdU[ug.rc];
 	iinv.Vdvv[ug.fId] = (*ug.fl)[ug.fId] * iinv.VdV[ug.lc] + (*ug.fr)[ug.fId] * iinv.VdV[ug.rc];
@@ -182,11 +182,11 @@ void INsInvterm::CmpINsFaceflux(RealField & dpdx, RealField & dpdy, RealField & 
 	iinv.wf[ug.fId] = iinv.wl * (*ug.fl)[ug.fId] + iinv.wr * (*ug.fr)[ug.fId];
 	
 	iinv.rf = half * (iinv.rl + iinv.rr);
-	iinv.uf[ug.fId] += fdpdx * Df1; 
+	/*iinv.uf[ug.fId] += fdpdx * Df1; 
 	iinv.vf[ug.fId] += fdpdy * Df2;
-	iinv.wf[ug.fId] += fdpdz * Df3;
+	iinv.wf[ug.fId] += fdpdz * Df3;*/
 
-	iinv.vnflow = (*ug.a1)[ug.fId] * iinv.uf[ug.fId] + (*ug.a2)[ug.fId] * iinv.vf[ug.fId] + (*ug.a3)[ug.fId] * iinv.wf[ug.fId] -(*ug.vfn)[ug.fId] - iinv.dun[ug.fId];
+	iinv.vnflow = (*ug.a1)[ug.fId] * (iinv.uf[ug.fId]+ fdpdx * Df1) + (*ug.a2)[ug.fId] * (iinv.vf[ug.fId]+ fdpdy * Df2) + (*ug.a3)[ug.fId] * (iinv.wf[ug.fId]+ fdpdz * Df3) -(*ug.vfn)[ug.fId] - iinv.dun[ug.fId];
 	iinv.fq[ug.fId] = iinv.rf * iinv.vnflow;  
 
 }
@@ -334,7 +334,7 @@ void INsInvterm::CmpINsBcFaceCorrectPresscoef()
 		iinv.ppf[ug.fId] = 0;
 	}
 
-	iinv.bp[ug.lc] = iinv.bp[ug.lc] - iinv.fq[ug.fId] + iinv.rf * iinv.ppf[ug.fId] * Sfarea / dist;
+	iinv.bp[ug.lc] = iinv.bp[ug.lc] - iinv.fq[ug.fId];// +iinv.rf * iinv.ppf[ug.fId] * Sfarea / dist;
 }
 
 
