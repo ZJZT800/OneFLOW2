@@ -890,10 +890,33 @@ void UINsInvterm::UpdateFaceflux()
 
 void UINsInvterm::CmpUpdateINsBcFaceflux()
 {
-	int bcType = ug.bcRecord->bcType[ug.fId];
-	if (bcType == BC::SOLID_SURFACE)
+	if (ug.bctype == BC::SOLID_SURFACE)
 	{
 		iinv.fq[ug.fId] = 0;
+	}
+
+	else if (ug.bctype == BC::INFLOW)
+	{
+		iinv.fq[ug.fId] += 0;
+	}
+
+	else if (ug.bctype == BC::OUTFLOW)
+	{
+		Real Df1 = iinv.Vdvu[ug.fId] * (*ug.a1)[ug.fId];
+        Real Df2 = iinv.Vdvv[ug.fId] * (*ug.a2)[ug.fId];
+        Real Df3 = iinv.Vdvw[ug.fId] * (*ug.a3)[ug.fId];
+
+        Real l2rdx = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];
+        Real l2rdy = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
+        Real l2rdz = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
+
+        Real Df = Df1 * (*ug.a1)[ug.fId] + Df2 * (*ug.a2)[ug.fId] + Df3 * (*ug.a3)[ug.fId];
+
+        Real dist = l2rdx * (*ug.a1)[ug.fId] + l2rdy * (*ug.a2)[ug.fId] + l2rdz * (*ug.a3)[ug.fId];
+
+        iinv.rf = (*uinsf.q)[IIDX::IIR][ug.lc];
+		iinv.fux = iinv.rf * Df / dist * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]);
+		iinv.fq[ug.fId] = iinv.fq[ug.fId] - iinv.fux;
 	}
 	//Real Df1 = iinv.Vdvu[ug.fId] * (*ug.a1)[ug.fId];
 	//Real Df2 = iinv.Vdvv[ug.fId] * (*ug.a2)[ug.fId];
