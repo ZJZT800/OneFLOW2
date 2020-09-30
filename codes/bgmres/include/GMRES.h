@@ -371,10 +371,10 @@ int GMRES
 		(*residual) = precond->solve2((*linearization) * (*solution) - (*rhs));      //µÚÈý¸öprecond
 		Rank.residual = residual->norm();
 
-		//cout << "totalRestarts:" << totalRestarts << endl;
+		cout << "totalRestarts:" << totalRestarts << endl;
 	} // while(numberRestarts,rho)
 
-
+	cout << "Iteration: " << iteration << endl;
 	ArrayUtils<double>::deltwotensor(givens);
 	ArrayUtils<double>::deltwotensor(H);
 	ArrayUtils<double>::deltwotensor(s);

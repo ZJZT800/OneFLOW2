@@ -61,7 +61,7 @@ void INsInitFinal( StringField & data )
     INSCmpGamaT( F_INNER );
     //ICmpLaminarViscosity( F_INNER );
     INsCmpBc();
-    INSCmpGamaT( F_GHOST );
+    //INSCmpGamaT( F_GHOST );
     //ICmpLaminarViscosity( F_GHOST );
 
     Grid * grid = Zone::GetGrid();

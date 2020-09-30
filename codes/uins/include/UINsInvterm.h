@@ -45,10 +45,12 @@ public:
 	void CmpINsTimestep();
 	void CmpINsPreflux();
 	void Init();
+    void UpdateBoundary();
     void CmpInvcoff();
     void CmpInvMassFlux();
     void CmpInvFace();
     void CmpLimiter();
+    void SolveEquation(RealField& sp, RealField2D& ai, RealField& b, RealField& x, Real res);
 	void CmpFaceflux();
 	void CmpINsMomRes();
 	void CmpINsPreRes();
@@ -81,5 +83,4 @@ public:
     Real Number;
 };
 //void PrimToQ(RealField & prim, Real gama, RealField & q);
-extern UINsInvterm NonZero;
 EndNameSpace
