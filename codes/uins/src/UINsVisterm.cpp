@@ -427,10 +427,9 @@ void UINsVisterm::DifEquaMom()
 	for (int fId = 0; fId < ug.nFace; fId++)
 	{
 		int lc = (*ug.lcf)[fId];
+		int rc = (*ug.rcf)[fId];
 		if (fId > ug.nBFace - 1)
 		{
-			int rc = (*ug.rcf)[fId];
-
 			iinv.buc[lc] += iinv.ai[fId][0] * (*uinsf.q)[IIDX::IIU][rc];// -iinv.spc[lc] * (*uinsf.q)[IIDX::IIU][lc];
 			iinv.bvc[lc] += iinv.ai[fId][0] * (*uinsf.q)[IIDX::IIV][rc];// -iinv.spc[lc] * (*uinsf.q)[IIDX::IIV][lc];
 			iinv.bwc[lc] += iinv.ai[fId][0] * (*uinsf.q)[IIDX::IIW][rc];// -iinv.spc[lc] * (*uinsf.q)[IIDX::IIW][lc];

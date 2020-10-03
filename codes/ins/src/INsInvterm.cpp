@@ -119,16 +119,18 @@ void INsInvterm::CmpINsBcinvFlux()
 void INsInvterm::CmpINsinvTerm()
 {
 	Real clr = MAX(0, -iinv.fq[ug.fId]);   
+	Real crl = MAX(0, iinv.fq[ug.fId]);
 
 	iinv.ai[ug.fId][0] += clr;
-	//iinv.ai[ug.fId][1] += clr;
+	iinv.ai[ug.fId][1] += crl;
 
 }
 
 void INsInvterm::CmpINsBcinvTerm()
 {
 
-	Real clr = MAX(0, -iinv.fq[ug.fId]);  
+	Real clr = MAX(0, -iinv.fq[ug.fId]);
+	Real crl = MAX(0, iinv.fq[ug.fId]);
 
 	iinv.spc[ug.lc] += clr;
 
