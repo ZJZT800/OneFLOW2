@@ -211,71 +211,73 @@ void Rhs::FieldInit()
 void Rhs::UINsSolver()
 {
 
-		INsCmpInv(); //计算对流项
+	INsCmpInv(); //计算对流项
 
-		INsCmpVis(); //计算扩散项
+	INsCmpVis(); //计算扩散项
 
-		INsCmpSrc(); //计算压力梯度和动量方程系数
+	INsCmpUnstead(); //计算非稳态项
 
-		DifEqua();     //和对流扩散项平级
+	INsCmpSrc(); //计算压力梯度和动量方程系数
 
-		Relaxation();
+	DifEqua();     //和对流扩散项平级
 
-		INsMomPre(); //求解动量方程
+	Relaxation();
 
-		INsCmpFaceflux(); //计算界面流量
+	INsMomPre(); //求解动量方程
 
-		INsCorrectPresscoef(); //计算压力修正方程系数
+	INsCmpFaceflux(); //计算界面流量
 
-		INsCmpPressCorrectEquandUpdatePress();  //需要解压力修正方程组，增设单元修正压力未知量
+	INsCorrectPresscoef(); //计算压力修正方程系数
 
-		INsCmpSpeedCorrectandUpdateSpeed();  //需要先增设界面修正速度未知量并进行求解,更新单元速度和压力
+	INsCmpPressCorrectEquandUpdatePress();  //需要解压力修正方程组，增设单元修正压力未知量
 
-		INsUpdateFaceflux();   //更新界面流量
+	INsCmpSpeedCorrectandUpdateSpeed();  //需要先增设界面修正速度未知量并进行求解,更新单元速度和压力
 
-		INsUpdateRes();
+	INsUpdateFaceflux();   //更新界面流量
+
+	INsUpdateRes();
 
 }
 
 void INsCmpTimestep()
 {
-	
-UINsInvterm * uINsInvterm = new UINsInvterm();
+
+	UINsInvterm* uINsInvterm = new UINsInvterm();
 	uINsInvterm->CmpINsTimestep();
 	delete uINsInvterm;
 }
 
 void INsPreflux()
 {
-	UINsInvterm * uINsInvterm = new UINsInvterm();
+	UINsInvterm* uINsInvterm = new UINsInvterm();
 	uINsInvterm->CmpINsPreflux();
 	delete uINsInvterm;
 }
 
 void INsCmpInv()
 {
-	UINsInvterm * uINsInvterm = new UINsInvterm();
+	UINsInvterm* uINsInvterm = new UINsInvterm();
 	uINsInvterm->CmpInvcoff();
 	delete uINsInvterm;
 }
 
 void INsCmpVis()
 {
-	UINsVisterm * uINsVisterm = new UINsVisterm();
+	UINsVisterm* uINsVisterm = new UINsVisterm();
 	uINsVisterm->CmpViscoff();
 	delete uINsVisterm;
 }
 
 void INsCmpUnstead()
 {
-	UINsVisterm * uINsVisterm = new UINsVisterm();
+	UINsVisterm* uINsVisterm = new UINsVisterm();
 	uINsVisterm->CmpUnsteadcoff();
 	delete uINsVisterm;
 }
 
 void INsCmpSrc()
 {
-	UINsVisterm * uINsVisterm = new UINsVisterm();
+	UINsVisterm* uINsVisterm = new UINsVisterm();
 	uINsVisterm->CmpINsSrc();
 	delete uINsVisterm;
 }
@@ -290,55 +292,55 @@ void DifEqua()
 void Relaxation()
 {
 	UINsVisterm* uINsVisterm = new UINsVisterm();
-	uINsVisterm->RelaxMom(0.8);
+	uINsVisterm->RelaxMom(0.5);
 	delete uINsVisterm;
 }
 
 void INsMomPre()
 {
-	UINsInvterm * uINsInvterm = new UINsInvterm();
+	UINsInvterm* uINsInvterm = new UINsInvterm();
 	uINsInvterm->MomPre();
 	delete uINsInvterm;
 }
 
 void INsCmpFaceflux()
 {
-	UINsInvterm * uINsInvterm = new UINsInvterm();
+	UINsInvterm* uINsInvterm = new UINsInvterm();
 	uINsInvterm->CmpFaceflux();
 	delete uINsInvterm;
 }
 
 void INsCorrectPresscoef()
 {
-	UINsInvterm * uINsInvterm = new UINsInvterm();
+	UINsInvterm* uINsInvterm = new UINsInvterm();
 	uINsInvterm->CmpCorrectPresscoef();
 	delete uINsInvterm;
 }
 
 void INsCmpPressCorrectEquandUpdatePress()
 {
-	UINsInvterm * uINsInvterm = new UINsInvterm();
+	UINsInvterm* uINsInvterm = new UINsInvterm();
 	uINsInvterm->CmpPressCorrectEqu();
 	delete uINsInvterm;
 }
 
 void INsUpdateFaceflux()
 {
-	UINsInvterm * uINsInvterm = new UINsInvterm();
+	UINsInvterm* uINsInvterm = new UINsInvterm();
 	uINsInvterm->UpdateFaceflux();
 	delete uINsInvterm;
 }
 
 void INsCmpSpeedCorrectandUpdateSpeed()
 {
-	UINsInvterm * uINsInvterm = new UINsInvterm();
+	UINsInvterm* uINsInvterm = new UINsInvterm();
 	uINsInvterm->UpdateSpeed();
 	delete uINsInvterm;
 }
 
 void INsUpdateRes()
 {
-	UINsInvterm * uINsInvterm = new UINsInvterm();
+	UINsInvterm* uINsInvterm = new UINsInvterm();
 	uINsInvterm->UpdateINsRes();
 	delete uINsInvterm;
 }
@@ -348,25 +350,6 @@ void INsUpdateRes()
 //	UINsInvterm * uINsInvterm = new UINsInvterm();
 //	uINsInvterm->CmpCorrectSpeed();
 //	delete uINsInvterm;
-//}
-
-
-
-void INsCmpChemSrc()
-{
-	;
-}
-
-void INsCmpTurbEnergy()
-{
-	;
-}
-
-//void INsCmpDualTimeStepSrc()
-//{
-//	UINsUnsteady * uinsUnsteady = new UINsUnsteady();
-//	uinsUnsteady->CmpDualTimeSrc();
-//	delete uinsUnsteady;
 //}
 
 

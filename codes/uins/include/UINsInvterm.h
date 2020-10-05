@@ -54,6 +54,7 @@ public:
 	void CmpINsPreRes();
 	void CmpCorrectPresscoef();
 	void CmpPressCorrectEqu();
+    void maxmin(RealField& a, Real& max_a, Real& min_a);
 	void UpdateFaceflux();
 	void CmpUpdateINsFaceflux();
     void CmpDun();
@@ -73,6 +74,7 @@ public:
     void BoundaryQlQrFixField();
     //void Init();
     void MomPre();
+    void SolveEquation(RealField& sp, RealField2D& ai, RealField& b, RealField& x, Real res);
 public:
     Limiter* limiter;
     LimField* limf;
@@ -80,6 +82,5 @@ public:
 public:
     Real Number;
 };
-//void PrimToQ(RealField & prim, Real gama, RealField & q);
-extern UINsInvterm NonZero;
+
 EndNameSpace
