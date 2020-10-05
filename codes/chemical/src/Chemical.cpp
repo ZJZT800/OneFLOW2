@@ -830,6 +830,7 @@ void Chemical::INsComputeRefPrim()
 		inscom.inflow[IIDX::IIU] = zero;
 		inscom.inflow[IIDX::IIV] = zero;
 		inscom.inflow[IIDX::IIW] = zero;
+		inscom.inflow[IIDX::IIP] = zero;
 	}
 }
 

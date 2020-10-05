@@ -396,19 +396,41 @@ void UINsVisterm::CmpINsSrc()
 
 	Real timestep = GetDataValue< Real >("global_dt");
 
+	if (ctrl.currTime == timestep  && Iteration::innerSteps == 1)
+	{
+		for (int cId = 0; cId < ug.nCell; ++cId)
+		{
+			Real vol = (*ug.cvol)[cId];
+			iinv.spc[cId] += 0;
+			iinv.buc[cId] += 0;
+			iinv.bvc[cId] += 0;
+			iinv.bwc[cId] += 0;
+		}
+	}
+	else
+	{
+		for (int cId = 0; cId < ug.nCell; ++cId)
+		{
+			Real vol = (*ug.cvol)[cId];
+            iinv.rl = (*uinsf.q)[IIDX::IIR][cId];
+			iinv.ul = (*uinsf.q)[IIDX::IIU][cId];
+			iinv.vl = (*uinsf.q)[IIDX::IIV][cId];
+			iinv.wl = (*uinsf.q)[IIDX::IIW][cId];
+			iinv.spc[cId] += vol * (*uinsf.q)[IIDX::IIR][cId] / timestep;
+
+			iinv.buc[cId] += vol * iinv.rl * iinv.ul / timestep;
+			iinv.bvc[cId] += vol * iinv.rl * iinv.vl / timestep;
+			iinv.bwc[cId] += vol * iinv.rl * iinv.wl / timestep;
+		}
+	}
+
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		Real vol = (*ug.cvol)[cId];
-		iinv.rl = (*uinsf.q)[IIDX::IIR][cId];
-		iinv.ul = (*uinsf.q)[IIDX::IIU][cId];
-		iinv.vl = (*uinsf.q)[IIDX::IIV][cId];
-		iinv.wl = (*uinsf.q)[IIDX::IIW][cId];
 
-		iinv.spc[cId] += vol * (*uinsf.q)[IIDX::IIR][cId] / timestep;
-
-		iinv.buc[cId] += -vol * dpdx[cId]+ vol * iinv.rl * iinv.ul / timestep;
-		iinv.bvc[cId] += -vol * dpdy[cId]+ vol * iinv.rl * iinv.vl / timestep;
-		iinv.bwc[cId] += -vol * dpdz[cId]+ vol * iinv.rl * iinv.wl / timestep;
+		iinv.buc[cId] += -vol * dpdx[cId];
+		iinv.bvc[cId] += -vol * dpdy[cId];
+		iinv.bwc[cId] += -vol * dpdz[cId];
 	}
 
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)

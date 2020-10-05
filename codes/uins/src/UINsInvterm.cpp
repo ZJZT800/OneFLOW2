@@ -226,7 +226,8 @@ void UINsInvterm::CmpINsPreflux()
 			iinv.fq[fId] = iinv.rf * ((*ug.a1)[fId] * iinv.uf[fId] + (*ug.a2)[fId] * iinv.vf[fId] + (*ug.a3)[fId] * iinv.wf[fId] - gcom.vfn);
 		}
 
-		RealField massflux = 0;
+
+		/*RealField massflux = 0;
 		massflux.resize(ug.nCell);
 		for (int cId = 0; cId < ug.nCell; cId++)
 		{
@@ -237,7 +238,7 @@ void UINsInvterm::CmpINsPreflux()
 				massflux[cId] += iinv.fq[fId];
 			}
 			std::cout << "cId: " << cId << ", massflux[cId]: " << massflux[cId] << std::endl;
-		}
+		}*/
 }
 
 void UINsInvterm::Init()
@@ -579,7 +580,9 @@ void UINsInvterm::CmpFaceflux()
 			CmpINsBcFaceflux(dpdx, dpdy, dpdz);
 		}
 	}
-	RealField massflux = 0;
+
+
+	/*RealField massflux = 0;
 	massflux.resize(ug.nCell);
 	for (int cId = 0; cId < ug.nCell; cId++)
 	{
@@ -590,7 +593,7 @@ void UINsInvterm::CmpFaceflux()
 			massflux[cId] += iinv.fq[fId];
 		}
 		std::cout << "cId: " << cId << ", massflux[cId]: " << massflux[cId] << std::endl;
-	}
+	}*/
 
 
 }
@@ -893,7 +896,7 @@ void UINsInvterm::UpdateFaceflux()
 		}
 	}
 
-	RealField massflux = 0;
+	/*RealField massflux = 0;
 	massflux.resize(ug.nCell);
 	for (int cId = 0; cId < ug.nCell; cId++)
 	{
@@ -904,7 +907,7 @@ void UINsInvterm::UpdateFaceflux()
 			massflux[cId] += iinv.fq[fId];
 		}
 		std::cout << "cId: " << cId << ", massflux[cId]: " << massflux[cId] << std::endl;
-	}
+	}*/
 
 }
 
