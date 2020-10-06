@@ -208,6 +208,16 @@ void Rhs::FieldInit()
 	INsPreflux();      //流场变量初始化
 }
 
+void Rhs::TrainsAssign()
+{
+	for (int cId = 0; cId < ug.nCell; cId++)
+	{
+		iinv.u0[cId] = (*uinsf.q)[IIDX::IIU][cId];
+		iinv.v0[cId] = (*uinsf.q)[IIDX::IIV][cId];
+		iinv.w0[cId] = (*uinsf.q)[IIDX::IIW][cId];
+	}
+}
+
 void Rhs::UINsSolver()
 {
 

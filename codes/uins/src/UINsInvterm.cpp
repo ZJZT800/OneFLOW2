@@ -310,7 +310,7 @@ void UINsInvterm::Init()
 
 void UINsInvterm::CmpInvMassFlux()
 {
-	for(int fId = 0; fId < ug.nBFace; fId++)
+	/*for(int fId = 0; fId < ug.nBFace; fId++)
 	{
 		ug.fId = fId;
 		ug.lc = (*ug.lcf)[fId];
@@ -318,7 +318,7 @@ void UINsInvterm::CmpInvMassFlux()
 
 		this->CmpINsBcinvTerm();
 		
-	}
+	}*/
 
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{

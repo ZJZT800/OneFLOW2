@@ -131,23 +131,28 @@ void MG::Run()
 
 			//while (iinv.remax_V > rhs_V )
 		TimeSpan * timeSpan = new TimeSpan();
+        Rhs* uINsSolver = new Rhs;
+        uINsSolver->FieldInit();
+        delete uINsSolver;
 		while (SimuIterState::Running())
 		{
-            Rhs* uINsSolver = new Rhs;
-            uINsSolver->FieldInit();
-            delete uINsSolver;
 			while (iinv.remax_up > rhs_u || iinv.remax_vp > rhs_v || iinv.remax_wp > rhs_w)
 			{
 
-				if (Iteration::innerSteps >= maxIterSteps) break;
+                if (Iteration::innerSteps >= maxIterSteps)
+                {
+                    ctrl.currTime += ctrl.pdt;
+                    Iteration::outerSteps++;
+                    Rhs* uINsSolver = new Rhs;
+                    uINsSolver->TrainsAssign();
+                    delete uINsSolver;
+                }
+                //ctrl.currTime += ctrl.pdt;
 
-				ctrl.currTime += ctrl.pdt;
+                //Iteration::outerSteps++;
+                Iteration::innerSteps++;
 
-				Iteration::outerSteps++;
-				Iteration::innerSteps++;
-
-				this->SolveInnerIter();
-
+                this->SolveInnerIter();
 			}
 			this->OuterProcess(timeSpan);
 		}

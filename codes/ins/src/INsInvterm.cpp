@@ -57,6 +57,9 @@ void INsInv::Init()
 {
 	dun.resize(ug.nFace);
 	dup.resize(ug.nCell);
+	u0.resize(ug.nCell);
+	v0.resize(ug.nCell);
+	w0.resize(ug.nCell);
 }
 
 INsInvterm::INsInvterm()

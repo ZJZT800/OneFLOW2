@@ -35,6 +35,7 @@ public:
     void UpdateNsResiduals();
 	void UpdateINsResiduals();
     void FieldInit();
+    void TrainsAssign();
     void UINsSolver();
 };
 
