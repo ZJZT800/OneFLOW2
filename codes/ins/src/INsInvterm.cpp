@@ -107,19 +107,19 @@ void INsInvterm::CmpINsBcinvFlux()
 
 void INsInvterm::CmpINsinvTerm()
 {
-	Real clr = MAX(0, iinv.fq[ug.fId]);
-	Real crl = clr - iinv.fq[ug.fId];
+	Real clr = MAX(0, -iinv.fq[ug.fId]);
+	Real crl = MAX(0, iinv.fq[ug.fId]);
 
-	iinv.ai[ug.fId][0] += crl;
-	iinv.ai[ug.fId][1] += clr;
+	iinv.ai[ug.fId][0] += clr;
+	iinv.ai[ug.fId][1] += crl;
 
 }
 
 void INsInvterm::CmpINsBcinvTerm()
 {
 
-	Real clr = MAX(0, iinv.fq[ug.fId]);
-	Real crl = clr - iinv.fq[ug.fId];
+	Real clr = MAX(0, -iinv.fq[ug.fId]);
+	Real crl = MAX(0, iinv.fq[ug.fId]);
 
 	iinv.spc[ug.lc] += crl;
 
@@ -173,11 +173,11 @@ void INsInvterm::CmpINsFaceflux(RealField & dpdx, RealField & dpdy, RealField & 
 	iinv.wf[ug.fId] = iinv.wl * (*ug.fl)[ug.fId] + iinv.wr * (1 - (*ug.fl)[ug.fId]);
 
 	iinv.rf = half * (iinv.rl + iinv.rr);
-	iinv.uf[ug.fId] += fdpdx * Df1;
+	/*iinv.uf[ug.fId] += fdpdx * Df1;
 	iinv.vf[ug.fId] += fdpdy * Df2;
-	iinv.wf[ug.fId] += fdpdz * Df3;
+	iinv.wf[ug.fId] += fdpdz * Df3;*/
 
-	iinv.vnflow = (*ug.a1)[ug.fId] * iinv.uf[ug.fId] + (*ug.a2)[ug.fId] * iinv.vf[ug.fId] + (*ug.a3)[ug.fId] * iinv.wf[ug.fId] - (*ug.vfn)[ug.fId] + iinv.dun[ug.fId];
+	iinv.vnflow = (*ug.a1)[ug.fId] * (iinv.uf[ug.fId] + fdpdx * Df1) + (*ug.a2)[ug.fId] * (iinv.vf[ug.fId] + fdpdy * Df2) + (*ug.a3)[ug.fId] * (iinv.wf[ug.fId] + fdpdz * Df3) - (*ug.vfn)[ug.fId] - iinv.dun[ug.fId];
 	iinv.fq[ug.fId] = iinv.rf * iinv.vnflow;
 
 }

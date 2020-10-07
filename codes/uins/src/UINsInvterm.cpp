@@ -514,6 +514,18 @@ void UINsInvterm::CmpFaceflux()
 			CmpINsBcFaceflux(dpdx, dpdy, dpdz);
 		}
 	}
+	/*RealField massflux = 0;
+	massflux.resize(ug.nCell);
+	for (int cId = 0; cId < ug.nCell; cId++)
+	{
+		int fn = (*ug.c2f)[cId].size();
+		for (int iFace = 0; iFace < fn; iFace++)
+		{
+			int fId = (*ug.c2f)[cId][iFace];
+			massflux[cId] += iinv.fq[fId];
+		}
+		std::cout << "cId: " << cId << ", massflux[cId]: " << massflux[cId] << std::endl;
+	}*/
 }
 
 void UINsInvterm::CmpINsMomRes()
@@ -693,13 +705,29 @@ void UINsInvterm::CmpPressCorrectEqu()
 
 	for (int fId = 0; fId < ug.nBFace; fId++)
 	{
+		int bcType = ug.bcRecord->bcType[fId];
 		int lc = (*ug.lcf)[fId];
 
-		int bcType = ug.bcRecord->bcType[fId];
-		if (bcType == BC::SOLID_SURFACE || bcType == BC::INFLOW || bcType == BC::OUTFLOW)
+		if (bcType == BC::SOLID_SURFACE)
+		{
+			iinv.pf[fId] = (*uinsf.q)[IIDX::IIP][lc];
+
+		}
+		else if (ug.bctype == BC::INFLOW)
 		{
 			iinv.pf[fId] = (*uinsf.q)[IIDX::IIP][lc];
 		}
+		else if (bcType == BC::OUTFLOW)
+		{
+			iinv.pf[fId] += 0;
+		}
+	}
+
+	for (int fId = 0; fId < ug.nBFace; fId++)
+	{
+		int rc = (*ug.rcf)[fId];
+		iinv.pf[fId] = iinv.pf[fId] + iinv.ppf[fId];
+		(*uinsf.q)[IIDX::IIP][rc] = iinv.pf[fId];
 	}
 }
 
@@ -921,9 +949,13 @@ void UINsInvterm::UpdateSpeed()
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
-		(*uinsf.q)[IIDX::IIU][cId] -= (*ug.cvol1)[cId] / iinv.dup[cId] * dqqdx[cId];
-		(*uinsf.q)[IIDX::IIV][cId] -= (*ug.cvol1)[cId] / iinv.dup[cId] * dqqdy[cId];
-		(*uinsf.q)[IIDX::IIW][cId] -= (*ug.cvol1)[cId] / iinv.dup[cId] * dqqdz[cId];
+		iinv.uu[cId] = iinv.VdU[cId] * dqqdx[cId] * 0.7;
+		iinv.vv[cId] = iinv.VdV[cId] * dqqdy[cId] * 0.7;
+		iinv.ww[cId] = iinv.VdW[cId] * dqqdz[cId] * 0.7;
+
+		(*uinsf.q)[IIDX::IIU][cId] -= iinv.uu[cId];
+		(*uinsf.q)[IIDX::IIV][cId] -= iinv.vv[cId];
+		(*uinsf.q)[IIDX::IIW][cId] -= iinv.ww[cId];
 	}
 }
 
