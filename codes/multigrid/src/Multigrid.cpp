@@ -167,7 +167,7 @@ void MG::Run()
 				if (Iteration::innerSteps >= maxIterSteps) break;
 
 				Iteration::innerSteps++;
-
+				Iteration::outerSteps++;
 				this->SolveInnerIter();
 
 			}

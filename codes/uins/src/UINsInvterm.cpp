@@ -495,7 +495,7 @@ void UINsInvterm::MomPre()
 	bgx.BGMRES();
 	for (int cId = 0; cId < ug.nCell; cId++)
 	{
-		(*uinsf.q)[IIDX::IIU][cId] += 0.2 * Rank.TempX[cId][0];
+		(*uinsf.q)[IIDX::IIU][cId] += Rank.TempX[cId][0];
 	}
 	residual_u = Rank.residual;
 	iinv.res_u = residual_u;
@@ -509,7 +509,7 @@ void UINsInvterm::MomPre()
 	bgx.BGMRES();
 	for (int cId = 0; cId < ug.nCell; cId++)
 	{
-		(*uinsf.q)[IIDX::IIV][cId] += 0.2 * Rank.TempX[cId][0];
+		(*uinsf.q)[IIDX::IIV][cId] +=  Rank.TempX[cId][0];
 	}
 	residual_v = Rank.residual;
 	iinv.res_v = residual_v;
@@ -523,7 +523,7 @@ void UINsInvterm::MomPre()
 	bgx.BGMRES();
 	for (int cId = 0; cId < ug.nCell; cId++)
 	{
-		(*uinsf.q)[IIDX::IIW][cId] += 0.2 * Rank.TempX[cId][0];
+		(*uinsf.q)[IIDX::IIW][cId] += Rank.TempX[cId][0];
 	}
 	residual_w = Rank.residual;
 	iinv.res_w = residual_w;
