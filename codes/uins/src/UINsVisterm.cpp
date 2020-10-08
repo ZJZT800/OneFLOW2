@@ -367,20 +367,20 @@ void UINsVisterm::CmpBcFaceVisterm(RealField& dudx, RealField& dudy, RealField& 
 }
 
 
-void UINsVisterm::CmpUnsteadcoff()
+void UINsVisterm::CmpTranst()
 {
 	 Real timestep = GetDataValue< Real >("global_dt");
 
-	/*for (int cId = 0; cId < ug.nCell; ++cId)
+	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		ug.cId = cId;
 
-		iinv.spt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] / iinv.timestep;  //矩阵对角线元素的非稳态项
+		iinv.spc[ug.cId] += (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] / iinv.timestep;  //矩阵对角线元素的非稳态项
 
-		iinv.but[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * (*uinsf.q)[IIDX::IIU][ug.cId] / iinv.timestep; //源项的非稳态项
-		iinv.bvt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * (*uinsf.q)[IIDX::IIV][ug.cId] / iinv.timestep;
-		iinv.bwt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * (*uinsf.q)[IIDX::IIW][ug.cId] / iinv.timestep;
-	}*/
+		iinv.buc[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * (*uinsf.q)[IIDX::IIU][ug.cId] / iinv.timestep; //源项的非稳态项
+		iinv.bvc[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * (*uinsf.q)[IIDX::IIV][ug.cId] / iinv.timestep;
+		iinv.bwc[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * (*uinsf.q)[IIDX::IIW][ug.cId] / iinv.timestep;
+	}
 
 }
 
@@ -396,7 +396,7 @@ void UINsVisterm::CmpINsSrc()
 
 	Real timestep = GetDataValue< Real >("global_dt");
 
-	if (ctrl.currTime == timestep  && Iteration::innerSteps == 1)
+	/*if (ctrl.currTime == timestep  && Iteration::innerSteps == 1)
 	{
 		for (int cId = 0; cId < ug.nCell; ++cId)
 		{
@@ -422,7 +422,7 @@ void UINsVisterm::CmpINsSrc()
 			iinv.bvc[cId] += vol * iinv.rl * iinv.vl / timestep;
 			iinv.bwc[cId] += vol * iinv.rl * iinv.wl / timestep;
 		}
-	}
+	}*/
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{

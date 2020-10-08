@@ -54,7 +54,7 @@ public:
     void RelaxMom(Real a);
 	//void Addcoff();
 
-	void CmpUnsteadcoff();
+	void CmpTranst();
 public:
     void PrepareFaceValue();
     void SaveFacePara();

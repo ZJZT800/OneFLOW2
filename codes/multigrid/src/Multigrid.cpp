@@ -121,7 +121,7 @@ void MG::Run()
 		double rhs_v = 1e-8;
 		double rhs_w = 1e-8;
 
-		int maxIterSteps = GetDataValue< int >("maxIterSteps");
+		
 
 		iinv.remax_V = 1;
 
@@ -129,29 +129,52 @@ void MG::Run()
 		iinv.remax_vp = 1;
 		iinv.remax_wp = 1;
 
-			//while (iinv.remax_V > rhs_V )
-		TimeSpan * timeSpan = new TimeSpan();
-		while (SimuIterState::Running())
+		int transt = ONEFLOW::GetDataValue< int >("transt");
+		if(transt!=0)
 		{
-            Rhs* uINsSolver = new Rhs;
-            uINsSolver->FieldInit();
-            delete uINsSolver;
-			while (iinv.remax_up > rhs_u || iinv.remax_vp > rhs_v || iinv.remax_wp > rhs_w)
+			TimeSpan * timeSpan = new TimeSpan();
+			while (SimuIterState::Running())
 			{
-
-				if (Iteration::innerSteps >= maxIterSteps) break;
-
+				Iteration::outerSteps++;
 				ctrl.currTime += ctrl.pdt;
 
-				Iteration::outerSteps++;
+				Rhs* uINsSolver = new Rhs;
+				uINsSolver->FieldInit();
+				delete uINsSolver;
+				int maxIterSteps = GetDataValue< int >("maxIterSteps");
+				while (iinv.remax_up > rhs_u || iinv.remax_vp > rhs_v || iinv.remax_wp > rhs_w)
+				{
+					if (Iteration::innerSteps >= maxIterSteps) break;
+
+					Iteration::innerSteps++;
+
+					this->SolveInnerIter();
+
+				}
+				this->OuterProcess(timeSpan);
+			}
+			delete timeSpan;
+		}
+		else
+		{
+			TimeSpan * timeSpan = new TimeSpan();
+			Rhs* uINsSolver = new Rhs;
+			uINsSolver->FieldInit();
+			delete uINsSolver;
+			int maxIterSteps = GetDataValue< int >("maxIterSteps");
+			while (iinv.remax_up > rhs_u || iinv.remax_vp > rhs_v || iinv.remax_wp > rhs_w)
+			{
+				if (Iteration::innerSteps >= maxIterSteps) break;
+
 				Iteration::innerSteps++;
 
 				this->SolveInnerIter();
 
 			}
 			this->OuterProcess(timeSpan);
+			delete timeSpan;
 		}
-		delete timeSpan;
+
 	}
 
 	else

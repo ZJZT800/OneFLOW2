@@ -215,6 +215,9 @@ void Rhs::UINsSolver()
 
 		INsCmpVis(); //计算扩散项
 
+		int transt = ONEFLOW::GetDataValue< int >("transt");
+		if (transt != 0) INsTranst();  //瞬态项
+
 		INsCmpSrc(); //计算压力梯度和动量方程系数
 
 		DifEqua();     //和对流扩散项平级
@@ -266,10 +269,10 @@ void INsCmpVis()
 	delete uINsVisterm;
 }
 
-void INsCmpUnstead()
+void INsTranst()
 {
 	UINsVisterm * uINsVisterm = new UINsVisterm();
-	uINsVisterm->CmpUnsteadcoff();
+	uINsVisterm->CmpTranst();
 	delete uINsVisterm;
 }
 

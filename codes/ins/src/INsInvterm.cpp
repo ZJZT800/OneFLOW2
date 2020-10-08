@@ -56,21 +56,13 @@ INsInv::~INsInv()
 void INsInv::Init()
 {
 	int nEqu = inscom.nEqu;
-	//prim.resize(nEqu);
-	//prim1.resize(nEqu);
-	//prim2.resize(nEqu);
 
 	q.resize(nEqu);
-	//q1.resize(nEqu);
-	//q2.resize(nEqu);
-
-	//dq.resize(nEqu);
-
-	//flux.resize(nEqu);
-	//flux1.resize(nEqu);
-	//flux2.resize(nEqu);
 	dun.resize(ug.nFace);
-
+	dup.resize(ug.nCell);
+	u0.resize(ug.nCell);
+	v0.resize(ug.nCell);
+	w0.resize(ug.nCell);
 }
 
 INsInvterm::INsInvterm()
@@ -118,27 +110,27 @@ void INsInvterm::CmpINsBcinvFlux()
 
 void INsInvterm::CmpINsinvTerm()
 {
-	Real clr = MAX(0, -iinv.fq[ug.fId]);   
-	Real crl = MAX(0, iinv.fq[ug.fId]);
+	Real clr = MAX(0, iinv.fq[ug.fId]);   
+	Real crl = clr- iinv.fq[ug.fId];
 
-	iinv.ai[ug.fId][0] += clr;
-	iinv.ai[ug.fId][1] += crl;
+	iinv.ai[ug.fId][0] += crl;
+	iinv.ai[ug.fId][1] += clr;
 
 }
 
 void INsInvterm::CmpINsBcinvTerm()
 {
 
-	Real clr = MAX(0, -iinv.fq[ug.fId]);
-	Real crl = MAX(0, iinv.fq[ug.fId]);
+	Real clr = MAX(0, iinv.fq[ug.fId]);
+	Real crl = clr-iinv.fq[ug.fId];
 
-	iinv.spc[ug.lc] += clr;
+	iinv.spc[ug.lc] += crl;
 
-	iinv.buc[ug.lc] = clr * iinv.uf[ug.fId];
+	iinv.buc[ug.lc] = crl * iinv.uf[ug.fId];
 
-	iinv.bvc[ug.lc] = clr * iinv.vf[ug.fId];
+	iinv.bvc[ug.lc] = crl * iinv.vf[ug.fId];
 
-	iinv.bwc[ug.lc] = clr * iinv.wf[ug.fId];
+	iinv.bwc[ug.lc] = crl * iinv.wf[ug.fId];
 }
 
 void INsInvterm::CmpINsFaceflux(RealField & dpdx, RealField & dpdy, RealField & dpdz)
@@ -188,7 +180,7 @@ void INsInvterm::CmpINsFaceflux(RealField & dpdx, RealField & dpdy, RealField & 
 	iinv.vf[ug.fId] += fdpdy * Df2;
 	iinv.wf[ug.fId] += fdpdz * Df3;*/
 
-	iinv.vnflow = (*ug.a1)[ug.fId] * (iinv.uf[ug.fId]+ fdpdx * Df1) + (*ug.a2)[ug.fId] * (iinv.vf[ug.fId]+ fdpdy * Df2) + (*ug.a3)[ug.fId] * (iinv.wf[ug.fId]+ fdpdz * Df3) -(*ug.vfn)[ug.fId] - iinv.dun[ug.fId];
+	iinv.vnflow = (*ug.a1)[ug.fId] * (iinv.uf[ug.fId] + fdpdx * Df1) + (*ug.a2)[ug.fId] * (iinv.vf[ug.fId] + fdpdy * Df2) + (*ug.a3)[ug.fId] * (iinv.wf[ug.fId] + fdpdz * Df3) - (*ug.vfn)[ug.fId]-iinv.dun[ug.fId];
 	iinv.fq[ug.fId] = iinv.rf * iinv.vnflow;  
 
 }
@@ -210,7 +202,7 @@ void INsInvterm::CmpINsBcFaceflux(RealField& dpdx, RealField& dpdy, RealField& d
 
 			iinv.wf[ug.fId] = (*ug.vfz)[ug.fId];
 
-			iinv.vnflow = (*ug.a1)[ug.fId] * iinv.uf[ug.fId] + (*ug.a2)[ug.fId] * iinv.vf[ug.fId] + (*ug.a3)[ug.fId] * iinv.wf[ug.fId] -(*ug.vfn)[ug.fId] - iinv.dun[ug.fId];
+			iinv.vnflow = (*ug.a1)[ug.fId] * iinv.uf[ug.fId] + (*ug.a2)[ug.fId] * iinv.vf[ug.fId] + (*ug.a3)[ug.fId] * iinv.wf[ug.fId] - (*ug.vfn)[ug.fId]-iinv.dun[ug.fId];
 
 			iinv.fq[ug.fId] = iinv.rf * iinv.vnflow;
 		}
@@ -224,7 +216,7 @@ void INsInvterm::CmpINsBcFaceflux(RealField& dpdx, RealField& dpdy, RealField& d
 
 			iinv.wf[ug.fId] = (*inscom.bcflow)[IIDX::IIW];
 
-			iinv.vnflow = (*ug.a1)[ug.fId] * iinv.uf[ug.fId] + (*ug.a2)[ug.fId] * iinv.vf[ug.fId] + (*ug.a3)[ug.fId] * iinv.wf[ug.fId] -(*ug.vfn)[ug.fId] - iinv.dun[ug.fId];
+			iinv.vnflow = (*ug.a1)[ug.fId] * iinv.uf[ug.fId] + (*ug.a2)[ug.fId] * iinv.vf[ug.fId] + (*ug.a3)[ug.fId] * iinv.wf[ug.fId] - (*ug.vfn)[ug.fId]-iinv.dun[ug.fId];
 
 			iinv.fq[ug.fId] = iinv.rf * iinv.vnflow;
 		}
@@ -241,7 +233,7 @@ void INsInvterm::CmpINsBcFaceflux(RealField& dpdx, RealField& dpdy, RealField& d
 
 		iinv.wf[ug.fId] = inscom.inflow[IIDX::IIW];
 
-		iinv.vnflow = (*ug.a1)[ug.fId] * iinv.uf[ug.fId] + (*ug.a2)[ug.fId] * iinv.vf[ug.fId] + (*ug.a3)[ug.fId] * iinv.wf[ug.fId] -(*ug.vfn)[ug.fId] - iinv.dun[ug.fId];
+		iinv.vnflow = (*ug.a1)[ug.fId] * iinv.uf[ug.fId] + (*ug.a2)[ug.fId] * iinv.vf[ug.fId] + (*ug.a3)[ug.fId] * iinv.wf[ug.fId] - (*ug.vfn)[ug.fId]-iinv.dun[ug.fId];
 
 		iinv.fq[ug.fId] = iinv.rf * iinv.vnflow;
 	}
@@ -263,7 +255,7 @@ void INsInvterm::CmpINsBcFaceflux(RealField& dpdx, RealField& dpdy, RealField& d
 
 		iinv.wf[ug.cId] = iinv.wl;
 
-		iinv.vnflow = (*ug.a1)[ug.fId] * iinv.uf[ug.fId] + (*ug.a2)[ug.fId] * iinv.vf[ug.fId] + (*ug.a3)[ug.fId] * iinv.wf[ug.fId] -(*ug.vfn)[ug.fId] - iinv.dun[ug.fId];
+		iinv.vnflow = (*ug.a1)[ug.fId] * iinv.uf[ug.fId] + (*ug.a2)[ug.fId] * iinv.vf[ug.fId] + (*ug.a3)[ug.fId] * iinv.wf[ug.fId] - (*ug.vfn)[ug.fId]-iinv.dun[ug.fId];
 
 		iinv.fq[ug.fId] = iinv.rf * iinv.vnflow;
 	}
@@ -298,7 +290,9 @@ void INsInvterm::CmpINsFaceCorrectPresscoef()
 
 void INsInvterm::CmpINsBcFaceCorrectPresscoef()
 {
-	int bcType = ug.bcRecord->bcType[ug.fId];
+	iinv.bp[ug.lc] = iinv.bp[ug.lc] - iinv.fq[ug.fId];
+
+	/*int bcType = ug.bcRecord->bcType[ug.fId];
 
 	Real Sf1 = iinv.VdU[ug.lc] * (*ug.a1)[ug.fId];
 	Real Sf2 = iinv.VdV[ug.lc] * (*ug.a2)[ug.fId];
@@ -336,23 +330,7 @@ void INsInvterm::CmpINsBcFaceCorrectPresscoef()
 		iinv.ppf[ug.fId] = 0;
 	}
 
-	iinv.bp[ug.lc] = iinv.bp[ug.lc] - iinv.fq[ug.fId];// +iinv.rf * iinv.ppf[ug.fId] * Sfarea / dist;
+	iinv.bp[ug.lc] = iinv.bp[ug.lc] - iinv.fq[ug.fId]+iinv.rf * iinv.ppf[ug.fId] * Sfarea / dist;*/
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 EndNameSpace

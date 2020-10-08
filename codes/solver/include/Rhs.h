@@ -63,7 +63,7 @@ void INsCmpTimestep();
 void INsPreflux();
 void INsCmpInv();
 void INsCmpVis();
-void INsCmpUnstead();
+void INsTranst();
 void INsCmpSrc();
 void DifEqua();
 void Relaxation();
