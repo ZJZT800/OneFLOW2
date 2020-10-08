@@ -96,30 +96,30 @@ void INsCom::Init()
 
     const_cp = 1.0 / ( ( gama_ref - 1.0 ) * SQR( mach_ref ) );
 
-    q1.resize( nTEqu );
-    q2.resize( nTEqu );
+    //q1.resize( nTEqu );
+    //q2.resize( nTEqu );
 
     q.resize( nTEqu );
-    q0.resize( nTEqu );
-    dq.resize( nTEqu );
+    //q0.resize( nTEqu );
+    //dq.resize( nTEqu );
 
-    prim.resize( nTEqu );
-    prim0.resize( nTEqu );
+    //prim.resize( nTEqu );
+    //prim0.resize( nTEqu );
 
-    prims1.resize( nTEqu );
-    prims2.resize( nTEqu );
+    //prims1.resize( nTEqu );
+    //prims2.resize( nTEqu );
 
-    primt1.resize( nTEqu );
-    primt2.resize( nTEqu );
+    //primt1.resize( nTEqu );
+    //primt2.resize( nTEqu );
 
-    t.resize( nTModel );
-    t0.resize( nTModel );
+    //t.resize( nTModel );
+    //t0.resize( nTModel );
 
-    ts1.resize( nTModel );
-    ts2.resize( nTModel );
+    //ts1.resize( nTModel );
+    //ts2.resize( nTModel );
 
-    tt1.resize( nTModel );
-    tt2.resize( nTModel );
+    //tt1.resize( nTModel );
+    //tt2.resize( nTModel );
 }
 
 void INsExtract(RealField& prim, Real& rm, Real& um, Real& vm, Real& wm, Real& pm)

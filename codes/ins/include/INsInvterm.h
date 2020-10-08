@@ -63,13 +63,13 @@ public:
     RealField dq;
     RealField flux, flux1, flux2;
 	//RealField * rf, *uf, *vf, *wf;
-	RealField bc, aji, spj, Vdv, spp, app, ajp, idx, buc, bvc, bwc, aju, ajv, ajw, VdU, VdV, VdW, bpu, bpv, bpw, sppu, sppv, sppw, pp1, uu, vv, ww, ai1, ai2, aii1, aii2, akku1, akku2, akkv1, akkv2, akkw1, akkw2, aku1, aku2, akv1, akv2, akw1, akw2, f1, f2, pp, uuj, vvj, wwj, mp, ppr, ppl, bp, dqqdx, dqqdy, dqqdz,muc,mvc,mwc,sju,sjv,sjw,pp0,pc,fq, bmu1,bmu2,bmv1,bmv2,bmw1,bmw2, Fnu, Fnv, Fnw,  ukl, ukr, vkl, vkr, wkl,wkr, uml, umr, vml, vmr, wml, wmr, Pufd,Pvfd,Pwfd,Fpu,Fpv,Fpw,tux, tvy, twz, Fqu, Fqv, Fqw, FuT, FvT, FwT, PufdT, PvfdT, PwfdT, dsrl, elrn, visu,visv,visw, Fu1, Fv1, Fw1, bppu, bppv, bppw,ump,vmp,wmp, fqr,bi1,bi2,spc,fq1,fq2, Bpe1,Bpe2,mu,mv,mw,mpp, mua, mva, mwa,mppa, res_V, res_pp, res_up, res_vp, res_wp, uf, vf, wf, ufg, vfg, wfg, Vdvu, Vdvv, Vdvw, op, dj, pf, ppf, uuf, vvf, wwf,up,vp,wp;
-	RealField dun, dup, u0, v0, w0;
+	RealField bc, aji, spj, Vdv, spp, app, idx, spu, spv, spw, spu1, spv1, spw1, spu2, spv2, spw2, sp1, sp2, bm1, bm2, buc, bvc, bwc, aju, ajv, ajw, VdU, VdV, VdW, bpu, bpv, bpw, sppu, sppv, sppw, pp1, uu, vv, ww, ai1, ai2, aii1, aii2, akku1, akku2, akkv1, akkv2, akkw1, akkw2, aku1, aku2, akv1, akv2, akw1, akw2, f1, f2, pp, uuj, vvj, wwj, uc, vc, wc, mp, ppr, ppl, bp, dqqdx, dqqdy, dqqdz,muc,mvc,mwc,sju,sjv,sjw,pp0,pc,fq, up,vp,wp,spt, but, bvt,bwt,bmu1,bmu2,bmv1,bmv2,bmw1,bmw2, Fnu, Fnv, Fnw,  ukl, ukr, vkl, vkr, wkl,wkr, uml, umr, vml, vmr, wml, wmr, Pufd,Pvfd,Pwfd,Fpu,Fpv,Fpw,tux, tvy, twz, Fqu, Fqv, Fqw, FuT, FvT, FwT, PufdT, PvfdT, PwfdT, dsrl, elrn, visu,visv,visw, Fu1, Fv1, Fw1, bppu, bppv, bppw,ump,vmp,wmp, fqr,bi1,bi2,spc,fq1,fq2, Bpe1,Bpe2,mu,mv,mw,mpp, mua, mva, mwa,mppa, res_V, res_pp, res_up, res_vp, res_wp, uf, vf, wf, ufg, vfg, wfg, Vdvu, Vdvv, Vdvw, op, dj, pf, ppf, uuf, vvf, wwf;
+    RealField dun,dup, u0, v0, w0;
     RealField dpdx, dpdy, dpdz;
     RealField dudx, dudy, dudz;
     RealField dvdx, dvdy, dvdz; 
     RealField dwdx, dwdy, dwdz;
-    RealField2D  spuj, spvj, spwj, sjp, ai, sj, sd, sjd;
+    RealField2D  spuj, spvj, spwj, sjp, ai, sj, sd, sjd, ajp;
 	
 
 public:

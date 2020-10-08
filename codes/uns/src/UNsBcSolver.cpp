@@ -102,7 +102,7 @@ void UNsBcSolver::CmpBcRegion()
 
         this->CmpFaceBc();
 
-        this->UpdateBc();
+        //this->UpdateBc();
     }
 }
 
