@@ -435,9 +435,9 @@ void UINsVisterm::CmpINsSrc()
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		Real vol = (*ug.cvol)[cId];
-		iinv.buc[cId] = iinv.buc[cId] - vol * dpdx[cId] + iinv.but[ug.cId];
-		iinv.bvc[cId] = iinv.bvc[cId] - vol * dpdy[cId] + iinv.bvt[ug.cId];
-		iinv.bwc[cId] = iinv.bwc[cId] - vol * dpdz[cId] + iinv.bwt[ug.cId];
+		iinv.buc[cId] = iinv.buc[cId] - vol * dpdx[cId]+ iinv.but[ug.cId];
+		iinv.bvc[cId] = iinv.bvc[cId] - vol * dpdy[cId]+iinv.bvt[ug.cId];
+		iinv.bwc[cId] = iinv.bwc[cId] - vol * dpdz[cId]+iinv.bwt[ug.cId];
 		iinv.spc[cId] += iinv.spt[cId];
 	}
 
