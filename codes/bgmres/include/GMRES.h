@@ -26,9 +26,7 @@ void Update
 	std::vector<Approximation>* v,  //<! The orthogonal basis vectors for the Krylov subspace.
 	int dimension)      //<! The number of vectors in the basis for the Krylov subspace.
 {
-	// Solve for the coefficients, i.e. solve for c in
-	// H*c=s, but we do it in place.
-	// 这里分列进行计算
+	// Solve for the coefficients, i.e. solve for c in H*c=s, but we do it in place.
 	int lupe;
 	int i;
 	for (i = 0; i < Rank.COLNUMBER; i++)
@@ -38,8 +36,7 @@ void Update
 			s[lupe][i] = s[lupe][i] / H[lupe][lupe];
 			for (int innerLupe = lupe - 1; innerLupe >= 0; innerLupe--)
 			{
-				// Subtract off the parts from the upper diagonal of the
-				// matrix.
+				// Subtract off the parts from the upper diagonal of the matrix.
 				s[innerLupe][i] -= s[lupe][i] * H[innerLupe][lupe];
 			}
 		}
@@ -82,26 +79,15 @@ int GMRES
 	Double tolerance          //!< How small the residual should be to terminate the GMRES iterations.
 )
 {
-
-	// Allocate the space for the givens rotations, and the upper
-	// Hessenburg matrix.
 	Double** H = ArrayUtils<Double>::twotensor((krylovDimension + 1) * Rank.COLNUMBER, krylovDimension * Rank.COLNUMBER);
-	/*cout << H[1][9] << endl;*/
-	// The Givens rotations include the sine and cosine term. The
-	// cosine term is in column zero, and the sine term is in column
-	// one.
 	Double** givens = ArrayUtils<Double>::twotensor(Rank.COLNUMBER * (krylovDimension + 1), krylovDimension * Rank.COLNUMBER);
-
 	Double** s = ArrayUtils<Double>::twotensor((krylovDimension + 1) * Rank.COLNUMBER, Rank.COLNUMBER);
-	Double** S = ArrayUtils<Double>::twotensor(Rank.COLNUMBER, Rank.COLNUMBER);  //用来取s矩阵的最后三行
+	Double** S = ArrayUtils<Double>::twotensor(Rank.COLNUMBER, Rank.COLNUMBER);  
 	Double** R = ArrayUtils<Double>::twotensor(Rank.COLNUMBER, Rank.COLNUMBER);
-	// Determine the residual and allocate the space for the Krylov
-	// subspace.
-	std::vector<Approximation> V(krylovDimension + 1,
-		Approximation(solution->getN()));
+	// Determine the residual and allocate the space for the Krylov subspace.
+	std::vector<Approximation> V(krylovDimension + 1, Approximation(solution->getN()));
 	(*residual) = precond->solve2((*rhs) - (*linearization) * (*solution));
 
-	//残差的第一个列向量
 	Double normr1;
 	double temp = 0.0;
 	for (int ia = 0; ia < Rank.RANKNUMBER; ia++)
@@ -123,12 +109,10 @@ int GMRES
 	int iteration = 1;
 	while ((numberRestarts-- >= 0) && (rho > tolerance * normRHS))
 	{
-
-		// The first vector in the Krylov subspace is the normalized residual.
-		// The first QR decomposition, and get the vector V[0], V[1], V[2]
 		for (int ib = 0; ib < Rank.RANKNUMBER; ib++)
 		{
-			(V[0])(ib, 0) = (*residual)(ib, 0) * (1.0 / normr1);    //单位化了第一个V向量的第一列，即v1
+			(V[0])(ib, 0) = (*residual)(ib, 0) * (1.0 / normr1); 
+			//cout << (V[0])(ib, 0) << endl;
 		}
 
 		R[0][0] = normr1;
@@ -158,11 +142,8 @@ int GMRES
 			}
 		}
 
-
-
-		// Need to zero out the s vector in case of restarts
-		// initialize the s vector used to estimate the residual.
 		for (int lupe = 0; lupe <= krylovDimension * Rank.COLNUMBER + Rank.COLNUMBER - 1; lupe++)
+		{
 			for (int innerlupe = 0; innerlupe < Rank.COLNUMBER; innerlupe++)
 			{
 				if (lupe > innerlupe)
@@ -170,17 +151,11 @@ int GMRES
 				else
 					s[lupe][innerlupe] = R[lupe][innerlupe];
 			}
+		}
 
-
-		// Go through and generate the pre-determined number of vectors
-		// for the Krylov subspace.
 		for (iteration = 0; iteration < krylovDimension; ++iteration)
 		{
-			// Get the next entry in the vectors that form the basis for
-			// the Krylov subspace.
 			V[iteration + 1] = precond->solve2((*linearization) * V[iteration]);
-			// Perform the modified Gram-Schmidt method to orthogonalize
-			// the new vector.
 			int row;
 			typename std::vector<Approximation>::iterator ptr = V.begin();
 			for (int id = 0; id < Rank.COLNUMBER; id++)
@@ -196,7 +171,6 @@ int GMRES
 						H[row][Rank.COLNUMBER * iteration + id] += (V[iteration + 1])(n, id) * (*(ptr + quo))(n, mod);
 					}
 				}
-				//subtract H[row][iteration]*V[row] from the current vector
 				for (int row = 0; row <= iteration; row++)
 				{
 					for (int n = 0; n < Rank.RANKNUMBER; n++)
@@ -211,8 +185,8 @@ int GMRES
 				}
 			}
 
-			// QR decomposition to get H[iteration+1][iteration], V[iteration+1]的单位化过程
-			std::vector<Approximation> TV(1, Approximation(solution->getN()));   //临时变量
+			// QR decomposition to get H[iteration+1][iteration]
+			std::vector<Approximation> TV(1, Approximation(solution->getN()));   
 			TV[0] = V[iteration + 1];
 			Double normr2;
 			double t = 0.0;
@@ -253,10 +227,6 @@ int GMRES
 			}
 			std::vector<Approximation>(TV).swap(TV);
 
-			// Apply the Givens Rotations to insure that H is
-			// an upper diagonal matrix. First apply previous
-			// rotations to the current matrix.
-			// the first Givens Rotations
 			double tmp = 0.0;
 			int col;
 			for (int lupe = 0; lupe < Rank.COLNUMBER; lupe++)
@@ -282,18 +252,12 @@ int GMRES
 					}
 					else if (fabs(H[col + Rank.COLNUMBER - lupe][col]) > fabs(H[col + Rank.COLNUMBER - 1 - lupe][col]))
 					{
-						// The off diagonal entry has a larger
-						// magnitude. Use the ratio of the
-						// diagonal entry over the off diagonal.
 						tmp = H[col + Rank.COLNUMBER - 1 - lupe][col] / H[col + Rank.COLNUMBER - lupe][col];
 						givens[col + Rank.COLNUMBER - 1 - lupe][1 + col * 2] = 1.0 / sqrt(1.0 + tmp * tmp);
 						givens[col + Rank.COLNUMBER - 1 - lupe][col * 2] = tmp * givens[col + Rank.COLNUMBER - 1 - lupe][1 + col * 2];
 					}
 					else
 					{
-						// The off diagonal entry has a smaller
-						// magnitude. Use the ratio of the off
-						// diagonal entry to the diagonal entry.
 						tmp = H[col + Rank.COLNUMBER - lupe][col] / H[col + Rank.COLNUMBER - 1 - lupe][col];
 						givens[col + Rank.COLNUMBER - 1 - lupe][col * 2] = 1.0 / sqrt(1.0 + tmp * tmp);
 						givens[col + Rank.COLNUMBER - 1 - lupe][1 + col * 2] = tmp * givens[col + Rank.COLNUMBER - 1 - lupe][col * 2];
@@ -308,8 +272,7 @@ int GMRES
 					if (H[col + Rank.COLNUMBER - lupe][col] < 1e-10)
 						H[col + Rank.COLNUMBER - lupe][col] = 0;
 
-					// Finally apply the new Givens rotation on the s
-					// vector
+					// Finally apply the new Givens rotation on the s vector
 					for (int z = 0; z < Rank.COLNUMBER; z++)
 					{
 						tmp = givens[col + Rank.COLNUMBER - 1 - lupe][col * 2] * s[col + Rank.COLNUMBER - 1 - lupe][z] + givens[col + Rank.COLNUMBER - 1 - lupe][1 + col * 2] * s[col + Rank.COLNUMBER - lupe][z];
@@ -318,7 +281,6 @@ int GMRES
 					}
 				}
 			}
-			//将s向量组的后三行存入到S向量组中，以便后续求其范数
 			int lupe, innerlupe;
 			for (lupe = 0; lupe < Rank.COLNUMBER; lupe++)
 			{
@@ -338,19 +300,21 @@ int GMRES
 					rho += S[im][in] * S[im][in];
 				}
 			rho = sqrt(rho);
-
-			//cout << "iteration:" << iteration << "residual:" << rho << endl;
+			if (iteration >= (krylovDimension - 1))
+			{
+				cout << "iteration:" << iteration << "residual:" << rho << endl;
+			}
 			/*ofstream file2("residual.txt", ios::app);
 			file2 << "residual:" << rho << endl;
 			file2.close();*/
 
 			//cout << tolerance * normRHS << endl;
-			if (rho < tolerance * normRHS)   //该判别方式在BGMRES中是否有效
+			if (rho < tolerance * normRHS)  
 			{
 				// We are close enough! Update the approximation.
 				Update(H, solution, s, &V, iteration);
-				(*residual) = precond->solve2((*linearization) * (*solution) - (*rhs));      
-				Rank.residual = residual->norm();
+				//(*residual) = precond->solve2((*linearization) * (*solution) - (*rhs));      
+				//Rank.residual = residual->norm();
 				ArrayUtils<double>::deltwotensor(givens);
 				ArrayUtils<double>::deltwotensor(H);
 				ArrayUtils<double>::deltwotensor(s);
@@ -368,13 +332,12 @@ int GMRES
 		// approximation and start over.
 		totalRestarts += 1;
 		Update(H, solution, s, &V, iteration - 1);
-		(*residual) = precond->solve2((*linearization) * (*solution) - (*rhs));      //第三个precond
+		(*residual) = precond->solve2((*linearization) * (*solution) - (*rhs)); 
 		Rank.residual = residual->norm();
-
 		//cout << "totalRestarts:" << totalRestarts << endl;
 	} // while(numberRestarts,rho)
 
-
+	//cout << "Iteration: " << iteration << endl;
 	ArrayUtils<double>::deltwotensor(givens);
 	ArrayUtils<double>::deltwotensor(H);
 	ArrayUtils<double>::deltwotensor(s);
@@ -385,7 +348,7 @@ int GMRES
 	//tolerance = rho/normRHS;
 
 	if (rho < tolerance * normRHS)
-		return(0);
+		return(iteration + totalRestarts * krylovDimension);
 
 	return(0);
 }
