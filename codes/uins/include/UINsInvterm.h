@@ -49,10 +49,12 @@ public:
     void CmpInvMassFlux();
     void CmpInvFace();
     void CmpLimiter();
+	void SolveEquation(RealField& sp, RealField2D& ai, RealField& b, RealField& x, Real res);
 	void CmpFaceflux();
 	void CmpINsMomRes();
 	void CmpINsPreRes();
 	void CmpCorrectPresscoef();
+	void maxmin(RealField& a, Real& max_a, Real& min_a);
 	void CmpPressCorrectEqu();
 	void UpdateFaceflux();
 	void CmpUpdateINsFaceflux();

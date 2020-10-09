@@ -279,9 +279,11 @@ void INsInvterm::CmpINsFaceCorrectPresscoef()
 
 	iinv.rf = (*uinsf.q)[IIDX::IIR][ug.lc];
 
-	iinv.spp[ug.lc] += iinv.rf * Sfarea / dist;
-	iinv.spp[ug.rc] += iinv.rf * Sfarea / dist;
-	iinv.ajp[ug.fId] += iinv.rf * Sfarea / dist;
+	iinv.ajp[ug.fId][0] += iinv.rf * Sfarea / dist;
+	iinv.ajp[ug.fId][1] += iinv.rf * Sfarea / dist;
+
+	iinv.spp[ug.lc] += iinv.ajp[ug.fId][0];
+	iinv.spp[ug.rc] += iinv.ajp[ug.fId][1];
 
 	iinv.bp[ug.lc] -= iinv.fq[ug.fId];
 	iinv.bp[ug.rc] += iinv.fq[ug.fId];
