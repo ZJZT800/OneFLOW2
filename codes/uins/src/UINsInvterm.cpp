@@ -887,11 +887,56 @@ void UINsInvterm::CmpDun()
 		{
 			iinv.uf[ug.fId] = inscom.inflow[1];
 
+<<<<<<< HEAD
 			iinv.vf[ug.fId] = inscom.inflow[2];
 
 			iinv.wf[ug.fId] = inscom.inflow[3];
 
 			iinv.pf[ug.fId] = inscom.inflow[4];
+=======
+			iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuf[ug.fId];
+			iinv.vf[ug.fId] = iinv.vf[ug.fId] + iinv.vvf[ug.fId];
+			iinv.wf[ug.fId] = iinv.wf[ug.fId] + iinv.wwf[ug.fId];
+		}
+
+		else if (bcType == BC::INFLOW)
+		{
+			iinv.uuf[ug.fId] = 0;
+			iinv.vvf[ug.fId] = 0;
+			iinv.vvf[ug.fId] = 0;
+
+			iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuf[ug.fId];
+			iinv.vf[ug.fId] = iinv.vf[ug.fId] + iinv.vvf[ug.fId];
+			iinv.wf[ug.fId] = iinv.wf[ug.fId] + iinv.wwf[ug.fId];
+		}
+
+		else if (bcType == BC::OUTFLOW)
+		{
+			iinv.dist = (*ug.xfn)[ug.fId] * ((*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc]) + (*ug.yfn)[ug.fId] * ((*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc]) + (*ug.zfn)[ug.fId] * ((*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc]);
+
+			iinv.uuf[ug.fId] = 0.8*iinv.Vdvu[ug.fId] * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]) * (*ug.xfn)[ug.fId] / iinv.dist;
+			iinv.vvf[ug.fId] = 0.8*iinv.Vdvv[ug.fId] * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]) * (*ug.yfn)[ug.fId] / iinv.dist;
+			iinv.vvf[ug.fId] = 0.8*iinv.Vdvw[ug.fId] * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]) * (*ug.zfn)[ug.fId] / iinv.dist;
+
+			iinv.uf[ug.fId] = iinv.uf[ug.fId] + iinv.uuf[ug.fId];
+			iinv.vf[ug.fId] = iinv.vf[ug.fId] + iinv.vvf[ug.fId];
+			iinv.wf[ug.fId] = iinv.wf[ug.fId] + iinv.wwf[ug.fId];
+		}
+	}
+
+	/*ug.nRegion = ug.bcRecord->bcInfo->bcType.size();
+	BcInfo * bcInfo = ug.bcRecord->bcInfo;
+
+	for (int ir = 0; ir < ug.nRegion; ++ir)
+	{
+		ug.ir = ir;
+		ug.bctype = ug.bcRecord->bcInfo->bcType[ir];
+		ug.nRBFace = ug.bcRecord->bcInfo->bcFace[ir].size();
+
+		if (ug.bctype < 0)
+		{
+			false;
+>>>>>>> acbd7382a7397ebbe61043fbf040c85e62eb6fc5
 		}
 
 		else if (ug.bctype == BC::SOLID_SURFACE)
@@ -957,7 +1002,103 @@ void UINsInvterm::UpdateSpeed()
 		(*uinsf.q)[IIDX::IIV][cId] -= iinv.vv[cId];
 		(*uinsf.q)[IIDX::IIW][cId] -= iinv.ww[cId];
 	}
+<<<<<<< HEAD
 }
+=======
+	cout << "iinv.remax_V:" << iinv.remax_V << endl;
+	cout << "iinv.remax_pp:" << iinv.remax_pp << endl;
+	cout <<"innerSteps:"<< Iteration::innerSteps<< endl;
+	//cout << "outerSteps:" << Iteration::outerSteps << endl;
+
+	ofstream fileres_vv("residual_vv.txt", ios::app);
+	//fileres_p << "residual_p:" <<residual_p << endl;
+	fileres_vv << iinv.remax_V << endl;
+	fileres_vv.close();
+	
+
+	ofstream fileres_pp("residual_pp.txt", ios::app);
+	//fileres_p << "residual_p:" <<residual_p << endl;
+	fileres_pp << iinv.remax_pp << endl;
+	fileres_pp.close();*/
+
+
+
+
+
+
+	iinv.remax_up = 0;
+	iinv.remax_vp = 0;
+	iinv.remax_wp = 0;
+	iinv.remax_pp = 0;
+
+	for (int fId = 0; fId < ug.nFace; ++fId)
+	{
+		ug.fId = fId;
+		ug.lc = (*ug.lcf)[ug.fId];
+		ug.rc = (*ug.rcf)[ug.fId];
+
+		iinv.bp[ug.lc] += -iinv.fq[ug.fId];
+		iinv.bp[ug.rc] += iinv.fq[ug.fId];
+	}
+
+	for (int cId = 0; cId < ug.nCell; ++cId)
+	{
+		ug.cId = cId;
+
+		int fn = (*ug.c2f)[ug.cId].size();
+
+		for (int iFace = 0; iFace < fn; ++iFace)
+		{
+			int fId = (*ug.c2f)[ug.cId][iFace];
+			ug.fId = fId;
+			ug.lc = (*ug.lcf)[ug.fId];
+			ug.rc = (*ug.rcf)[ug.fId];
+
+			if (fId > ug.nBFace - 1)
+			{
+				if (ug.cId == ug.lc)
+				{
+					iinv.mu[ug.cId] += -iinv.ai[ug.fId][0] * (iinv.up[ug.rc] - iinv.uc[ug.rc]);  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
+					iinv.mv[ug.cId] += -iinv.ai[ug.fId][0] * (iinv.vp[ug.rc] - iinv.vc[ug.rc]);
+					iinv.mw[ug.cId] += -iinv.ai[ug.fId][0] * (iinv.wp[ug.rc] - iinv.wc[ug.rc]);
+					//iinv.mpp[ug.cId] += -iinv.ajp[ug.fId] * iinv.pp[ug.rc];
+				}
+				else if (ug.cId == ug.rc)
+				{
+					iinv.mu[ug.cId] += -iinv.ai[ug.fId][1] * (iinv.up[ug.lc] - iinv.uc[ug.lc]);  //矩阵非零系数，动量方程中与主单元相邻的单元面通量
+					iinv.mv[ug.cId] += -iinv.ai[ug.fId][1] * (iinv.vp[ug.lc] - iinv.vc[ug.lc]);
+					iinv.mw[ug.cId] += -iinv.ai[ug.fId][1] * (iinv.wp[ug.lc] - iinv.wc[ug.lc]);
+					//iinv.mpp[ug.cId] += -iinv.ajp[ug.fId] * iinv.pp[ug.lc];
+				}
+			}
+			else
+			{
+				continue;
+			}
+		}
+
+		iinv.mua[ug.cId] = iinv.spc[ug.cId] * (iinv.up[ug.cId] - iinv.uc[ug.cId]) + iinv.mu[ug.cId];
+		iinv.mva[ug.cId] = iinv.spc[ug.cId] * (iinv.vp[ug.cId] - iinv.vc[ug.cId]) + iinv.mv[ug.cId];
+		iinv.mwa[ug.cId] = iinv.spc[ug.cId] * (iinv.wp[ug.cId] - iinv.wc[ug.cId]) + iinv.mw[ug.cId];
+		//iinv.mppa[ug.cId] = iinv.spp[ug.cId] * iinv.pp[ug.cId] + iinv.mpp[ug.cId];
+
+		iinv.res_up[ug.cId] = iinv.mua[ug.cId] * iinv.mua[ug.cId];
+		iinv.res_vp[ug.cId] = iinv.mva[ug.cId] * iinv.mva[ug.cId];
+		iinv.res_wp[ug.cId] = iinv.mwa[ug.cId] * iinv.mwa[ug.cId];
+		iinv.res_pp[ug.cId] = iinv.bp[ug.cId] * iinv.bp[ug.cId];
+
+		iinv.remax_up += iinv.res_up[ug.cId];
+		iinv.remax_vp += iinv.res_vp[ug.cId];
+		iinv.remax_wp += iinv.res_wp[ug.cId];
+		iinv.remax_pp += iinv.res_pp[ug.cId];
+	}
+
+
+	iinv.remax_up = sqrt(iinv.remax_up);
+	iinv.remax_vp = sqrt(iinv.remax_vp);
+	iinv.remax_wp = sqrt(iinv.remax_wp);
+	iinv.remax_pp = sqrt(iinv.remax_pp);
+>>>>>>> acbd7382a7397ebbe61043fbf040c85e62eb6fc5
 
 void UINsInvterm::UpdateINsRes()
 {
