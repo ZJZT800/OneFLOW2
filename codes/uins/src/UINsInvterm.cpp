@@ -741,7 +741,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
-		(*uinsf.q)[IIDX::IIP][cId] = (*uinsf.q)[IIDX::IIP][cId] + 0.4 * iinv.pp[cId];
+		(*uinsf.q)[IIDX::IIP][cId] = (*uinsf.q)[IIDX::IIP][cId] + 0.4 * (iinv.pp[cId]);
 	}
 
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
