@@ -46,6 +46,7 @@ public:
 	void CmpINsPreflux();
 	void Init();
     void CmpInvcoff();
+	void InitInv();
     void CmpInvMassFlux();
     void CmpInvFace();
     void CmpLimiter();
@@ -54,6 +55,7 @@ public:
 	void CmpINsMomRes();
 	void CmpINsPreRes();
 	void CmpCorrectPresscoef();
+	void InitPresscoef();
 	void maxmin(RealField& a, Real& max_a, Real& min_a);
 	void CmpPressCorrectEqu();
 	void UpdateFaceflux();

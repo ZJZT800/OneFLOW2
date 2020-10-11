@@ -394,36 +394,6 @@ void UINsVisterm::CmpINsSrc()
 	dpdz.resize(ug.nCell);
 	ONEFLOW::CmpINsGrad(iinv.pf, dpdx, dpdy, dpdz);
 
-	Real timestep = GetDataValue< Real >("global_dt");
-
-	/*if (ctrl.currTime == timestep  && Iteration::innerSteps == 1)
-	{
-		for (int cId = 0; cId < ug.nCell; ++cId)
-		{
-			Real vol = (*ug.cvol)[cId];
-			iinv.spc[cId] += 0;
-			iinv.buc[cId] += 0;
-			iinv.bvc[cId] += 0;
-			iinv.bwc[cId] += 0;
-		}
-	}
-	else
-	{
-		for (int cId = 0; cId < ug.nCell; ++cId)
-		{
-			Real vol = (*ug.cvol)[cId];
-            iinv.rl = (*uinsf.q)[IIDX::IIR][cId];
-			iinv.ul = (*uinsf.q)[IIDX::IIU][cId];
-			iinv.vl = (*uinsf.q)[IIDX::IIV][cId];
-			iinv.wl = (*uinsf.q)[IIDX::IIW][cId];
-			iinv.spc[cId] += vol * (*uinsf.q)[IIDX::IIR][cId] / timestep;
-
-			iinv.buc[cId] += vol * iinv.rl * iinv.ul / timestep;
-			iinv.bvc[cId] += vol * iinv.rl * iinv.vl / timestep;
-			iinv.bwc[cId] += vol * iinv.rl * iinv.wl / timestep;
-		}
-	}*/
-
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		Real vol = (*ug.cvol)[cId];
@@ -445,28 +415,21 @@ void UINsVisterm::CmpINsSrc()
 
 void UINsVisterm::DifEquaMom()
 {
-
-	for (int fId = 0; fId < ug.nFace; fId++)
+	iinv.remax_up = 0;
+	iinv.remax_vp = 0;
+	iinv.remax_wp = 0;
+	for (int fId = ug.nBFace; fId < ug.nFace; fId++)
 	{
 		int lc = (*ug.lcf)[fId];
 		int rc = (*ug.rcf)[fId];
-		if (fId > ug.nBFace - 1)
-		{
-			iinv.buc[lc] += iinv.ai[fId][0] * (*uinsf.q)[IIDX::IIU][rc];// -iinv.spc[lc] * (*uinsf.q)[IIDX::IIU][lc];
-			iinv.bvc[lc] += iinv.ai[fId][0] * (*uinsf.q)[IIDX::IIV][rc];// -iinv.spc[lc] * (*uinsf.q)[IIDX::IIV][lc];
-			iinv.bwc[lc] += iinv.ai[fId][0] * (*uinsf.q)[IIDX::IIW][rc];// -iinv.spc[lc] * (*uinsf.q)[IIDX::IIW][lc];
 
-			iinv.buc[rc] += iinv.ai[fId][1] * (*uinsf.q)[IIDX::IIU][lc];// -iinv.spc[rc] * (*uinsf.q)[IIDX::IIU][rc];
-			iinv.bvc[rc] += iinv.ai[fId][1] * (*uinsf.q)[IIDX::IIV][lc];// -iinv.spc[rc] * (*uinsf.q)[IIDX::IIV][rc];
-			iinv.bwc[rc] += iinv.ai[fId][1] * (*uinsf.q)[IIDX::IIW][lc];// -iinv.spc[rc] * (*uinsf.q)[IIDX::IIW][rc];
-		}
-		else if (fId < ug.nBFace)
-		{
-			/*iinv.buc[lc] -= iinv.spc[lc] * (*uinsf.q)[IIDX::IIU][lc];
-			iinv.bvc[lc] -= iinv.spc[lc] * (*uinsf.q)[IIDX::IIV][lc];
-			iinv.bwc[lc] -= iinv.spc[lc] * (*uinsf.q)[IIDX::IIW][lc];*/
-			;
-		}
+		iinv.buc[lc] += iinv.ai[fId][0] * (*uinsf.q)[IIDX::IIU][rc];
+		iinv.bvc[lc] += iinv.ai[fId][0] * (*uinsf.q)[IIDX::IIV][rc];
+		iinv.bwc[lc] += iinv.ai[fId][0] * (*uinsf.q)[IIDX::IIW][rc];
+
+		iinv.buc[rc] += iinv.ai[fId][1] * (*uinsf.q)[IIDX::IIU][lc];
+		iinv.bvc[rc] += iinv.ai[fId][1] * (*uinsf.q)[IIDX::IIV][lc];
+		iinv.bwc[rc] += iinv.ai[fId][1] * (*uinsf.q)[IIDX::IIW][lc];
 	}
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
@@ -474,8 +437,15 @@ void UINsVisterm::DifEquaMom()
 		iinv.buc[cId] -= iinv.spc[cId] * (*uinsf.q)[IIDX::IIU][cId];
 		iinv.bvc[cId] -= iinv.spc[cId] * (*uinsf.q)[IIDX::IIV][cId];
 		iinv.bwc[cId] -= iinv.spc[cId] * (*uinsf.q)[IIDX::IIW][cId];
-	}
 
+		/*iinv.remax_up = MAX(abs(iinv.remax_up), abs(iinv.buc[cId]));
+		iinv.remax_vp = MAX(abs(iinv.remax_vp), abs(iinv.bvc[cId]));
+		iinv.remax_wp = MAX(abs(iinv.remax_wp), abs(iinv.bwc[cId]));*/
+
+		iinv.remax_up += abs(iinv.buc[cId]);
+		iinv.remax_vp += abs(iinv.bvc[cId]);
+		iinv.remax_wp += abs(iinv.bwc[cId]);
+	}
 }
 
 void UINsVisterm::RelaxMom(Real a)

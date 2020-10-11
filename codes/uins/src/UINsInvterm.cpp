@@ -262,11 +262,11 @@ void UINsInvterm::Init()
 	iinv.bvc.resize(ug.nTCell);
 	iinv.bwc.resize(ug.nTCell);
 	iinv.bp.resize(ug.nTCell);
-	iinv.ajp.resize(ug.nFace,2);
 	//iinv.sju.resize(ug.nTCell);
 	//iinv.sjv.resize(ug.nTCell);
 	//iinv.sjw.resize(ug.nTCell);
 	iinv.fq.resize(ug.nFace);
+	iinv.duf.resize(ug.nFace);
 	iinv.spc.resize(ug.nTCell);
 	iinv.ai.resize(ug.nFace, 2);
 	//iinv.biu.resize(ug.nFace,2);
@@ -352,8 +352,18 @@ void UINsInvterm::Init()
 	iinv.ww = 0;
 }
 
+void UINsInvterm::InitInv()
+{
+	iinv.spc = 0;
+	iinv.buc = 0;
+	iinv.bvc= 0;
+	iinv.bwc= 0;
+}
+
 void UINsInvterm::CmpInvMassFlux()
 {
+	InitInv();
+
 	for(int fId = 0; fId < ug.nBFace; fId++)
 	{
 		ug.fId = fId;
@@ -532,6 +542,7 @@ void UINsInvterm::CmpFaceflux()
 	dpdy.resize(ug.nCell);
 	dpdz.resize(ug.nCell);
 	ONEFLOW::CmpINsGrad(iinv.pf, dpdx, dpdy, dpdz);
+
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
 		ug.fId = fId;
@@ -635,9 +646,17 @@ void UINsInvterm::AddFlux()
 
 }
 
+void UINsInvterm::InitPresscoef()
+{
+	iinv.spp = 0;
+	iinv.bp = 0;
+}
+
 void UINsInvterm::CmpCorrectPresscoef()
 {
 	//this->CmpNewMomCoe();
+	InitPresscoef();
+
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
 		ug.fId = fId;
@@ -657,7 +676,13 @@ void UINsInvterm::CmpCorrectPresscoef()
 
 		this->CmpINsBcFaceCorrectPresscoef();
 	}
-	
+
+	iinv.remax_pp = 0;
+	for (int cId = 0; cId < ug.nCell; cId++)
+	{
+		//iinv.remax_pp = MAX(abs(iinv.remax_pp), abs(iinv.bp[cId]));
+		iinv.remax_pp += abs(iinv.bp[cId]);
+	}
 }
 
 void UINsInvterm::maxmin(RealField& a, Real& max_a, Real& min_a)
@@ -671,7 +696,7 @@ void UINsInvterm::maxmin(RealField& a, Real& max_a, Real& min_a)
 
 void UINsInvterm::CmpPressCorrectEqu()
 {
-	this->SolveEquation(iinv.spp, iinv.ajp, iinv.bp, iinv.pp, iinv.res_p);
+	this->SolveEquation(iinv.spp, iinv.ai, iinv.bp, iinv.pp, iinv.res_p);
 	
 	Real max_pp = 0;
 	Real min_pp = 0;
@@ -893,7 +918,7 @@ void UINsInvterm::CmpUpdateINsBcFaceflux()
 
 void UINsInvterm::CmpUpdateINsFaceflux()
 {
-	Real Df1 = iinv.Vdvu[ug.fId] * (*ug.a1)[ug.fId];
+	/*Real Df1 = iinv.Vdvu[ug.fId] * (*ug.a1)[ug.fId];
 	Real Df2 = iinv.Vdvv[ug.fId] * (*ug.a2)[ug.fId];
 	Real Df3 = iinv.Vdvw[ug.fId] * (*ug.a3)[ug.fId];
 
@@ -905,8 +930,9 @@ void UINsInvterm::CmpUpdateINsFaceflux()
 
 	Real dist = l2rdx * (*ug.a1)[ug.fId] + l2rdy * (*ug.a2)[ug.fId] + l2rdz * (*ug.a3)[ug.fId];
 
-	iinv.rf = (*uinsf.q)[IIDX::IIR][ug.lc];
-	iinv.fux = iinv.rf * Df / dist * (iinv.pp[ug.lc] - iinv.pp[ug.rc]);
+	iinv.rf = (*uinsf.q)[IIDX::IIR][ug.lc];*/
+
+	iinv.fux = iinv.duf[ug.fId] * (iinv.pp[ug.lc] - iinv.pp[ug.rc]);
 	iinv.fq[ug.fId] = iinv.fq[ug.fId] + iinv.fux;
 }
 
@@ -919,9 +945,10 @@ void UINsInvterm::CmpDun()
 		iinv.wf[ug.fId] = (*ug.fl)[ug.fId] * (*uinsf.q)[IIDX::IIW][ug.lc] + (*ug.fr)[ug.fId] * (*uinsf.q)[IIDX::IIW][ug.rc];
 		Real un = iinv.uf[ug.fId] * (*ug.a1)[ug.fId] + iinv.vf[ug.fId] * (*ug.a2)[ug.fId] + iinv.wf[ug.fId] * (*ug.a3)[ug.fId];
 		
-		//iinv.rf = (*uinsf.q)[IIDX::IIR][ug.lc];
-		//iinv.dun[ug.fId] = iinv.fq[ug.fId] / (iinv.rf + SMALL) - un;
-		iinv.dun[ug.fId] = iinv.fq[ug.fId] - un;
+		/*iinv.rf = (*uinsf.q)[IIDX::IIR][ug.lc];
+		iinv.dun[ug.fId] = iinv.fq[ug.fId] / (iinv.rf + SMALL) - un;*/
+
+		iinv.dun[ug.fId] = iinv.fq[ug.fId]  - un;
 	}
 
 	else 
@@ -996,9 +1023,9 @@ void UINsInvterm::UpdateSpeed()
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
-		iinv.uu[cId] = iinv.VdU[cId] * dqqdx[cId]*0.7; 
-		iinv.vv[cId] = iinv.VdV[cId] * dqqdy[cId]*0.7;
-		iinv.ww[cId] = iinv.VdW[cId] * dqqdz[cId]*0.7;
+		iinv.uu[cId] = iinv.VdU[cId] * dqqdx[cId]; 
+		iinv.vv[cId] = iinv.VdV[cId] * dqqdy[cId];
+		iinv.ww[cId] = iinv.VdW[cId] * dqqdz[cId];
 
 		(*uinsf.q)[IIDX::IIU][cId] -= iinv.uu[cId];
 		(*uinsf.q)[IIDX::IIV][cId] -= iinv.vv[cId];
@@ -1012,91 +1039,15 @@ void UINsInvterm::UpdateSpeed()
 void UINsInvterm::UpdateINsRes()
 {
 
-	iinv.remax_up = 0;
-	iinv.remax_vp = 0;
-	iinv.remax_wp = 0;
-	iinv.remax_pp = 0;
-	iinv.bp = 0;
-
-	for (int fId = 0; fId < ug.nFace; ++fId)
-	{
-		ug.fId = fId;
-		ug.lc = (*ug.lcf)[ug.fId];
-		ug.rc = (*ug.rcf)[ug.fId];
-
-		iinv.bp[ug.lc] += -iinv.fq[ug.fId];
-		iinv.bp[ug.rc] += iinv.fq[ug.fId];
-	}
-
-	for (int cId = 0; cId < ug.nCell; ++cId)
-	{
-		ug.cId = cId;
-
-		int fn = (*ug.c2f)[ug.cId].size();
-
-		for (int iFace = 0; iFace < fn; ++iFace)
-		{
-			int fId = (*ug.c2f)[ug.cId][iFace];
-			ug.fId = fId;
-			ug.lc = (*ug.lcf)[ug.fId];
-			ug.rc = (*ug.rcf)[ug.fId];
-
-			if (fId > ug.nBFace - 1)
-			{
-				if (ug.cId == ug.lc)
-				{
-					iinv.mu[ug.cId] -= iinv.ai[ug.fId][0] * iinv.uu[ug.rc];  
-					iinv.mv[ug.cId] -= iinv.ai[ug.fId][0] * iinv.vv[ug.rc];
-					iinv.mw[ug.cId] -= iinv.ai[ug.fId][0] * iinv.ww[ug.rc];
-					//iinv.mpp[ug.cId] += -iinv.ajp[ug.fId] * iinv.pp[ug.rc];
-				}
-				else if (ug.cId == ug.rc)
-				{
-					iinv.mu[ug.cId] -= iinv.ai[ug.fId][1] * iinv.uu[ug.lc];  
-					iinv.mv[ug.cId] -= iinv.ai[ug.fId][1] * iinv.vv[ug.lc];
-					iinv.mw[ug.cId] -= iinv.ai[ug.fId][1] * iinv.ww[ug.lc];
-					//iinv.mpp[ug.cId] += -iinv.ajp[ug.fId] * iinv.pp[ug.lc];
-				}
-			}
-			else
-			{
-				continue;
-			}
-		}
-
-		iinv.mua[ug.cId] = iinv.spc[ug.cId] * iinv.uu[ug.cId] + iinv.mu[ug.cId];
-		iinv.mva[ug.cId] = iinv.spc[ug.cId] * iinv.vv[ug.cId] + iinv.mv[ug.cId];
-		iinv.mwa[ug.cId] = iinv.spc[ug.cId] * iinv.ww[ug.cId] + iinv.mw[ug.cId];
-		//iinv.mppa[ug.cId] = iinv.spp[ug.cId] * iinv.pp[ug.cId] + iinv.mpp[ug.cId];
-
-		iinv.res_up[ug.cId] = iinv.mua[ug.cId] * iinv.mua[ug.cId];
-		iinv.res_vp[ug.cId] = iinv.mva[ug.cId] * iinv.mva[ug.cId];
-		iinv.res_wp[ug.cId] = iinv.mwa[ug.cId] * iinv.mwa[ug.cId];
-		iinv.res_pp[ug.cId] = iinv.bp[ug.cId] * iinv.bp[ug.cId];
-
-		iinv.remax_up += iinv.res_up[ug.cId];
-		iinv.remax_vp += iinv.res_vp[ug.cId];
-		iinv.remax_wp += iinv.res_wp[ug.cId];
-		iinv.remax_pp += iinv.res_pp[ug.cId];
-	}
-
-
-	iinv.remax_up = sqrt(iinv.remax_up);
-	iinv.remax_vp = sqrt(iinv.remax_vp);
-	iinv.remax_wp = sqrt(iinv.remax_wp);
-	iinv.remax_pp = sqrt(iinv.remax_pp);
-
 	std::cout << "iinv.remax_up:" << iinv.remax_up << std::endl;
 	std::cout << "iinv.remax_vp:" << iinv.remax_vp << std::endl;
 	std::cout << "iinv.remax_wp:" << iinv.remax_wp << std::endl;
 	std::cout << "iinv.remax_pp:" << iinv.remax_pp << std::endl;
 
-
 	ofstream fileres_up("residual_up.txt", ios::app);
 	//fileres_p << "residual_p:" <<residual_p << endl;
 	fileres_up << iinv.remax_up << endl;
 	fileres_up.close();
-
 
 	ofstream fileres_vp("residual_vp.txt", ios::app);
 	//fileres_p << "residual_p:" <<residual_p << endl;

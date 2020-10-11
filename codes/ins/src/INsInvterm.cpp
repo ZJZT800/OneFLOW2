@@ -113,8 +113,8 @@ void INsInvterm::CmpINsinvTerm()
 	Real clr = MAX(0, iinv.fq[ug.fId]);   
 	Real crl = clr- iinv.fq[ug.fId];
 
-	iinv.ai[ug.fId][0] += crl;
-	iinv.ai[ug.fId][1] += clr;
+	iinv.ai[ug.fId][0] = crl;
+	iinv.ai[ug.fId][1] = clr;
 
 }
 
@@ -265,34 +265,35 @@ void INsInvterm::CmpINsBcFaceflux(RealField& dpdx, RealField& dpdy, RealField& d
 void INsInvterm::CmpINsFaceCorrectPresscoef()
 {
 
-	Real Sf1 = iinv.Vdvu[ug.fId] * (*ug.a1)[ug.fId];
-	Real Sf2 = iinv.Vdvv[ug.fId] * (*ug.a2)[ug.fId];
-	Real Sf3 = iinv.Vdvw[ug.fId] * (*ug.a3)[ug.fId];
+	Real Sf1 = 0.5*(iinv.VdU[ug.lc]+ iinv.VdU[ug.rc]) * (*ug.a1)[ug.fId] * (*ug.a1)[ug.fId];
+	Real Sf2 = 0.5*(iinv.VdV[ug.lc] + iinv.VdV[ug.rc]) * (*ug.a2)[ug.fId] * (*ug.a2)[ug.fId];
+	Real Sf3 = 0.5*(iinv.VdW[ug.lc] + iinv.VdW[ug.rc]) * (*ug.a3)[ug.fId] * (*ug.a3)[ug.fId];
 	
 	Real r2ldx = (*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc];
 	Real r2ldy = (*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc];
 	Real r2ldz = (*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc];
 
-	Real dist = r2ldx * Sf1 + r2ldy * Sf2 + r2ldz * Sf3;
+	Real dist = r2ldx * (*ug.a1)[ug.fId] + r2ldy * (*ug.a2)[ug.fId] + r2ldz * (*ug.a2)[ug.fId];
 
-	Real Sfarea = Sf1 * Sf1 + Sf2 * Sf2 + Sf3 * Sf3;
+	Real Sfarea =Sf1+ Sf2+ Sf3;
 
 	iinv.rf = (*uinsf.q)[IIDX::IIR][ug.lc];
 
-	iinv.ajp[ug.fId][0] += iinv.rf * Sfarea / dist;
-	iinv.ajp[ug.fId][1] += iinv.rf * Sfarea / dist;
+	iinv.duf[ug.fId] = iinv.rf * Sfarea / dist;
 
-	iinv.spp[ug.lc] += iinv.ajp[ug.fId][0];
-	iinv.spp[ug.rc] += iinv.ajp[ug.fId][1];
+	iinv.ai[ug.fId][0] = iinv.duf[ug.fId];
+	iinv.ai[ug.fId][1] = iinv.duf[ug.fId];
+
+	iinv.spp[ug.lc] += iinv.ai[ug.fId][0];
+	iinv.spp[ug.rc] += iinv.ai[ug.fId][1];
 
 	iinv.bp[ug.lc] -= iinv.fq[ug.fId];
 	iinv.bp[ug.rc] += iinv.fq[ug.fId];
-
 }
 
 void INsInvterm::CmpINsBcFaceCorrectPresscoef()
 {
-	iinv.bp[ug.lc] = iinv.bp[ug.lc] - iinv.fq[ug.fId];
+	iinv.bp[ug.lc] -= iinv.fq[ug.fId];
 
 	/*int bcType = ug.bcRecord->bcType[ug.fId];
 
