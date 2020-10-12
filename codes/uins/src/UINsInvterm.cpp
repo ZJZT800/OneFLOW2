@@ -705,14 +705,14 @@ void UINsInvterm::CmpPressCorrectEqu()
 	//double rhs_p = 1e-5;
 	//iinv.res_p = 1;
 	int iter = 0;
-	int maxiter = 10;
+	int maxiter = 1;
 	iinv.mp = 0;
 	iinv.pp = 0;
 	//while (iinv.res_p >= rhs_p)
 	while (iter < maxiter)
 	{
-		iinv.res_p = 0.0;
-
+		//iinv.res_p = 0.0;
+		iter++;
 		for (int cId = 0; cId < ug.nCell; ++cId)
 		{
 			ug.cId = cId;
