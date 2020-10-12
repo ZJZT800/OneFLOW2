@@ -269,6 +269,7 @@ void UINsInvterm::Init()
 	iinv.duf.resize(ug.nFace);
 	iinv.spc.resize(ug.nTCell);
 	iinv.ai.resize(ug.nFace, 2);
+	iinv.ajp.resize(ug.nFace, 2);
 	//iinv.biu.resize(ug.nFace,2);
 	//iinv.biv.resize(ug.nFace,2);
 	//iinv.biw.resize(ug.nFace,2);
@@ -321,7 +322,7 @@ void UINsInvterm::Init()
 	iinv.uuf.resize(ug.nBFace);
 	iinv.vvf.resize(ug.nBFace);
 	iinv.wwf.resize(ug.nBFace);
-
+	iinv.dup.resize(ug.nCell);
 
 	iinv.ai1 = 0;
 	iinv.ai2 = 0;
@@ -657,6 +658,18 @@ void UINsInvterm::CmpCorrectPresscoef()
 	//this->CmpNewMomCoe();
 	InitPresscoef();
 
+	for (int cId = 0; cId < ug.nCell; cId++)
+	{
+		iinv.dup[cId] = iinv.spc[cId];
+	}
+	for (int fId = ug.nBFace; fId < ug.nFace; fId++)
+	{
+		int lc = (*ug.lcf)[fId];
+		int rc = (*ug.rcf)[fId];
+		iinv.dup[lc] = iinv.dup[lc] - iinv.ai[fId][0];
+		iinv.dup[rc] = iinv.dup[rc] - iinv.ai[fId][1];
+	}
+
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
 		ug.fId = fId;
@@ -696,7 +709,7 @@ void UINsInvterm::maxmin(RealField& a, Real& max_a, Real& min_a)
 
 void UINsInvterm::CmpPressCorrectEqu()
 {
-	this->SolveEquation(iinv.spp, iinv.ai, iinv.bp, iinv.pp, iinv.res_p);
+	this->SolveEquation(iinv.spp, iinv.ajp, iinv.bp, iinv.pp, iinv.res_p);
 	
 	Real max_pp = 0;
 	Real min_pp = 0;
@@ -741,7 +754,9 @@ void UINsInvterm::CmpPressCorrectEqu()
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
-		(*uinsf.q)[IIDX::IIP][cId] = (*uinsf.q)[IIDX::IIP][cId] + 0.4 * (iinv.pp[cId]);
+		//(*uinsf.q)[IIDX::IIP][cId] = (*uinsf.q)[IIDX::IIP][cId] + 0.4 * (iinv.pp[cId]);
+		(*uinsf.q)[IIDX::IIP][cId] = (*uinsf.q)[IIDX::IIP][cId] + 0.4 * (iinv.pp[cId] - max_pp);
+
 	}
 
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
@@ -932,8 +947,29 @@ void UINsInvterm::CmpUpdateINsFaceflux()
 
 	iinv.rf = (*uinsf.q)[IIDX::IIR][ug.lc];*/
 
-	iinv.fux = iinv.duf[ug.fId] * (iinv.pp[ug.lc] - iinv.pp[ug.rc]);
+	/*iinv.fux = iinv.duf[ug.fId] * (iinv.pp[ug.lc] - iinv.pp[ug.rc]);
+	iinv.fq[ug.fId] = iinv.fq[ug.fId] + iinv.fux;*/
+
+	Real dupf, dvpf, dwpf;
+	dupf = 0.5 * ((*ug.cvol1)[ug.lc] / iinv.dup[ug.lc] + (*ug.cvol1)[ug.lc] / iinv.dup[ug.rc]);
+	dvpf = 0.5 * ((*ug.cvol1)[ug.lc] / iinv.dup[ug.lc] + (*ug.cvol1)[ug.lc] / iinv.dup[ug.rc]);
+	dwpf = 0.5 * ((*ug.cvol1)[ug.lc] / iinv.dup[ug.lc] + (*ug.cvol1)[ug.lc] / iinv.dup[ug.rc]);
+	Real Df1 = dupf * (*ug.a1)[ug.fId];
+	Real Df2 = dvpf * (*ug.a2)[ug.fId];
+	Real Df3 = dwpf * (*ug.a3)[ug.fId];
+
+	Real l2rdx = (*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc];
+	Real l2rdy = (*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc];
+	Real l2rdz = (*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc];
+
+	Real Df = Df1 * (*ug.a1)[ug.fId] + Df2 * (*ug.a2)[ug.fId] + Df3 * (*ug.a3)[ug.fId];
+
+	Real dist = l2rdx * (*ug.a1)[ug.fId] + l2rdy * (*ug.a2)[ug.fId] + l2rdz * (*ug.a3)[ug.fId];
+
+	iinv.rf = (*ug.fl)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.lc] + (1 - (*ug.fl)[ug.fId]) * (*uinsf.q)[IIDX::IIR][ug.rc];
+	iinv.fux = iinv.rf * Df / dist * (iinv.pp[ug.lc] - iinv.pp[ug.rc]);
 	iinv.fq[ug.fId] = iinv.fq[ug.fId] + iinv.fux;
+
 }
 
 void UINsInvterm::CmpDun()
@@ -1023,6 +1059,13 @@ void UINsInvterm::UpdateSpeed()
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
+		(*uinsf.q)[IIDX::IIU][cId] -= (*ug.cvol1)[cId] / iinv.dup[cId] * dqqdx[cId];
+		(*uinsf.q)[IIDX::IIV][cId] -= (*ug.cvol1)[cId] / iinv.dup[cId] * dqqdy[cId];
+		(*uinsf.q)[IIDX::IIW][cId] -= (*ug.cvol1)[cId] / iinv.dup[cId] * dqqdz[cId];
+	}
+
+	/*for (int cId = 0; cId < ug.nCell; ++cId)
+	{
 		iinv.uu[cId] = iinv.VdU[cId] * dqqdx[cId]; 
 		iinv.vv[cId] = iinv.VdV[cId] * dqqdy[cId];
 		iinv.ww[cId] = iinv.VdW[cId] * dqqdz[cId];
@@ -1031,7 +1074,7 @@ void UINsInvterm::UpdateSpeed()
 		(*uinsf.q)[IIDX::IIV][cId] -= iinv.vv[cId];
 		(*uinsf.q)[IIDX::IIW][cId] -= iinv.ww[cId];
 
-	}
+	}*/
 
 	
 }
