@@ -408,16 +408,11 @@ void UINsVisterm::CmpUnsteadcoff()
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
-		ug.cId = cId;
+		iinv.spc[cId] += (*ug.cvol)[cId] * (*uinsf.q)[IIDX::IIR][cId] / iinv.timestep;  
 
-		iinv.spt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] / iinv.timestep;  
-
-		iinv.but[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.u0[ug.cId] / iinv.timestep;
-		iinv.bvt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.v0[ug.cId] / iinv.timestep;
-		iinv.bwt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * iinv.w0[ug.cId] / iinv.timestep;
-		//iinv.but[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * (*uinsf.q)[IIDX::IIU][ug.cId] / iinv.timestep;
-		//iinv.bvt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * (*uinsf.q)[IIDX::IIV][ug.cId] / iinv.timestep;
-		//iinv.bwt[ug.cId] = (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * (*uinsf.q)[IIDX::IIW][ug.cId] / iinv.timestep;
+		iinv.buc[cId] += (*ug.cvol)[cId] * (*uinsf.q)[IIDX::IIR][cId] * iinv.u0[cId] / iinv.timestep;
+		iinv.bvc[cId] += (*ug.cvol)[cId] * (*uinsf.q)[IIDX::IIR][cId] * iinv.v0[cId] / iinv.timestep;
+		iinv.bwc[cId] += (*ug.cvol)[cId] * (*uinsf.q)[IIDX::IIR][cId] * iinv.w0[cId] / iinv.timestep;
 	}
 
 }
@@ -435,10 +430,10 @@ void UINsVisterm::CmpINsSrc()
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		Real vol = (*ug.cvol)[cId];
-		iinv.buc[cId] = iinv.buc[cId] - vol * dpdx[cId]+ iinv.but[ug.cId];
-		iinv.bvc[cId] = iinv.bvc[cId] - vol * dpdy[cId]+iinv.bvt[ug.cId];
-		iinv.bwc[cId] = iinv.bwc[cId] - vol * dpdz[cId]+iinv.bwt[ug.cId];
-		iinv.spc[cId] += iinv.spt[cId];
+		iinv.buc[cId] = iinv.buc[cId] - vol * dpdx[cId];
+		iinv.bvc[cId] = iinv.bvc[cId] - vol * dpdy[cId];
+		iinv.bwc[cId] = iinv.bwc[cId] - vol * dpdz[cId];
+		//iinv.spc[cId] += iinv.spt[cId];
 	}
 
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)

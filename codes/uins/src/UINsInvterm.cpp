@@ -315,14 +315,14 @@ void UINsInvterm::UpdateBoundary()
 
 void UINsInvterm::CmpInvMassFlux()
 {
-	//for (int fId = 0; fId < ug.nBFace; fId++)
-	//{
-	//	ug.fId = fId;
-	//	ug.lc = (*ug.lcf)[fId];
+	/*for (int fId = 0; fId < ug.nBFace; fId++)
+	{
+		ug.fId = fId;
+		ug.lc = (*ug.lcf)[fId];
 
-	//	this->CmpINsBcinvTerm();
+		this->CmpINsBcinvTerm();
 
-	//}
+	}*/
 
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
@@ -419,7 +419,7 @@ void UINsInvterm::SolveEquation(RealField& sp, RealField2D& ai, RealField& b, Re
 	Rank.NUMBER += ug.nCell;
 	Rank.Init();
 
-	//ofstream file("CoeMatrix.txt", ios::app);
+	ofstream file("CoeMatrix.txt", ios::app);
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		Rank.TempIA[0] = 0;
@@ -439,14 +439,14 @@ void UINsInvterm::SolveEquation(RealField& sp, RealField2D& ai, RealField& b, Re
 				{
 					Rank.TempA[n + tempCout] = -ai[fId][0];
 					Rank.TempJA[n + tempCout] = rc;
-					//file << cId + 1 << "\t" << rc + 1 << "\t" << setprecision(18) << Rank.TempA[n + tempCout] << std::endl;
+					file << cId + 1 << "\t" << rc + 1 << "\t" << setprecision(18) << Rank.TempA[n + tempCout] << std::endl;
 					tempCout += 1;
 				}
 				else if (cId == rc)
 				{
 					Rank.TempA[n + tempCout] = -ai[fId][1];
 					Rank.TempJA[n + tempCout] = lc;
-					//file << cId + 1 << "\t" << lc + 1 << "\t" << setprecision(18) << Rank.TempA[n + tempCout] << std::endl;
+					file << cId + 1 << "\t" << lc + 1 << "\t" << setprecision(18) << Rank.TempA[n + tempCout] << std::endl;
 					tempCout += 1;
 				}
 			}
@@ -459,24 +459,24 @@ void UINsInvterm::SolveEquation(RealField& sp, RealField2D& ai, RealField& b, Re
 		int fj = dj[cId];
 		Rank.TempA[n + fj] = sp[cId];
 		Rank.TempJA[n + fj] = cId;
-		//file << cId + 1 << "\t" << cId + 1 << "\t" << setprecision(18) << sp[cId] << std::endl;
+		file << cId + 1 << "\t" << cId + 1 << "\t" << setprecision(18) << sp[cId] << std::endl;
 	}
-	//file.close();
-	//ofstream RHS("rhs.txt", ios::app);
+	file.close();
+	ofstream RHS("rhs.txt", ios::app);
 	for (int cId = 0; cId < ug.nCell; cId++)
 	{
 		Rank.TempB[cId][0] = b[cId];
-		//RHS << setprecision(18) << Rank.TempB[cId][0] << endl;
+		RHS << setprecision(18) << Rank.TempB[cId][0] << endl;
 	}
-	//RHS.close();
+	RHS.close();
 	bgx.BGMRES();
-	//ofstream X("x.txt", ios::app);
+	ofstream X("x.txt", ios::app);
 	for (int cId = 0; cId < ug.nCell; cId++)
 	{
 		x[cId] = Rank.TempX[cId][0];
-		//X << x[cId] << endl;
+		X << setprecision(18) << x[cId] << endl;
 	}
-	//X.close();
+	X.close();
 	res = Rank.residual;
 
 	Rank.Deallocate();

@@ -202,7 +202,7 @@ void INSCmpGamaT(int flag)
 
 void Rhs::FieldInit()
 {
-	INsPreflux();      //流场变量初始化
+	INsPreflux();      
 }
 
 void Rhs::TrainsAssign()
@@ -299,7 +299,7 @@ void DifEqua()
 void Relaxation()
 {
 	UINsVisterm* uINsVisterm = new UINsVisterm();
-	uINsVisterm->RelaxMom(0.8);
+	uINsVisterm->RelaxMom(0.5);
 	delete uINsVisterm;
 }
 

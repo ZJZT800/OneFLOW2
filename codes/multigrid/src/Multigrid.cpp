@@ -116,48 +116,39 @@ void MG::Run()
 	if (startStrategy == 2|| startStrategy == 3)
 	{
 
-		double rhs_V = 1e-8;
-		double rhs_u = 1e-8;
-		double rhs_v = 1e-8;
-		double rhs_w = 1e-8;
+		double rhs_V = 1e-5;
+		double rhs_u = 1e-5;
+		double rhs_v = 1e-5;
+		double rhs_w = 1e-5;
 
 		int maxIterSteps = GetDataValue< int >("maxIterSteps");
+        int maxSteps = GetDataValue< int >("maxSteps");
 
-		iinv.remax_V = 1;
-
-		iinv.remax_up = 1;
-		iinv.remax_vp = 1;
-		iinv.remax_wp = 1;
-
-			//while (iinv.remax_V > rhs_V )
 		TimeSpan * timeSpan = new TimeSpan();
         Rhs* uINsSolver = new Rhs;
         uINsSolver->FieldInit();
         delete uINsSolver;
 		while (SimuIterState::Running())
 		{
-			while (iinv.remax_up > rhs_u || iinv.remax_vp > rhs_v || iinv.remax_wp > rhs_w)
+            iinv.remax_V = 1;
+            iinv.remax_up = 1;
+            iinv.remax_vp = 1;
+            iinv.remax_wp = 1;
+            ctrl.currTime += ctrl.pdt;
+            Iteration::outerSteps++;
+            Iteration::innerSteps = 0;
+            Rhs* uINsSolver = new Rhs;
+            uINsSolver->TrainsAssign();
+            delete uINsSolver;
+
+			while ((iinv.remax_up > rhs_u || iinv.remax_vp > rhs_v || iinv.remax_wp > rhs_w) && (Iteration::innerSteps < maxIterSteps))
 			{
-
-				//if (Iteration::innerSteps >= maxIterSteps) break;
-                if (Iteration::innerSteps >= maxIterSteps)
-                {
-                    ctrl.currTime += ctrl.pdt;
-                    Iteration::outerSteps++;
-                    Rhs* uINsSolver = new Rhs;
-                    uINsSolver->TrainsAssign();
-                    delete uINsSolver;
-                }
-				//ctrl.currTime += ctrl.pdt;
-
-				//Iteration::outerSteps++;
 				Iteration::innerSteps++;
 
 				this->SolveInnerIter();
-
 			}
-			this->OuterProcess(timeSpan);
 		}
+        //this->OuterProcess(timeSpan);
 		delete timeSpan;
 	}
 
