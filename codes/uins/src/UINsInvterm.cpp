@@ -658,7 +658,7 @@ void UINsInvterm::CmpCorrectPresscoef()
 	//this->CmpNewMomCoe();
 	InitPresscoef();
 
-	for (int cId = 0; cId < ug.nCell; cId++)
+	/*for (int cId = 0; cId < ug.nCell; cId++)
 	{
 		iinv.dup[cId] = iinv.spc[cId];
 	}
@@ -668,7 +668,7 @@ void UINsInvterm::CmpCorrectPresscoef()
 		int rc = (*ug.rcf)[fId];
 		iinv.dup[lc] = iinv.dup[lc] - iinv.ai[fId][0];
 		iinv.dup[rc] = iinv.dup[rc] - iinv.ai[fId][1];
-	}
+	}*/
 
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
@@ -754,8 +754,8 @@ void UINsInvterm::CmpPressCorrectEqu()
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
-		//(*uinsf.q)[IIDX::IIP][cId] = (*uinsf.q)[IIDX::IIP][cId] + 0.4 * (iinv.pp[cId]);
-		(*uinsf.q)[IIDX::IIP][cId] = (*uinsf.q)[IIDX::IIP][cId] + 0.4 * (iinv.pp[cId] - max_pp);
+		(*uinsf.q)[IIDX::IIP][cId] = (*uinsf.q)[IIDX::IIP][cId] + 0.4 * (iinv.pp[cId]);
+		//(*uinsf.q)[IIDX::IIP][cId] = (*uinsf.q)[IIDX::IIP][cId] + 0.4 * (iinv.pp[cId] - max_pp);
 
 	}
 
@@ -947,10 +947,10 @@ void UINsInvterm::CmpUpdateINsFaceflux()
 
 	iinv.rf = (*uinsf.q)[IIDX::IIR][ug.lc];*/
 
-	/*iinv.fux = iinv.duf[ug.fId] * (iinv.pp[ug.lc] - iinv.pp[ug.rc]);
-	iinv.fq[ug.fId] = iinv.fq[ug.fId] + iinv.fux;*/
+	iinv.fux = iinv.duf[ug.fId] * (iinv.pp[ug.lc] - iinv.pp[ug.rc]);
+	iinv.fq[ug.fId] = iinv.fq[ug.fId] + iinv.fux;
 
-	Real dupf, dvpf, dwpf;
+	/*Real dupf, dvpf, dwpf;
 	dupf = 0.5 * ((*ug.cvol1)[ug.lc] / iinv.dup[ug.lc] + (*ug.cvol1)[ug.lc] / iinv.dup[ug.rc]);
 	dvpf = 0.5 * ((*ug.cvol1)[ug.lc] / iinv.dup[ug.lc] + (*ug.cvol1)[ug.lc] / iinv.dup[ug.rc]);
 	dwpf = 0.5 * ((*ug.cvol1)[ug.lc] / iinv.dup[ug.lc] + (*ug.cvol1)[ug.lc] / iinv.dup[ug.rc]);
@@ -968,7 +968,7 @@ void UINsInvterm::CmpUpdateINsFaceflux()
 
 	iinv.rf = (*ug.fl)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.lc] + (1 - (*ug.fl)[ug.fId]) * (*uinsf.q)[IIDX::IIR][ug.rc];
 	iinv.fux = iinv.rf * Df / dist * (iinv.pp[ug.lc] - iinv.pp[ug.rc]);
-	iinv.fq[ug.fId] = iinv.fq[ug.fId] + iinv.fux;
+	iinv.fq[ug.fId] = iinv.fq[ug.fId] + iinv.fux;*/
 
 }
 
@@ -1057,14 +1057,14 @@ void UINsInvterm::UpdateSpeed()
 	dqqdz.resize(ug.nCell);
 	ONEFLOW::CmpINsGrad(iinv.ppf, dqqdx, dqqdy, dqqdz);
 
-	for (int cId = 0; cId < ug.nCell; ++cId)
+	/*for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		(*uinsf.q)[IIDX::IIU][cId] -= (*ug.cvol1)[cId] / iinv.dup[cId] * dqqdx[cId];
 		(*uinsf.q)[IIDX::IIV][cId] -= (*ug.cvol1)[cId] / iinv.dup[cId] * dqqdy[cId];
 		(*uinsf.q)[IIDX::IIW][cId] -= (*ug.cvol1)[cId] / iinv.dup[cId] * dqqdz[cId];
-	}
+	}*/
 
-	/*for (int cId = 0; cId < ug.nCell; ++cId)
+	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		iinv.uu[cId] = iinv.VdU[cId] * dqqdx[cId]; 
 		iinv.vv[cId] = iinv.VdV[cId] * dqqdy[cId];
@@ -1074,9 +1074,7 @@ void UINsInvterm::UpdateSpeed()
 		(*uinsf.q)[IIDX::IIV][cId] -= iinv.vv[cId];
 		(*uinsf.q)[IIDX::IIW][cId] -= iinv.ww[cId];
 
-	}*/
-
-	
+	}
 }
 
 void UINsInvterm::UpdateINsRes()
