@@ -696,11 +696,62 @@ void UINsInvterm::maxmin(RealField& a, Real& max_a, Real& min_a)
 
 void UINsInvterm::CmpPressCorrectEqu()
 {
-	this->SolveEquation(iinv.spp, iinv.ai, iinv.bp, iinv.pp, iinv.res_p);
+	/*this->SolveEquation(iinv.spp, iinv.ai, iinv.bp, iinv.pp, iinv.res_p);
 	
 	Real max_pp = 0;
 	Real min_pp = 0;
-	this->maxmin(iinv.pp, max_pp, min_pp);
+	this->maxmin(iinv.pp, max_pp, min_pp);*/
+
+	//double rhs_p = 1e-5;
+	//iinv.res_p = 1;
+	int iter = 0;
+	int maxiter = 10;
+	iinv.mp = 0;
+	iinv.pp = 0;
+	//while (iinv.res_p >= rhs_p)
+	while (iter < maxiter)
+	{
+		iinv.res_p = 0.0;
+
+		for (int cId = 0; cId < ug.nCell; ++cId)
+		{
+			ug.cId = cId;
+
+			//iinv.ppd = iinv.pp[ug.cId];
+			int fn = (*ug.c2f)[ug.cId].size();
+			for (int iFace = 0; iFace < fn; ++iFace)
+			{
+				int fId = (*ug.c2f)[ug.cId][iFace];
+				ug.fId = fId;
+				if (ug.fId < ug.nBFace) continue;
+
+				ug.lc = (*ug.lcf)[ug.fId];
+				ug.rc = (*ug.rcf)[ug.fId];
+
+				if (fId > ug.nBFace - 1)
+				{
+					if (ug.cId == ug.lc)
+					{
+						iinv.mp[ug.cId] += -iinv.ai[ug.fId][0] * iinv.pp[ug.rc]; //高斯赛戴尔迭代求解时的相邻单元的值，矩阵法不需要
+					}
+					else if (ug.cId == ug.rc)
+					{
+						iinv.mp[ug.cId] += -iinv.ai[ug.fId][1] * iinv.pp[ug.lc];
+					}
+				}
+				else
+				{
+					continue;
+				}
+			}
+			iinv.pp[ug.cId] = (iinv.bp[ug.cId] + iinv.mp[ug.cId]) / (iinv.spp[ug.cId]); //压力修正值
+
+			//iinv.res_p = MAX(iinv.res_p, abs(iinv.ppd - iinv.pp[ug.cId]));
+
+		}
+
+	}
+
 
 	//边界单元
 	for (int fId = 0; fId < ug.nBFace; ++fId)
