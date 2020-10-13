@@ -299,7 +299,7 @@ void DifEqua()
 void Relaxation()
 {
 	UINsVisterm* uINsVisterm = new UINsVisterm();
-	uINsVisterm->RelaxMom(0.5);
+	uINsVisterm->RelaxMom(0.8);
 	delete uINsVisterm;
 }
 

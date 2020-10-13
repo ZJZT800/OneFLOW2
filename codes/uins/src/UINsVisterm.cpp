@@ -435,10 +435,10 @@ void UINsVisterm::CmpINsSrc()
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		Real vol = (*ug.cvol)[cId];
-		iinv.buc[cId] = iinv.buc[cId] - vol * dpdx[cId] + iinv.but[ug.cId];
-		iinv.bvc[cId] = iinv.bvc[cId] - vol * dpdy[cId] + iinv.bvt[ug.cId];
-		iinv.bwc[cId] = iinv.bwc[cId] - vol * dpdz[cId] + iinv.bwt[ug.cId];
-		iinv.spc[cId] += iinv.spt[cId];
+		iinv.buc[cId] = iinv.buc[cId] - vol * dpdx[cId];// +iinv.but[ug.cId];
+		iinv.bvc[cId] = iinv.bvc[cId] - vol * dpdy[cId];// +iinv.bvt[ug.cId];
+		iinv.bwc[cId] = iinv.bwc[cId] - vol * dpdz[cId];// +iinv.bwt[ug.cId];
+		iinv.spc[cId] += 0;//iinv.spt[cId];
 	}
 
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
@@ -476,9 +476,12 @@ void UINsVisterm::DifEquaMom()
 		iinv.buc[cId] -= iinv.spc[cId] * (*uinsf.q)[IIDX::IIU][cId];
 		iinv.bvc[cId] -= iinv.spc[cId] * (*uinsf.q)[IIDX::IIV][cId];
 		iinv.bwc[cId] -= iinv.spc[cId] * (*uinsf.q)[IIDX::IIW][cId];
-		iinv.remax_up = MAX(abs(iinv.remax_up), abs(iinv.buc[cId]));
+		/*iinv.remax_up = MAX(abs(iinv.remax_up), abs(iinv.buc[cId]));
 		iinv.remax_vp = MAX(abs(iinv.remax_vp), abs(iinv.bvc[cId]));
-		iinv.remax_wp = MAX(abs(iinv.remax_wp), abs(iinv.bwc[cId]));
+		iinv.remax_wp = MAX(abs(iinv.remax_wp), abs(iinv.bwc[cId]));*/
+		iinv.remax_up += abs(iinv.buc[cId]);
+		iinv.remax_vp += abs(iinv.bvc[cId]);
+		iinv.remax_wp += abs(iinv.bwc[cId]);
 	}
 }
 

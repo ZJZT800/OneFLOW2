@@ -667,7 +667,8 @@ void UINsInvterm::CmpCorrectPresscoef()
 
 	for (int cId = 0; cId < ug.nCell; cId++)
 	{
-		iinv.remax_pp = MAX(abs(iinv.remax_pp), abs(iinv.bp[cId]));
+		//iinv.remax_pp = MAX(abs(iinv.remax_pp), abs(iinv.bp[cId]));
+		iinv.remax_pp += abs(iinv.bp[cId]);
 	}
 }
 
