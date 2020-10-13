@@ -268,6 +268,40 @@ void UINsVisterm::CmpVisterm()
 
 	}
 
+
+	//Direchlet Boundary Condition
+	/*for (int ir = 0; ir < ug.nRegion; ++ir)
+	{
+		ug.ir = ir;
+		ug.bctype = ug.bcRecord->bcInfo->bcType[ir];
+		ug.nRBFace = ug.bcRecord->bcInfo->bcFace[ir].size();
+
+		for (int ibc = 0; ibc < ug.nRBFace; ++ibc)
+		{
+			ug.bcfId = ibc;
+
+			BcInfo* bcInfo = ug.bcRecord->bcInfo;
+
+			ug.fId = bcInfo->bcFace[ug.ir][ibc];
+			ug.bcr = bcInfo->bcRegion[ug.ir][ibc];
+			ug.bcdtkey = bcInfo->bcdtkey[ug.ir][ibc];
+
+			if (ug.bcr == -1) return; //interface
+			int dd = bcdata.r2d[ug.bcr];
+			if (dd != -1)
+			{
+				ug.bcdtkey = 1;
+				//inscom.bcflow = &bcdata.dataList[dd];
+			}
+			if (ug.bcdtkey == 1)
+			{
+				ug.lc = (*ug.lcf)[ug.fId];
+				this->CmpBcFaceVisterm(dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz);
+			}
+		}
+	}*/
+
+
 	//Direchlet Boundary Condition
 	for (int fId = 0; fId < ug.nBFace; ++fId)
 	{
