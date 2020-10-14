@@ -79,6 +79,44 @@ void CmpInsNodeVar(RealField & qNodeField, RealField & qField)
 
 	int nNode = grid->nNode;
 	int nFace = grid->nFace;
+	RealField nCount(nNode);
+	nCount = 0.0;
+	qNodeField = 0.0;
+
+	for (int iFace = 0; iFace < nFace; ++iFace)
+	{
+		int lc = faceTopo->lCell[iFace];
+		int rc = faceTopo->rCell[iFace];
+
+		int fnNode = f2c[iFace].size();
+		for (int iNode = 0; iNode < fnNode; ++iNode)
+		{
+			int nodeId = f2c[iFace][iNode];
+
+			qNodeField[nodeId] += qField[lc];
+			nCount[nodeId] += 1;
+
+			qNodeField[nodeId] += qField[rc];
+			nCount[nodeId] += 1;
+		}
+	}
+
+	FixBcNodeVar(qNodeField, qField, nCount, BC::SYMMETRY, true);
+	FixBcNodeVar(qNodeField, qField, nCount, BC::SOLID_SURFACE, true);
+	FixBcNodeVar(qNodeField, qField, nCount, BC::INTERFACE, true);
+	FixBcNodeVar(qNodeField, qField, nCount, BC::FARFIELD, true);
+
+	for (int iNode = 0; iNode < nNode; ++iNode)
+	{
+		qNodeField[iNode] /= (nCount[iNode] + SMALL);
+	}
+
+	/*UnsGrid * grid = Zone::GetUnsGrid();
+	FaceTopo * faceTopo = grid->faceTopo;
+	LinkField & f2c = faceTopo->f2n;
+
+	int nNode = grid->nNode;
+	int nFace = grid->nFace;
 	int nBFace = grid->nBFace;
 	RealField nCount(nNode);
 	nCount = 0.0;
@@ -136,7 +174,7 @@ void CmpInsNodeVar(RealField & qNodeField, RealField & qField)
 	for (int iNode = 0; iNode < nNode; ++iNode)
 	{
 		qNodeField[iNode] /= (nCount[iNode] + SMALL);
-	}
+	}*/
 }
 
 void CmpNodeVar( RealField & qNodeField, RealField & qField )
