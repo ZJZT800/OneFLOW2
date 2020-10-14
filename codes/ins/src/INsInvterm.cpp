@@ -175,11 +175,11 @@ void INsInvterm::CmpINsFaceflux(RealField & dpdx, RealField & dpdy, RealField & 
 	iinv.vf[ug.fId] = iinv.vl * (*ug.fl)[ug.fId] + iinv.vr * (*ug.fr)[ug.fId];
 	iinv.wf[ug.fId] = iinv.wl * (*ug.fl)[ug.fId] + iinv.wr * (*ug.fr)[ug.fId];
 	
-	iinv.rf = half * (iinv.rl + iinv.rr);
-	/*iinv.uf[ug.fId] += fdpdx * Df1; 
-	iinv.vf[ug.fId] += fdpdy * Df2;
-	iinv.wf[ug.fId] += fdpdz * Df3;*/
+	/*iinv.uf[ug.fId] += fdpdx * Df1;
+      iinv.vf[ug.fId] += fdpdy * Df2;
+      iinv.wf[ug.fId] += fdpdz * Df3;*/
 
+	iinv.rf = half * (iinv.rl + iinv.rr);
 	iinv.vnflow = (*ug.a1)[ug.fId] * (iinv.uf[ug.fId] + fdpdx * Df1) + (*ug.a2)[ug.fId] * (iinv.vf[ug.fId] + fdpdy * Df2) + (*ug.a3)[ug.fId] * (iinv.wf[ug.fId] + fdpdz * Df3) - (*ug.vfn)[ug.fId]-iinv.dun[ug.fId];
 	iinv.fq[ug.fId] = iinv.rf * iinv.vnflow;  
 
@@ -242,18 +242,18 @@ void INsInvterm::CmpINsBcFaceflux(RealField& dpdx, RealField& dpdy, RealField& d
 	{
 
 		iinv.rf = iinv.rl;    
-
-		//iinv.uf[ug.fId] = iinv.ul + iinv.Deun * iinv.Bpe;
-
-		//iinv.vf[ug.fId] = iinv.vl + iinv.Devn * iinv.Bpe;
-
-		//iinv.wf[ug.fId] = iinv.wl + iinv.Dewn * iinv.Bpe;
 		
 		iinv.uf[ug.cId] = iinv.ul;
 
 		iinv.vf[ug.cId] = iinv.vl;
 
 		iinv.wf[ug.cId] = iinv.wl;
+
+		//iinv.uf[ug.fId] = iinv.ul + iinv.Deun * iinv.Bpe;
+
+       //iinv.vf[ug.fId] = iinv.vl + iinv.Devn * iinv.Bpe;
+
+      //iinv.wf[ug.fId] = iinv.wl + iinv.Dewn * iinv.Bpe;
 
 		iinv.vnflow = (*ug.a1)[ug.fId] * iinv.uf[ug.fId] + (*ug.a2)[ug.fId] * iinv.vf[ug.fId] + (*ug.a3)[ug.fId] * iinv.wf[ug.fId] - (*ug.vfn)[ug.fId]-iinv.dun[ug.fId];
 
@@ -270,15 +270,15 @@ void INsInvterm::CmpINsFaceCorrectPresscoef()
 		Real Sf2 = duf * (*ug.a2)[ug.fId];
 		Real Sf3 = duf * (*ug.a3)[ug.fId];
 
-		Real r2ldx = (*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc];
-		Real r2ldy = (*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc];
-		Real r2ldz = (*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc];
+		Real l2rdx = (*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc];
+		Real l2rdy = (*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc];
+		Real l2rdz = (*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc];
 
-		Real dist = r2ldx * (*ug.a1)[ug.fId] + r2ldy * (*ug.a2)[ug.fId] + r2ldz * (*ug.a3)[ug.fId];
+		Real dist = l2rdx * (*ug.a1)[ug.fId] + l2rdy * (*ug.a2)[ug.fId] + l2rdz * (*ug.a3)[ug.fId];
 
 		Real Sfarea = Sf1 * (*ug.a1)[ug.fId] + Sf2 * (*ug.a2)[ug.fId] + Sf3 * (*ug.a3)[ug.fId];
 
-		iinv.rf = (*ug.fl)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.lc] + (1 - (*ug.fl)[ug.fId]) * (*uinsf.q)[IIDX::IIR][ug.rc];
+		iinv.rf = (*ug.fl)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.lc] + ((*ug.fr)[ug.fId]) * (*uinsf.q)[IIDX::IIR][ug.rc];
 
 		iinv.spp[ug.lc] += iinv.rf * Sfarea / dist;
 		iinv.spp[ug.rc] += iinv.rf * Sfarea / dist;

@@ -93,7 +93,7 @@ void UINsInvterm::BoundaryQlQrFixField()
 
 void UINsInvterm::CmpInvcoff()
 {
-	if (inscom.icmpInv == 0) return;
+	//if (inscom.icmpInv == 0) return;
 
 	this->CmpInvMassFlux(); 
 
@@ -119,13 +119,12 @@ void UINsInvterm::CmpINsPreflux()
 
 			for (int ibc = 0; ibc < ug.nRBFace; ++ibc)
 			{
-				ug.bcfId = ibc;
-
 				BcInfo* bcInfo = ug.bcRecord->bcInfo;
-
-				int fId = bcInfo->bcFace[ug.ir][ibc];  
+				int fId = bcInfo->bcFace[ug.ir][ibc];
 				ug.bcr = bcInfo->bcRegion[ug.ir][ibc];
 				ug.bcdtkey = bcInfo->bcdtkey[ug.ir][ibc];
+				ug.lc = (*ug.lcf)[ug.fId];
+				ug.rc = (*ug.rcf)[ug.fId];
 
 				if (ug.bcr == -1) return; //interface
 				int dd = bcdata.r2d[ug.bcr];
@@ -564,15 +563,13 @@ void UINsInvterm::CmpFaceflux()
 
 		for (int ibc = 0; ibc < ug.nRBFace; ++ibc)
 		{
-			ug.lc = (*ug.lcf)[ug.fId];
-			ug.rc = (*ug.rcf)[ug.fId];
-			ug.bcfId = ibc;
-
 			BcInfo* bcInfo = ug.bcRecord->bcInfo;
-
 			ug.fId = bcInfo->bcFace[ug.ir][ibc];
 			ug.bcr = bcInfo->bcRegion[ug.ir][ibc];
 			ug.bcdtkey = bcInfo->bcdtkey[ug.ir][ibc];
+			ug.lc = (*ug.lcf)[ug.fId];
+			ug.rc = (*ug.rcf)[ug.fId];
+			//ug.bcfId = ibc;
 
 			if (ug.bcr == -1) return; //interface
 			int dd = bcdata.r2d[ug.bcr];
@@ -788,6 +785,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 
 	for (int fId = 0; fId < ug.nBFace; fId++)
 	{
+		int lc = (*ug.lcf)[fId];
 		int rc = (*ug.rcf)[fId];
 		iinv.pf[fId] = iinv.pf[fId] + iinv.ppf[fId];
 		(*uinsf.q)[IIDX::IIP][rc] = iinv.pf[fId];
@@ -844,14 +842,12 @@ void UINsInvterm::UpdateFaceflux()
 
 		for (int ibc = 0; ibc < ug.nRBFace; ++ibc)
 		{
-			ug.bcfId = ibc;
-			ug.lc = (*ug.lcf)[ug.fId];
-			ug.rc = (*ug.rcf)[ug.fId];
 			BcInfo* bcInfo = ug.bcRecord->bcInfo;
-
 			ug.fId = bcInfo->bcFace[ug.ir][ibc];
 			ug.bcr = bcInfo->bcRegion[ug.ir][ibc];
 			ug.bcdtkey = bcInfo->bcdtkey[ug.ir][ibc];
+			ug.lc = (*ug.lcf)[ug.fId];
+			ug.rc = (*ug.rcf)[ug.fId];
 
 			if (ug.bcr == -1) return; //interface
 			int dd = bcdata.r2d[ug.bcr];

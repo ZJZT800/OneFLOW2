@@ -67,7 +67,7 @@ UINsVisterm::~UINsVisterm()
 
 void UINsVisterm::CmpViscoff()
 {
-	if (vis_model.vismodel == 0) return;
+	//if (vis_model.vismodel == 0) return;
 
 	this->CmpVisterm();
 
@@ -268,6 +268,18 @@ void UINsVisterm::CmpVisterm()
 
 	}
 
+	//Direchlet Boundary Condition
+	for (int fId = 0; fId < ug.nBFace; ++fId)
+	{
+		ug.fId = fId;
+
+		ug.lc = (*ug.lcf)[ug.fId];
+		ug.rc = (*ug.rcf)[ug.fId];
+
+		this->CmpBcFaceVisterm(dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz);
+
+	}
+
 
 	//Direchlet Boundary Condition
 	/*for (int ir = 0; ir < ug.nRegion; ++ir)
@@ -301,19 +313,6 @@ void UINsVisterm::CmpVisterm()
 		}
 	}*/
 
-
-	//Direchlet Boundary Condition
-	for (int fId = 0; fId < ug.nBFace; ++fId)
-	{
-		ug.fId = fId;
-
-		ug.lc = (*ug.lcf)[ug.fId];
-		ug.rc = (*ug.rcf)[ug.fId];
-
-		this->CmpBcFaceVisterm(dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz);
-
-	}
-
 }
 
 void UINsVisterm::CmpFaceVisterm(RealField & dudx, RealField & dudy, RealField & dudz, RealField & dvdx, RealField & dvdy, RealField & dvdz, RealField & dwdx, RealField& dwdy, RealField& dwdz)
@@ -323,9 +322,11 @@ void UINsVisterm::CmpFaceVisterm(RealField & dudx, RealField & dudy, RealField &
 	Real l2rdy = (*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc];
 	Real l2rdz = (*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc];
 
-	Real chalength = GetDataValue< Real >("chara_length");
+	//Real chalength = GetDataValue< Real >("chara_length");
 
-	Real vis = 1* chalength / inscom.reynolds;
+	//Real vis = 1* chalength / inscom.reynolds;
+	 
+	Real vis = GetDataValue< Real >("k_vis");
 
 	Real dist = (*ug.a1)[ug.fId] * l2rdx + (*ug.a2)[ug.fId] * l2rdy + (*ug.a3)[ug.fId] * l2rdz;
 
@@ -372,9 +373,11 @@ void UINsVisterm::CmpBcFaceVisterm(RealField& dudx, RealField& dudy, RealField& 
 
 	Fn = Fn / dist;
 
-	Real chalength = GetDataValue< Real >("chara_length");
+	//Real chalength = GetDataValue< Real >("chara_length");
 
-	Real vis = 1 * chalength / inscom.reynolds;
+	//Real vis = 1 * chalength / inscom.reynolds;
+
+	Real vis = GetDataValue< Real >("k_vis");
 
 	Real T1 = (*ug.a1)[ug.fId] - l2rdx * Fn;
 	Real T2 = (*ug.a2)[ug.fId] - l2rdy * Fn;
@@ -407,13 +410,12 @@ void UINsVisterm::CmpTranst()
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
-		ug.cId = cId;
 
-		iinv.spc[ug.cId] += (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] / timestep;  //矩阵对角线元素的非稳态项
+		iinv.spc[cId] += (*ug.cvol)[cId] * (*uinsf.q)[IIDX::IIR][cId] / timestep;  //矩阵对角线元素的非稳态项
 
-		iinv.buc[ug.cId] += (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * (*uinsf.q)[IIDX::IIU][ug.cId] / timestep; //源项的非稳态项
-		iinv.bvc[ug.cId] += (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * (*uinsf.q)[IIDX::IIV][ug.cId] / timestep;
-		iinv.bwc[ug.cId] += (*ug.cvol)[ug.cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * (*uinsf.q)[IIDX::IIW][ug.cId] / timestep;
+		iinv.buc[cId] += (*ug.cvol)[cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * (*uinsf.q)[IIDX::IIU][cId] / timestep; //源项的非稳态项
+		iinv.bvc[cId] += (*ug.cvol)[cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * (*uinsf.q)[IIDX::IIV][cId] / timestep;
+		iinv.bwc[cId] += (*ug.cvol)[cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * (*uinsf.q)[IIDX::IIW][cId] / timestep;
 	}
 
 }
