@@ -20,7 +20,7 @@ Poisson::Poisson(int number, int ranknumber)
 	A  = ArrayUtils<double>::onetensor(number);
 	IA = ArrayUtils<int>::onetensor(ranknumber + 1);
 	JA = ArrayUtils<int>::onetensor(number);
-	coeMatrix(A,IA,JA);  //按行存储方法
+	coeMatrix(A,IA,JA);  //CSR
 }
 
 
@@ -69,7 +69,6 @@ Solution Poisson::operator*(class Solution vector)
 				data = A[col];
 				tmp[i-1][j] += data * vector(b,j);
 				result.setEntry(tmp[i-1][j],i-1,j);
-				/*cout << tmp[a-1][j] << endl;*/
 			}
 		}
 	}

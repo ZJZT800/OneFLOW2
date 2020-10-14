@@ -196,45 +196,51 @@ void INSCmpGamaT(int flag)
 		{
 			Real & density = ( * uinsf.q )[ IIDX::IIR ][ cId ];
 			Real & pressure = ( * uinsf.q )[ IIDX::IIP ][ cId ];
-			//( * uinsf.gama )[ 0 ][ cId ] = inscom.gama_ref;
-			//( * uinsf.tempr )[ IIDX::IITT ][ cId ] = pressure / ( inscom.statecoef * density * oamw );
-			//(*uinsf.tempr)[IIDX::IITT][cId] = 0;
 		}
 	}
 }
 
 void Rhs::FieldInit()
 {
-	INsPreflux();      //流场变量初始化
+	INsPreflux();      
+}
+
+void Rhs::TrainsAssign()
+{
+	for (int cId = 0; cId < ug.nCell; cId++)
+	{
+		iinv.u0[cId] = (*uinsf.q)[IIDX::IIU][cId];
+		iinv.v0[cId] = (*uinsf.q)[IIDX::IIV][cId];
+		iinv.w0[cId] = (*uinsf.q)[IIDX::IIW][cId];
+	}
 }
 
 void Rhs::UINsSolver()
 {
 
-		INsCmpInv(); //计算对流项
+	    INsCmpVis();
 
-		INsCmpVis(); //计算扩散项
+		INsCmpInv(); 
 
-		int transt = ONEFLOW::GetDataValue< int >("transt");
-		if (transt != 0) INsTranst();  //瞬态项
+		//INsCmpUnstead(); 
 
-		INsCmpSrc(); //计算压力梯度和动量方程系数
+		INsCmpSrc(); 
 
-		DifEqua();     //和对流扩散项平级
+		DifEqua();    
 
 		Relaxation();
 
-		INsMomPre(); //求解动量方程
+		INsMomPre();
 
-		INsCmpFaceflux(); //计算界面流量
+		INsCmpFaceflux();
 
-		INsCorrectPresscoef(); //计算压力修正方程系数
+		INsCorrectPresscoef(); 
 
-		INsCmpPressCorrectEquandUpdatePress();  //需要解压力修正方程组，增设单元修正压力未知量
+		INsCmpPressCorrectEquandUpdatePress();  
 
-		INsCmpSpeedCorrectandUpdateSpeed();  //需要先增设界面修正速度未知量并进行求解,更新单元速度和压力
+		INsCmpSpeedCorrectandUpdateSpeed();  
 
-		INsUpdateFaceflux();   //更新界面流量
+		INsUpdateFaceflux();   
 
 		INsUpdateRes();
 
@@ -269,10 +275,10 @@ void INsCmpVis()
 	delete uINsVisterm;
 }
 
-void INsTranst()
+void INsCmpUnstead()
 {
 	UINsVisterm * uINsVisterm = new UINsVisterm();
-	uINsVisterm->CmpTranst();
+	uINsVisterm->CmpUnsteadcoff();
 	delete uINsVisterm;
 }
 
@@ -293,7 +299,7 @@ void DifEqua()
 void Relaxation()
 {
 	UINsVisterm* uINsVisterm = new UINsVisterm();
-	uINsVisterm->RelaxMom(0.8);
+	uINsVisterm->RelaxMom(0.5);
 	delete uINsVisterm;
 }
 
