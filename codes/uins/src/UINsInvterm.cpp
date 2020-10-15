@@ -367,8 +367,8 @@ void UINsInvterm::CmpInvMassFlux()
 	for(int fId = 0; fId < ug.nBFace; fId++)
 	{
 		ug.fId = fId;
-		ug.lc = (*ug.lcf)[fId];
-		ug.rc = (*ug.rcf)[fId];
+		ug.lc = (*ug.lcf)[ug.fId];
+		ug.rc = (*ug.rcf)[ug.fId];
 
 		this->CmpINsBcinvTerm();
 		
@@ -708,9 +708,9 @@ void UINsInvterm::CmpPressCorrectEqu()
 {
 	this->SolveEquation(iinv.spp, iinv.ajp, iinv.bp, iinv.pp, iinv.res_p);
 	
-	Real max_pp = 0;
+	/*Real max_pp = 0;
 	Real min_pp = 0;
-	this->maxmin(iinv.pp, max_pp, min_pp);
+	this->maxmin(iinv.pp, max_pp, min_pp);*/
 
 	//�߽絥Ԫ
 	for (int fId = 0; fId < ug.nBFace; ++fId)
@@ -785,9 +785,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 
 	for (int fId = 0; fId < ug.nBFace; fId++)
 	{
-		int lc = (*ug.lcf)[fId];
 		int rc = (*ug.rcf)[fId];
-		iinv.pf[fId] = iinv.pf[fId] + iinv.ppf[fId];
 		(*uinsf.q)[IIDX::IIP][rc] = iinv.pf[fId];
 	}
 }
@@ -949,7 +947,7 @@ void UINsInvterm::CmpUpdateINsFaceflux()
 
 	Real dist = l2rdx * (*ug.a1)[ug.fId] + l2rdy * (*ug.a2)[ug.fId] + l2rdz * (*ug.a3)[ug.fId];
 
-	iinv.rf = (*ug.fl)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.lc] + (1 - (*ug.fl)[ug.fId]) * (*uinsf.q)[IIDX::IIR][ug.rc];
+	iinv.rf = (*ug.fl)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.lc] + ((*ug.fr)[ug.fId]) * (*uinsf.q)[IIDX::IIR][ug.rc];
 	iinv.fux = iinv.rf * Df / dist * (iinv.pp[ug.lc] - iinv.pp[ug.rc]);
 	iinv.fq[ug.fId] = iinv.fq[ug.fId] + iinv.fux;
 
@@ -964,10 +962,8 @@ void UINsInvterm::CmpDun()
 		iinv.wf[ug.fId] = (*ug.fl)[ug.fId] * (*uinsf.q)[IIDX::IIW][ug.lc] + (*ug.fr)[ug.fId] * (*uinsf.q)[IIDX::IIW][ug.rc];
 		Real un = iinv.uf[ug.fId] * (*ug.a1)[ug.fId] + iinv.vf[ug.fId] * (*ug.a2)[ug.fId] + iinv.wf[ug.fId] * (*ug.a3)[ug.fId];
 		
-		/*iinv.rf = (*uinsf.q)[IIDX::IIR][ug.lc];
-		iinv.dun[ug.fId] = iinv.fq[ug.fId] / (iinv.rf + SMALL) - un;*/
-
-		iinv.dun[ug.fId] = iinv.fq[ug.fId]  - un;
+		iinv.rf = (*ug.fl)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.lc]+ (*ug.fr)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.rc];
+		iinv.dun[ug.fId] = iinv.fq[ug.fId] / (iinv.rf + SMALL) - un;
 	}
 
 	else 
@@ -1026,9 +1022,9 @@ void UINsInvterm::CmpDun()
 		(*uinsf.q)[IIDX::IIV][ug.rc] = iinv.vf[ug.fId];
 		(*uinsf.q)[IIDX::IIW][ug.rc] = iinv.wf[ug.fId];
 
-		/*Real un = iinv.uf[ug.fId] * (*ug.a1)[ug.fId] + iinv.vf[ug.fId] * (*ug.a2)[ug.fId] + iinv.wf[ug.fId] * (*ug.a3)[ug.fId];
+		Real un = iinv.uf[ug.fId] * (*ug.a1)[ug.fId] + iinv.vf[ug.fId] * (*ug.a2)[ug.fId] + iinv.wf[ug.fId] * (*ug.a3)[ug.fId];
 		iinv.rf = (*uinsf.q)[IIDX::IIR][ug.lc];
-		iinv.dun[ug.fId] = iinv.fq[ug.fId] / (iinv.rf + SMALL) - un;*/
+		iinv.dun[ug.fId] = iinv.fq[ug.fId] / (iinv.rf + SMALL) - un;
 	}
 }
 
