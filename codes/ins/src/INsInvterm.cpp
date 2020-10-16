@@ -265,7 +265,7 @@ void INsInvterm::CmpINsBcFaceflux(RealField& dpdx, RealField& dpdy, RealField& d
 void INsInvterm::CmpINsFaceCorrectPresscoef()
 {
 		
-		Real duf = 0.5 * ((*ug.cvol1)[ug.lc] / iinv.dup[ug.lc] + (*ug.cvol1)[ug.rc] / iinv.dup[ug.rc]);
+		Real duf = (*ug.fl)[ug.fId] * ((*ug.cvol1)[ug.lc] / iinv.dup[ug.lc]) + (*ug.fr)[ug.fId] * ((*ug.cvol1)[ug.rc] / iinv.dup[ug.rc]);
 		Real Sf1 = duf * (*ug.a1)[ug.fId];
 		Real Sf2 = duf * (*ug.a2)[ug.fId];
 		Real Sf3 = duf * (*ug.a3)[ug.fId];

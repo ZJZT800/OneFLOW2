@@ -366,7 +366,6 @@ void UINsInvterm::CmpInvMassFlux()
 
 	for(int fId = 0; fId < ug.nBFace; fId++)
 	{
-		ug.fId = fId;
 		ug.lc = (*ug.lcf)[ug.fId];
 		ug.rc = (*ug.rcf)[ug.fId];
 
@@ -932,9 +931,9 @@ void UINsInvterm::CmpUpdateINsFaceflux()
 	iinv.fq[ug.fId] = iinv.fq[ug.fId] + iinv.fux;*/
 
 	Real dupf, dvpf, dwpf;
-	dupf = 0.5 * ((*ug.cvol1)[ug.lc] / iinv.dup[ug.lc] + (*ug.cvol1)[ug.lc] / iinv.dup[ug.rc]);
-	dvpf = 0.5 * ((*ug.cvol1)[ug.lc] / iinv.dup[ug.lc] + (*ug.cvol1)[ug.lc] / iinv.dup[ug.rc]);
-	dwpf = 0.5 * ((*ug.cvol1)[ug.lc] / iinv.dup[ug.lc] + (*ug.cvol1)[ug.lc] / iinv.dup[ug.rc]);
+	dupf = (*ug.fl)[ug.fId] * ((*ug.cvol1)[ug.lc] / iinv.dup[ug.lc]) + (*ug.fr)[ug.fId] * ((*ug.cvol1)[ug.lc] / iinv.dup[ug.rc]);
+	dvpf = (*ug.fl)[ug.fId] * ((*ug.cvol1)[ug.lc] / iinv.dup[ug.lc]) + (*ug.fr)[ug.fId] * ((*ug.cvol1)[ug.lc] / iinv.dup[ug.rc]);
+	dwpf = (*ug.fl)[ug.fId] * ((*ug.cvol1)[ug.lc] / iinv.dup[ug.lc]) + (*ug.fr)[ug.fId] * ((*ug.cvol1)[ug.lc] / iinv.dup[ug.rc]);
 	Real Df1 = dupf * (*ug.a1)[ug.fId];
 	Real Df2 = dvpf * (*ug.a2)[ug.fId];
 	Real Df3 = dwpf * (*ug.a3)[ug.fId];
