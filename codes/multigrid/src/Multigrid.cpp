@@ -116,65 +116,40 @@ void MG::Run()
 	if (startStrategy == 2|| startStrategy == 3)
 	{
 
-		double rhs_V = 1e-8;
-		double rhs_u = 1e-8;
-		double rhs_v = 1e-8;
-		double rhs_w = 1e-8;
+		double rhs_V = 1e-5;
+		double rhs_u = 1e-5;
+		double rhs_v = 1e-5;
+		double rhs_w = 1e-5;
 
-		
+		int maxIterSteps = GetDataValue< int >("maxIterSteps");
+        int maxSteps = GetDataValue< int >("maxSteps");
 
-		iinv.remax_V = 1;
-
-		iinv.remax_up = 1;
-		iinv.remax_vp = 1;
-		iinv.remax_wp = 1;
-
-		int transt = ONEFLOW::GetDataValue< int >("transt");
-		if(transt!=0)
+		TimeSpan * timeSpan = new TimeSpan();
+        Rhs* uINsSolver = new Rhs;
+        uINsSolver->FieldInit();
+        delete uINsSolver;
+		while (SimuIterState::Running())
 		{
-			TimeSpan * timeSpan = new TimeSpan();
-			while (SimuIterState::Running())
+            iinv.remax_V = 1;
+            iinv.remax_up = 1;
+            iinv.remax_vp = 1;
+            iinv.remax_wp = 1;
+            ctrl.currTime += ctrl.pdt;
+            Iteration::outerSteps++;
+            Iteration::innerSteps = 0;
+            Rhs* uINsSolver = new Rhs;
+            uINsSolver->TrainsAssign();
+            delete uINsSolver;
+
+			while ((iinv.remax_up > rhs_u || iinv.remax_vp > rhs_v || iinv.remax_wp > rhs_w) && (Iteration::innerSteps < maxIterSteps))
 			{
-				Iteration::outerSteps++;
-				ctrl.currTime += ctrl.pdt;
-
-				Rhs* uINsSolver = new Rhs;
-				uINsSolver->FieldInit();
-				delete uINsSolver;
-				int maxIterSteps = GetDataValue< int >("maxIterSteps");
-				while (iinv.remax_up > rhs_u || iinv.remax_vp > rhs_v || iinv.remax_wp > rhs_w)
-				{
-					if (Iteration::innerSteps >= maxIterSteps) break;
-
-					Iteration::innerSteps++;
-
-					this->SolveInnerIter();
-
-				}
-				this->OuterProcess(timeSpan);
-			}
-			delete timeSpan;
-		}
-		else
-		{
-			TimeSpan * timeSpan = new TimeSpan();
-			Rhs* uINsSolver = new Rhs;
-			uINsSolver->FieldInit();
-			delete uINsSolver;
-			int maxIterSteps = GetDataValue< int >("maxIterSteps");
-			while (iinv.remax_up > rhs_u || iinv.remax_vp > rhs_v || iinv.remax_wp > rhs_w)
-			{
-				if (Iteration::innerSteps >= maxIterSteps) break;
-
 				Iteration::innerSteps++;
 
 				this->SolveInnerIter();
-
 			}
-			this->OuterProcess(timeSpan);
-			delete timeSpan;
 		}
-
+        //this->OuterProcess(timeSpan);
+		delete timeSpan;
 	}
 
 	else
@@ -348,35 +323,38 @@ void MG::FastSolveFlowFieldByMultigridMethod( int gl )
 
 void MG::SolveMultigridFlowField( int gl )
 {
+	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
+	if (startStrategy == 2|| startStrategy == 3)
+	{
+		//this->MWrap(&MG::PreprocessMultigridFlowField, gl);
+		this->MWrap(&MG::PreRelaxationCycle, gl);
+		//this->FastSolveFlowFieldByMultigridMethod(gl);
+		//this->MWrap(&MG::PostRelaxationCycle, gl);
+		//this->MWrap(&MG::PostprocessMultigridFlowField, gl);
+	}
+	else
+	{
 		this->MWrap(&MG::PreprocessMultigridFlowField, gl);
 		this->MWrap(&MG::PreRelaxationCycle, gl);
 		this->FastSolveFlowFieldByMultigridMethod(gl);
 		this->MWrap(&MG::PostRelaxationCycle, gl);
 		this->MWrap(&MG::PostprocessMultigridFlowField, gl);
+	}
 }
 
 void MG::SolveInnerIter()
 {
-	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
-
-	if (startStrategy == 2 || startStrategy == 3)
+	/*if ( MG::iterMode == 0 )
 	{
-		Rhs* uINsSolver = new Rhs;
-		uINsSolver->UINsSolver();
-		delete uINsSolver;
+		this->WeakIter();
 	}
 	else
 	{
-		if (MG::iterMode == 0)
-		{
-			this->WeakIter();
-		}
-		else
-		{
-			this->StrongIter();
-		}
-	}
-
+		this->StrongIter();
+	}*/
+    Rhs* uINsSolver = new Rhs;
+    uINsSolver->UINsSolver();
+    delete uINsSolver;
     this->InnerProcess();
 }
 
@@ -402,11 +380,18 @@ void MG::WeakIter()
 
 void MG::StrongIter()
 {
-
+	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
+	if (startStrategy == 2|| startStrategy == 3)
+	{
+		//this->ZeroResidualsForAllSolvers();
+		this->SolveMultigridFlowField(0);
+	}
+	else
+	{
 		this->ZeroResidualsForAllSolvers();
 
 		this->SolveMultigridFlowField(0);
-
+	}
 }
 
 bool DoNotNeedMultigridMethod( int gl )
