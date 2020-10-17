@@ -1016,7 +1016,7 @@ void UINsInvterm::CmpDun()
 			iinv.vf[ug.fId] = iinv.vf[ug.fId] - iinv.dpdy[lc] * iinv.VdV[lc];
 			iinv.wf[ug.fId] = iinv.wf[ug.fId] - iinv.dpdz[lc] * iinv.VdW[lc];
 		}
-
+		(*uinsf.q)[IIDX::IIR][ug.rc] = iinv.rf;
 		(*uinsf.q)[IIDX::IIU][ug.rc] = iinv.uf[ug.fId];
 		(*uinsf.q)[IIDX::IIV][ug.rc] = iinv.vf[ug.fId];
 		(*uinsf.q)[IIDX::IIW][ug.rc] = iinv.wf[ug.fId];
