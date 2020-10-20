@@ -47,21 +47,21 @@ void UINsField::Init()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    q  = GetFieldPointer< MRField > ( grid, "q" );
+    q = GetFieldPointer< MRField >(grid, "q");
     //q1  = GetFieldPointer< MRField > ( grid, "q1" );
     //q2  = GetFieldPointer< MRField > ( grid, "q2" );
-	qf = GetFieldPointer< MRField >(grid, "qf");
-	dq = GetFieldPointer< MRField >(grid, "dq");
+    //qf = GetFieldPointer< MRField >(grid, "qf");
+    //dq = GetFieldPointer< MRField >(grid, "dq");
     //limiter  = GetFieldPointer< MRField > ( grid, "limiter" );
-    //gama  = GetFieldPointer< MRField > ( grid, "gama" );
-    dqdx  = GetFieldPointer< MRField > ( grid, "dqdx" );
-    dqdy  = GetFieldPointer< MRField > ( grid, "dqdy" );
-    dqdz  = GetFieldPointer< MRField > ( grid, "dqdz" );
+    gama  = GetFieldPointer< MRField > ( grid, "gama" );
+   // dqdx = GetFieldPointer< MRField >(grid, "dqdx");
+   // dqdy = GetFieldPointer< MRField >(grid, "dqdy");
+   // dqdz = GetFieldPointer< MRField >(grid, "dqdz");
 
-    dtdx  = GetFieldPointer< MRField > ( grid, "dtdx" );
-    dtdy  = GetFieldPointer< MRField > ( grid, "dtdy" );
-    dtdz  = GetFieldPointer< MRField > ( grid, "dtdz" );
-    bc_q    = GetFieldPointer< MRField > ( grid, "bc_q" );
+   // dtdx = GetFieldPointer< MRField >(grid, "dtdx");
+   // dtdy = GetFieldPointer< MRField >(grid, "dtdy");
+   // dtdz = GetFieldPointer< MRField >(grid, "dtdz");
+    bc_q = GetFieldPointer< MRField >(grid, "bc_q");
     //bcdqdx  = GetFieldPointer< MRField > ( grid, "bcdqdx" );
     //bcdqdy  = GetFieldPointer< MRField > ( grid, "bcdqdy" );
     //bcdqdz  = GetFieldPointer< MRField > ( grid, "bcdqdz" );
@@ -69,9 +69,9 @@ void UINsField::Init()
     //visl  = GetFieldPointer< MRField > ( grid, "visl" );
     //vist  = GetFieldPointer< MRField > ( grid, "vist" );
 
-    //tempr = GetFieldPointer< MRField >( grid, "tempr" );
+    tempr = GetFieldPointer< MRField >( grid, "tempr" );
 
-    timestep = GetFieldPointer< MRField >( grid, "timestep" );
+    timestep = GetFieldPointer< MRField >(grid, "timestep");
 
     //invsr = ONEFLOW::GetFieldPointer< MRField >( grid, "invsr" );
     //vissr = ONEFLOW::GetFieldPointer< MRField >( grid, "vissr" );

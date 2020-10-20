@@ -140,8 +140,8 @@ void UINsBcSolver::PrepareData()
         inscom.q2[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
     }
 
-    //inscom.gama1 = ( * uinsf.gama )[ 0 ][ ug.lc ];
-    //inscom.gama2 = ( * uinsf.gama )[ 0 ][ ug.lc ];
+    inscom.gama1 = ( * uinsf.gama )[ 0 ][ ug.lc ];
+    inscom.gama2 = ( * uinsf.gama )[ 0 ][ ug.lc ];
 
     gcom.xcc1 = ( * ug.xcc )[ ug.lc ];
     gcom.ycc1 = ( * ug.ycc )[ ug.lc ];
@@ -155,17 +155,17 @@ void UINsBcSolver::PrepareData()
     gcom.yfc =  ( * ug.yfc )[ ug.fId ];
     gcom.zfc =  ( * ug.zfc )[ ug.fId ];
 
-    //for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
-    //{
-    //    inscom.prims1[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
-    //    inscom.prims2[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
-    //}
+    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+    {
+        inscom.prims1[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
+        inscom.prims2[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
+    }
 
-    //for ( int iEqu = 0; iEqu < inscom.nTModel; ++ iEqu )
-    //{
-    //    inscom.ts1[ iEqu ] = ( * uinsf.tempr )[ iEqu ][ ug.lc ];
-    //    inscom.ts2[ iEqu ] = ( * uinsf.tempr )[ iEqu ][ ug.lc ];
-    //}
+    for ( int iEqu = 0; iEqu < inscom.nTModel; ++ iEqu )
+    {
+        inscom.ts1[ iEqu ] = ( * uinsf.tempr )[ iEqu ][ ug.lc ];
+        inscom.ts2[ iEqu ] = ( * uinsf.tempr )[ iEqu ][ ug.lc ];
+    }
 }
 
 EndNameSpace

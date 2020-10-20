@@ -58,7 +58,7 @@ void RegisterINsFunc()
 
 void INsInitFinal( StringField & data )
 {
-    INSCmpGamaT( F_INNER );
+    INSCmpGamaT( F_TOTAL );
     //ICmpLaminarViscosity( F_INNER );
     INsCmpBc();
     INSCmpGamaT( F_GHOST );
