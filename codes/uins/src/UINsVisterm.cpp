@@ -393,8 +393,6 @@ void UINsVisterm::CmpBcFaceVisterm(RealField& dudx, RealField& dudy, RealField& 
 	Real fdwdy = dwdy[ug.lc];
 	Real fdwdz = dwdz[ug.lc];
 
-	iinv.rf = iinv.rl;
-
 	iinv.spc[ug.lc] += vis * Fn;
 
 	iinv.buc[ug.lc] += vis * Fn * iinv.uf[ug.fId] + vis * (fdudx * T1 + fdudy * T2 + fdudz * T3);

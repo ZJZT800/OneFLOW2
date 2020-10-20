@@ -179,8 +179,8 @@ void INsInvterm::CmpINsFaceflux(RealField & dpdx, RealField & dpdy, RealField & 
       iinv.vf[ug.fId] += fdpdy * Df2;
       iinv.wf[ug.fId] += fdpdz * Df3;*/
 
-	iinv.rf = half * (iinv.rl + iinv.rr);
-	iinv.vnflow = (*ug.a1)[ug.fId] * (iinv.uf[ug.fId] + fdpdx * Df1) + (*ug.a2)[ug.fId] * (iinv.vf[ug.fId] + fdpdy * Df2) + (*ug.a3)[ug.fId] * (iinv.wf[ug.fId] + fdpdz * Df3) - (*ug.vfn)[ug.fId]-iinv.dun[ug.fId];
+	iinv.rf = (*ug.fl)[ug.fId] *iinv.rl + (*ug.fr)[ug.fId]*iinv.rr;
+	iinv.vnflow = (*ug.a1)[ug.fId] * (iinv.uf[ug.fId] + fdpdx * Df1) + (*ug.a2)[ug.fId] * (iinv.vf[ug.fId] + fdpdy * Df2) + (*ug.a3)[ug.fId] * (iinv.wf[ug.fId] + fdpdz * Df3) - (*ug.vfn)[ug.fId];// +iinv.dun[ug.fId];
 	iinv.fq[ug.fId] = iinv.rf * iinv.vnflow;  
 
 }
@@ -202,7 +202,7 @@ void INsInvterm::CmpINsBcFaceflux(RealField& dpdx, RealField& dpdy, RealField& d
 
 			iinv.wf[ug.fId] = (*ug.vfz)[ug.fId];
 
-			iinv.vnflow = (*ug.a1)[ug.fId] * iinv.uf[ug.fId] + (*ug.a2)[ug.fId] * iinv.vf[ug.fId] + (*ug.a3)[ug.fId] * iinv.wf[ug.fId] - (*ug.vfn)[ug.fId]-iinv.dun[ug.fId];
+			iinv.vnflow = (*ug.a1)[ug.fId] * iinv.uf[ug.fId] + (*ug.a2)[ug.fId] * iinv.vf[ug.fId] + (*ug.a3)[ug.fId] * iinv.wf[ug.fId] - (*ug.vfn)[ug.fId];// +iinv.dun[ug.fId];
 
 			iinv.fq[ug.fId] = iinv.rf * iinv.vnflow;
 		}
@@ -216,7 +216,7 @@ void INsInvterm::CmpINsBcFaceflux(RealField& dpdx, RealField& dpdy, RealField& d
 
 			iinv.wf[ug.fId] = (*inscom.bcflow)[IIDX::IIW];
 
-			iinv.vnflow = (*ug.a1)[ug.fId] * iinv.uf[ug.fId] + (*ug.a2)[ug.fId] * iinv.vf[ug.fId] + (*ug.a3)[ug.fId] * iinv.wf[ug.fId] - (*ug.vfn)[ug.fId]-iinv.dun[ug.fId];
+			iinv.vnflow = (*ug.a1)[ug.fId] * iinv.uf[ug.fId] + (*ug.a2)[ug.fId] * iinv.vf[ug.fId] + (*ug.a3)[ug.fId] * iinv.wf[ug.fId] - (*ug.vfn)[ug.fId];// +iinv.dun[ug.fId];
 
 			iinv.fq[ug.fId] = iinv.rf * iinv.vnflow;
 		}
@@ -233,7 +233,7 @@ void INsInvterm::CmpINsBcFaceflux(RealField& dpdx, RealField& dpdy, RealField& d
 
 		iinv.wf[ug.fId] = inscom.inflow[IIDX::IIW];
 
-		iinv.vnflow = (*ug.a1)[ug.fId] * iinv.uf[ug.fId] + (*ug.a2)[ug.fId] * iinv.vf[ug.fId] + (*ug.a3)[ug.fId] * iinv.wf[ug.fId] - (*ug.vfn)[ug.fId]-iinv.dun[ug.fId];
+		iinv.vnflow = (*ug.a1)[ug.fId] * iinv.uf[ug.fId] + (*ug.a2)[ug.fId] * iinv.vf[ug.fId] + (*ug.a3)[ug.fId] * iinv.wf[ug.fId] - (*ug.vfn)[ug.fId];// +iinv.dun[ug.fId];
 
 		iinv.fq[ug.fId] = iinv.rf * iinv.vnflow;
 	}
@@ -255,7 +255,7 @@ void INsInvterm::CmpINsBcFaceflux(RealField& dpdx, RealField& dpdy, RealField& d
 
       //iinv.wf[ug.fId] = iinv.wl + iinv.Dewn * iinv.Bpe;
 
-		iinv.vnflow = (*ug.a1)[ug.fId] * iinv.uf[ug.fId] + (*ug.a2)[ug.fId] * iinv.vf[ug.fId] + (*ug.a3)[ug.fId] * iinv.wf[ug.fId] - (*ug.vfn)[ug.fId]-iinv.dun[ug.fId];
+		iinv.vnflow = (*ug.a1)[ug.fId] * iinv.uf[ug.fId] + (*ug.a2)[ug.fId] * iinv.vf[ug.fId] + (*ug.a3)[ug.fId] * iinv.wf[ug.fId] - (*ug.vfn)[ug.fId];// +iinv.dun[ug.fId];
 
 		iinv.fq[ug.fId] = iinv.rf * iinv.vnflow;
 	}
@@ -265,7 +265,7 @@ void INsInvterm::CmpINsBcFaceflux(RealField& dpdx, RealField& dpdy, RealField& d
 void INsInvterm::CmpINsFaceCorrectPresscoef()
 {
 		
-		Real duf = 0.5 * ((*ug.cvol1)[ug.lc] / iinv.dup[ug.lc] + (*ug.cvol1)[ug.rc] / iinv.dup[ug.rc]);
+		Real duf = (*ug.fl)[ug.fId] * ((*ug.cvol1)[ug.lc] / iinv.dup[ug.lc]) + (*ug.fr)[ug.fId] * ((*ug.cvol1)[ug.rc] / iinv.dup[ug.rc]);
 		Real Sf1 = duf * (*ug.a1)[ug.fId];
 		Real Sf2 = duf * (*ug.a2)[ug.fId];
 		Real Sf3 = duf * (*ug.a3)[ug.fId];
