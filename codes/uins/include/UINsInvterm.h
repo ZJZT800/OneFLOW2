@@ -45,18 +45,17 @@ public:
 	void CmpINsTimestep();
 	void CmpINsPreflux();
 	void Init();
+    void UpdateBoundary();
     void CmpInvcoff();
-	void InitInv();
     void CmpInvMassFlux();
     void CmpInvFace();
     void CmpLimiter();
-	void SolveEquation(RealField& sp, RealField2D& ai, RealField& b, RealField& x, Real res);
+    void SolveEquation(RealField& sp, RealField2D& ai, RealField& b, RealField& x, Real res);
 	void CmpFaceflux();
 	void CmpINsMomRes();
 	void CmpINsPreRes();
 	void CmpCorrectPresscoef();
-	void InitPresscoef();
-	void maxmin(RealField& a, Real& max_a, Real& min_a);
+    void maxmin(RealField& a, Real& max_a, Real& min_a);
 	void CmpPressCorrectEqu();
 	void UpdateFaceflux();
 	void CmpUpdateINsFaceflux();
@@ -85,5 +84,4 @@ public:
     Real Number;
 };
 //void PrimToQ(RealField & prim, Real gama, RealField & q);
-extern UINsInvterm NonZero;
 EndNameSpace

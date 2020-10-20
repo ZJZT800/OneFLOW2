@@ -100,9 +100,9 @@ void UINsBcSolver::CmpBcRegion()
 
         this->PrepareData();
 
-        this->CmpFaceBc();
+        //this->CmpFaceBc();
 
-        this->UpdateBc();
+        //this->UpdateBc();
     }
 }
 
@@ -134,11 +134,11 @@ void UINsBcSolver::PrepareData()
     gcom.vfn   = ( * ug.vfn   )[ ug.fId ];
     gcom.farea = ( * ug.farea )[ ug.fId ];
 
-    for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
-    {
-        inscom.q1[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
-        inscom.q2[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
-    }
+    //for ( int iEqu = 0; iEqu < inscom.nTEqu; ++ iEqu )
+    //{
+    //    inscom.q1[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
+    //    inscom.q2[ iEqu ] = ( * uinsf.q )[ iEqu ][ ug.lc ];
+    //}
 
     //inscom.gama1 = ( * uinsf.gama )[ 0 ][ ug.lc ];
     //inscom.gama2 = ( * uinsf.gama )[ 0 ][ ug.lc ];
