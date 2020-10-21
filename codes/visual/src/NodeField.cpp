@@ -73,7 +73,74 @@ MRField * CreateNodeVar( RealField & qc )
 
 void CmpInsNodeVar(RealField & qNodeField, RealField & qField)
 {
+
 	UnsGrid * grid = Zone::GetUnsGrid();
+	FaceTopo * faceTopo = grid->faceTopo;
+	LinkField & f2c = faceTopo->f2n;
+
+	int nNode = grid->nNode;
+	int nFace = grid->nFace;
+	int nBFace = grid->nBFace;
+	RealField nCount(nNode);
+	nCount = 0.0;
+	qNodeField = 0.0;
+
+	for (int iFace = nBFace; iFace < nFace; ++iFace)
+	{
+		int lc = faceTopo->lCell[iFace];
+		int rc = faceTopo->rCell[iFace];
+
+		int fnNode = f2c[iFace].size();
+		for (int iNode = 0; iNode < fnNode; ++iNode)
+		{
+			int nodeId = f2c[iFace][iNode];
+
+			qNodeField[nodeId] += qField[lc];
+			nCount[nodeId] += 1;
+
+			qNodeField[nodeId] += qField[rc];
+			nCount[nodeId] += 1;
+		}
+	}
+
+	for (int iFace = 0; iFace < nBFace; ++iFace)
+	{
+		int fnNode = f2c[iFace].size();
+
+		for (int iNode = 0; iNode < fnNode; ++iNode)
+		{
+			int nodeId = f2c[iFace][iNode];
+
+			qNodeField[nodeId] = 0;
+			nCount[nodeId] = 0;
+		}
+	}
+
+
+	for (int iFace = 0; iFace < nBFace; ++iFace)
+	{
+		int fnNode = f2c[iFace].size();
+
+		for (int iNode = 0; iNode < fnNode; ++iNode)
+		{
+			int lc = faceTopo->lCell[iFace];
+			int rc = faceTopo->rCell[iFace];
+
+			int nodeId = f2c[iFace][iNode];
+
+			qNodeField[nodeId] += qField[rc];
+			nCount[nodeId] += 1;
+		}
+
+	}
+
+	for (int iNode = 0; iNode < nNode; ++iNode)
+	{
+		qNodeField[iNode] /= (nCount[iNode] + SMALL);
+	}
+
+
+	/*UnsGrid * grid = Zone::GetUnsGrid();
 	FaceTopo * faceTopo = grid->faceTopo;
 	LinkField & f2c = faceTopo->f2n;
 
@@ -109,7 +176,7 @@ void CmpInsNodeVar(RealField & qNodeField, RealField & qField)
 	for (int iNode = 0; iNode < nNode; ++iNode)
 	{
 		qNodeField[iNode] /= (nCount[iNode] + SMALL);
-	}
+	}*/
 }
 
 void CmpNodeVar( RealField & qNodeField, RealField & qField )
