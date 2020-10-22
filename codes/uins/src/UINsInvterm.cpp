@@ -123,8 +123,8 @@ void UINsInvterm::CmpINsPreflux()
 				int fId = bcInfo->bcFace[ug.ir][ibc];
 				ug.bcr = bcInfo->bcRegion[ug.ir][ibc];
 				ug.bcdtkey = bcInfo->bcdtkey[ug.ir][ibc];
-				ug.lc = (*ug.lcf)[ug.fId];
-				ug.rc = (*ug.rcf)[ug.fId];
+				ug.lc = (*ug.lcf)[fId];
+				ug.rc = (*ug.rcf)[fId];
 
 				if (ug.bcr == -1) return; //interface
 				int dd = bcdata.r2d[ug.bcr];
@@ -889,37 +889,26 @@ void UINsInvterm::CmpUpdateINsBcFaceflux()
 
 	else if (ug.bctype == BC::OUTFLOW)
 	{
-		Real Df1 = iinv.Vdvu[ug.fId] * (*ug.a1)[ug.fId];
-        Real Df2 = iinv.Vdvv[ug.fId] * (*ug.a2)[ug.fId];
-        Real Df3 = iinv.Vdvw[ug.fId] * (*ug.a3)[ug.fId];
+		Real dupf, dvpf, dwpf;
+		dupf = (*ug.cvol1)[ug.lc] / iinv.dup[ug.lc];
+		dvpf = (*ug.cvol1)[ug.lc] / iinv.dup[ug.lc];
+		dwpf = (*ug.cvol1)[ug.lc] / iinv.dup[ug.lc];
+		Real Df1 = dupf * (*ug.a1)[ug.fId];
+		Real Df2 = dvpf * (*ug.a2)[ug.fId];
+		Real Df3 = dwpf * (*ug.a3)[ug.fId];
 
-        Real l2rdx = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];
-        Real l2rdy = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
-        Real l2rdz = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
+		Real l2rdx = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];
+		Real l2rdy = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
+		Real l2rdz = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
 
-        Real Df = Df1 * (*ug.a1)[ug.fId] + Df2 * (*ug.a2)[ug.fId] + Df3 * (*ug.a3)[ug.fId];
+		Real Df = Df1 * (*ug.a1)[ug.fId] + Df2 * (*ug.a2)[ug.fId] + Df3 * (*ug.a3)[ug.fId];
 
-        Real dist = l2rdx * (*ug.a1)[ug.fId] + l2rdy * (*ug.a2)[ug.fId] + l2rdz * (*ug.a3)[ug.fId];
+		Real dist = l2rdx * (*ug.a1)[ug.fId] + l2rdy * (*ug.a2)[ug.fId] + l2rdz * (*ug.a3)[ug.fId];
 
-        iinv.rf = (*uinsf.q)[IIDX::IIR][ug.lc];
-		iinv.fux = iinv.rf * Df / dist * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]);
-		iinv.fq[ug.fId] = iinv.fq[ug.fId] - iinv.fux;
+		iinv.rf = (*uinsf.q)[IIDX::IIR][ug.lc];
+		iinv.fux = iinv.rf * Df / dist * (iinv.pp[ug.lc] - iinv.pf[ug.fId]);
+		iinv.fq[ug.fId] = iinv.fq[ug.fId] + iinv.fux;
 	}
-	//Real Df1 = iinv.Vdvu[ug.fId] * (*ug.a1)[ug.fId];
-	//Real Df2 = iinv.Vdvv[ug.fId] * (*ug.a2)[ug.fId];
-	//Real Df3 = iinv.Vdvw[ug.fId] * (*ug.a3)[ug.fId];
-
-	//Real l2rdx = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];
-	//Real l2rdy = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
-	//Real l2rdz = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
-
-	//Real Df = Df1 * (*ug.a1)[ug.fId] + Df2 * (*ug.a2)[ug.fId] + Df3 * (*ug.a3)[ug.fId];
-
-	//Real dist = l2rdx * (*ug.a1)[ug.fId] + l2rdy * (*ug.a2)[ug.fId] + l2rdz * (*ug.a3)[ug.fId];
-
-	//iinv.rf = (*uinsf.q)[IIDX::IIR][ug.lc];
-	//iinv.fux = iinv.rf * Df / dist * (iinv.pp[ug.lc] - iinv.ppf[ug.fId]);
-	//iinv.fq[ug.fId] = iinv.fq[ug.fId] - iinv.fux;
 
 }
 
