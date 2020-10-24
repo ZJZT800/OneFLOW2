@@ -61,7 +61,6 @@ public:
     RealField q, q1, q2;
     RealField dq;
     RealField flux, flux1, flux2;
-	RealField bc, aji, spj, Vdv, app, idx, aju, ajv, ajw, bpu, bpv, bpw, sppu, sppv, sppw, pp1, uu, vv, ww, ai1, ai2, aii1, aii2, akku1, akku2, akkv1, akkv2, akkw1, akkw2, aku1, aku2, akv1, akv2, akw1, akw2, f1, f2, uuj, vvj, wwj, mp, ppr, ppl, dqqdx, dqqdy, dqqdz, muc, mvc, mwc, sju, sjv, sjw, pp0, pc, bmu1, bmu2, bmv1, bmv2, bmw1, bmw2, Fnu, Fnv, Fnw, ukl, ukr, vkl, vkr, wkl, wkr, uml, umr, vml, vmr, wml, wmr, Pufd, Pvfd, Pwfd, Fpu, Fpv, Fpw, tux, tvy, twz, Fqu, Fqv, Fqw, FuT, FvT, FwT, PufdT, PvfdT, PwfdT, dsrl, elrn, visu, visv, visw, Fu1, Fv1, Fw1, bppu, bppv, bppw, ump, vmp, wmp, fqr, bi1, bi2, fq1, fq2, Bpe1, Bpe2, mu, mv, mw, mpp, mua, mva, mwa, mppa, res_V, res_pp, res_up, res_vp, res_wp, ufg, vfg, wfg, op, dj, uuf, vvf, wwf, up, vp, wp, duf;
 	RealField uf, vf, wf, pf;
 	RealField fq, VdU, Vdvu;
 	RealField spc, buc, bvc, bwc;
@@ -81,13 +80,13 @@ public:
 
     Real eig11, eig12, eig13;
     Real eig21, eig22, eig23;
-	Real vnrel, timestep, res_u, res_v, res_w, res_p, maxu, maxv, maxw, c2d, Fn1, Fn2, Fn3, lfdist, rfdist, ppd, vis, remax_V, remax_pp, remax_up, remax_vp, remax_wp, Puf, Pvf, Pwf, Pdu, Pdv, Pdw, PufT, PvfT, PwfT, Pud, Pvd, Pwd, Vau, Vav, Vaw, dist, Deun, Devn, Dewn, dlf, dfr, Bpe, value, Tqu, Tqv, Tqw, Tq, qout, f;
-    Real cl, cr, cm;
+
 public:
     Real rl, ul, vl, wl, pl, hl, el;
     Real rr, ur, vr, wr, pr, hr, er;
     Real rm, um, vm, wm, pm, hm, em;
 	Real rf, vnflow, fux;
+	Real remax_up, remax_vp, remax_wp, remax_pp, res_u, res_v, res_w, res_p;
 
 };
 

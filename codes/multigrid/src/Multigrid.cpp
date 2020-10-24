@@ -121,10 +121,6 @@ void MG::Run()
 		double rhs_v = 1e-8;
 		double rhs_w = 1e-8;
 
-		
-
-		iinv.remax_V = 1;
-
 		iinv.remax_up = 1;
 		iinv.remax_vp = 1;
 		iinv.remax_wp = 1;

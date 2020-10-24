@@ -240,14 +240,6 @@ void Rhs::UINsSolver()
 
 }
 
-void INsCmpTimestep()
-{
-	
-UINsInvterm * uINsInvterm = new UINsInvterm();
-	uINsInvterm->CmpINsTimestep();
-	delete uINsInvterm;
-}
-
 void INsPreflux()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();

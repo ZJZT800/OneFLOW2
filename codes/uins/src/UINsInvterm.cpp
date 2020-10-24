@@ -96,10 +96,6 @@ void UINsInvterm::CmpInvcoff()
 	this->CmpInvMassFlux(); 
 }
 
-void UINsInvterm::CmpINsTimestep()
-{
-	iinv.timestep = GetDataValue< Real >("global_dt");
-}
 
 void UINsInvterm::CmpINsPreflux()
 {
@@ -252,70 +248,21 @@ void UINsInvterm::Init()
 	iinv.bwc.resize(ug.nCell);
 	iinv.bp.resize(ug.nCell);
 	iinv.fq.resize(ug.nFace);
-	iinv.duf.resize(ug.nFace);
 	iinv.spc.resize(ug.nCell);
 	iinv.ai.resize(ug.nFace, 2);
 	iinv.ajp.resize(ug.nFace, 2);
 	iinv.spp.resize(ug.nCell);
 	iinv.pp.resize(ug.nCell);
-	iinv.uu.resize(ug.nCell);
-	iinv.vv.resize(ug.nCell);
-	iinv.ww.resize(ug.nCell);
-	iinv.uuj.resize(ug.nFace);
-	iinv.vvj.resize(ug.nFace);
-	iinv.wwj.resize(ug.nFace);
-	iinv.muc.resize(ug.nCell);
-	iinv.mvc.resize(ug.nCell);
-	iinv.mwc.resize(ug.nCell);
-	iinv.mp.resize(ug.nCell);
-	iinv.mu.resize(ug.nCell);
-	iinv.mv.resize(ug.nCell);
-	iinv.mw.resize(ug.nCell);
-	iinv.mua.resize(ug.nCell);
-	iinv.mva.resize(ug.nCell);
-	iinv.mwa.resize(ug.nCell);
-	iinv.res_pp.resize(ug.nCell);
-	iinv.res_up.resize(ug.nCell);
-	iinv.res_vp.resize(ug.nCell);
-	iinv.res_wp.resize(ug.nCell);
-	iinv.up.resize(ug.nCell);
-	iinv.vp.resize(ug.nCell);
-	iinv.wp.resize(ug.nCell);
 	iinv.pf.resize(ug.nFace);
 	iinv.ppf.resize(ug.nFace);
-	iinv.uuf.resize(ug.nBFace);
-	iinv.vvf.resize(ug.nBFace);
-	iinv.wwf.resize(ug.nBFace);
 	iinv.dup.resize(ug.nCell);
 	iinv.dun.resize(ug.nFace);
-
-	iinv.ai1 = 0;
-	iinv.ai2 = 0;
-
 
 	iinv.buc = 0;
 	iinv.bvc = 0;
 	iinv.bwc = 0;
-
-	iinv.spj = 0;
-	iinv.spp = 0;
-	iinv.sppu = 0;
-	iinv.sppv = 0;
-	iinv.sppw = 0;
-
-	iinv.bpu = 0;
-	iinv.bpv = 0;
-	iinv.bpw = 0;
 	iinv.bp = 0;
 	iinv.pp = 0;
-
-	iinv.muc = 0;
-	iinv.mvc = 0;
-	iinv.mwc = 0;
-
-	iinv.uu = 0;
-	iinv.vv = 0;
-	iinv.ww = 0;
 }
 
 void UINsInvterm::InitInv()
@@ -1021,95 +968,6 @@ void UINsInvterm::UpdateINsRes()
 	fileres_pp << iinv.remax_pp << endl;
 	fileres_pp.close();
 }
-
-
-void UINsInvterm::CmpPreGrad()
-{
-	iinv.dqqdx = 0;
-	iinv.dqqdy = 0;
-	iinv.dqqdz = 0;
-
-	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
-	{
-		ug.fId = fId;
-		ug.lc = (*ug.lcf)[ug.fId];
-		ug.rc = (*ug.rcf)[ug.fId];
-
-		Real dxl = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];
-		Real dyl = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
-		Real dzl = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
-
-		Real dxr = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.rc];
-		Real dyr = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.rc];
-		Real dzr = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.rc];
-
-		Real delt1 = DIST(dxl, dyl, dzl);
-		Real delt2 = DIST(dxr, dyr, dzr);
-		Real delta = 1.0 / (delt1 + delt2 + SMALL);
-
-		Real cl = delt2 * delta;
-		Real cr = delt1 * delta;
-
-		iinv.value = cl * iinv.pp[ug.lc] + cr * iinv.pp[ug.rc];
-
-		Real fnxa = (*ug.xfn)[ug.fId] * (*ug.farea)[ug.fId];
-		Real fnya = (*ug.yfn)[ug.fId] * (*ug.farea)[ug.fId];
-		Real fnza = (*ug.zfn)[ug.fId] * (*ug.farea)[ug.fId];
-
-		iinv.dqqdx[ug.lc] += fnxa * iinv.value;
-		iinv.dqqdy[ug.lc] += fnya * iinv.value;
-		iinv.dqqdz[ug.lc] += fnza * iinv.value;
-
-		//if (ug.fId < ug.nBFace) continue;
-
-		iinv.dqqdx[ug.rc] += -fnxa * iinv.value;
-		iinv.dqqdy[ug.rc] += -fnya * iinv.value;
-		iinv.dqqdz[ug.rc] += -fnza * iinv.value;
-	}
-
-	for (int fId = 0; fId < ug.nBFace; ++fId)
-	{
-		ug.fId = fId;
-		ug.lc = (*ug.lcf)[ug.fId];
-		ug.rc = (*ug.rcf)[ug.fId];
-
-		iinv.value = iinv.ppf[ug.fId];
-
-		Real fnxa = (*ug.xfn)[ug.fId] * (*ug.farea)[ug.fId];
-		Real fnya = (*ug.yfn)[ug.fId] * (*ug.farea)[ug.fId];
-		Real fnza = (*ug.zfn)[ug.fId] * (*ug.farea)[ug.fId];
-
-		iinv.dqqdx[ug.lc] += fnxa * iinv.value;
-		iinv.dqqdy[ug.lc] += fnya * iinv.value;
-		iinv.dqqdz[ug.lc] += fnza * iinv.value;
-	}
-
-	for (int cId = 0; cId < ug.nCell; ++cId)
-	{
-		ug.cId = cId;
-		Real ovol = one / (*ug.cvol)[ug.cId];
-		iinv.dqqdx[ug.cId] *= ovol;
-		iinv.dqqdy[ug.cId] *= ovol;
-		iinv.dqqdz[ug.cId] *= ovol;
-	}
-
-	/*for (int fId = 0; fId < ug.nBFace; ++fId)
-	{
-		ug.fId = fId;
-		ug.lc = (*ug.lcf)[ug.fId];
-		ug.rc = (*ug.rcf)[ug.fId];
-
-		//if (ug.rc > ug.nCell)
-		//{
-		iinv.dqqdx[ug.rc] = iinv.dqqdx[ug.lc];
-		iinv.dqqdy[ug.rc] = iinv.dqqdy[ug.lc];
-		iinv.dqqdz[ug.rc] = iinv.dqqdz[ug.lc];
-		//}
-
-	}*/
-
-}
-
 
 void UINsInvterm::Alloc()
 {
