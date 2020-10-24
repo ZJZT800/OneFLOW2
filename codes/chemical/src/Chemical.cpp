@@ -801,7 +801,8 @@ void Chemical::INsComputeRefPrim()
 	inscom.dref = 1.0;
 	inscom.tref = 1.0;
 	inscom.vref = 1.0;
-	inscom.pref = inscom.statecoef * inscom.dref * inscom.tref / inscom.amw;
+	//inscom.pref = inscom.statecoef * inscom.dref * inscom.tref / inscom.amw;
+	inscom.pref = 0;
 
 	inscom.inflow.resize(inscom.nTEqu);
 	inscom.refns.resize(inscom.nTEqu);
@@ -830,7 +831,6 @@ void Chemical::INsComputeRefPrim()
 		inscom.inflow[IIDX::IIU] = zero;
 		inscom.inflow[IIDX::IIV] = zero;
 		inscom.inflow[IIDX::IIW] = zero;
-		inscom.inflow[IIDX::IIP] = zero;
 	}
 }
 

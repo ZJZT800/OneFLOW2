@@ -67,7 +67,6 @@ UINsVisterm::~UINsVisterm()
 
 void UINsVisterm::CmpViscoff()
 {
-	//if (vis_model.vismodel == 0) return;
 
 	this->CmpVisterm();
 
@@ -261,8 +260,8 @@ void UINsVisterm::CmpVisterm()
 	{
 		ug.fId = fId;
 
-		ug.lc = (*ug.lcf)[fId];
-		ug.rc = (*ug.rcf)[fId];
+		ug.lc = (*ug.lcf)[ug.fId];
+		ug.rc = (*ug.rcf)[ug.fId];
         
 		this->CmpFaceVisterm(dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz);
 
