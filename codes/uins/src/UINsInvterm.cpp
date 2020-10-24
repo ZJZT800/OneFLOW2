@@ -246,9 +246,6 @@ void UINsInvterm::Init()
 	iinv.vf.resize(ug.nFace);
 	iinv.wf.resize(ug.nFace);
 	iinv.Vdvu.resize(ug.nFace);
-	iinv.aju.resize(ug.nFace);
-	iinv.ajv.resize(ug.nFace);
-	iinv.ajw.resize(ug.nFace);
 	iinv.VdU.resize(ug.nCell);
 	iinv.buc.resize(ug.nCell);
 	iinv.bvc.resize(ug.nCell);
