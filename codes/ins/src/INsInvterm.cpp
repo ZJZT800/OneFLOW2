@@ -336,9 +336,8 @@ void INsInvterm::CmpINsFaceCorrectPresscoef()
 
 void INsInvterm::CmpINsBcFaceCorrectPresscoef()
 {
-	iinv.bp[ug.lc] -= iinv.fq[ug.fId];
 
-	int bcType = ug.bcRecord->bcType[ug.fId];
+	//int bcType = ug.bcRecord->bcType[ug.fId];
 
 	Real duf = (*ug.cvol)[ug.lc] / iinv.dup[ug.lc];
 	Real Sf1 = duf * (*ug.a1)[ug.fId];
@@ -354,21 +353,9 @@ void INsInvterm::CmpINsBcFaceCorrectPresscoef()
 	Real Sfarea = Sf1 * (*ug.a1)[ug.fId] + Sf2 * (*ug.a2)[ug.fId] + Sf3 * (*ug.a3)[ug.fId];
 
 	iinv.rf = (*uinsf.q)[IIDX::IIR][ug.lc];
-
-	if (bcType == BC::OUTFLOW)
-	{
-		iinv.spp[ug.lc] += iinv.rf * Sfarea / dist;
-	}
-
-	else if (ug.bctype == BC::SOLID_SURFACE)
-	{
-		;
-	}
-
-	else if (ug.bctype == BC::INFLOW)
-	{
-		;
-	}
+	iinv.spp[ug.lc] += iinv.rf * Sfarea / dist;
+	
+	iinv.bp[ug.lc] -= iinv.fq[ug.fId];
 }
 
 EndNameSpace
