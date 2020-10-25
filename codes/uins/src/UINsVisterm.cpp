@@ -268,7 +268,6 @@ void UINsVisterm::CmpVisterm()
 
 	}
 
-	//Direchlet Boundary Condition
 	for (int ir = 0; ir < ug.nRegion; ++ir)
 	{
 		ug.ir = ir;
@@ -290,7 +289,6 @@ void UINsVisterm::CmpVisterm()
 			if (dd != -1)
 			{
 				ug.bcdtkey = 1;
-				//inscom.bcflow = &bcdata.dataList[dd];
 			}
 			if (ug.bcdtkey == 1)
 			{
@@ -327,7 +325,6 @@ void UINsVisterm::CmpFaceVisterm(RealField & dudx, RealField & dudy, RealField &
 	Real l2rdz = (*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc];
 
 	Real vis = 1.0 / inscom.reynolds;
-	//CmpVisCoef(vis);
 
 	Real dist = (*ug.a1)[ug.fId] * l2rdx + (*ug.a2)[ug.fId] * l2rdy + (*ug.a3)[ug.fId] * l2rdz;
 
@@ -375,7 +372,6 @@ void UINsVisterm::CmpBcFaceVisterm(RealField& dudx, RealField& dudy, RealField& 
 	Fn = Fn / dist;
 
 	Real vis = 1.0 / inscom.reynolds;
-	//CmpVisCoef(vis);
 
 	Real T1 = (*ug.a1)[ug.fId] - l2rdx * Fn;
 	Real T2 = (*ug.a2)[ug.fId] - l2rdy * Fn;
@@ -433,7 +429,6 @@ void UINsVisterm::CmpINsSrc()
 		iinv.buc[cId] = iinv.buc[cId] - vol * dpdx[cId];
 		iinv.bvc[cId] = iinv.bvc[cId] - vol * dpdy[cId];
 		iinv.bwc[cId] = iinv.bwc[cId] - vol * dpdz[cId];
-		//iinv.spc[cId] += iinv.spt[cId];
 	}
 
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)

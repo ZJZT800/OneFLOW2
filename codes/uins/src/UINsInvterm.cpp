@@ -278,52 +278,13 @@ void UINsInvterm::UpdateBoundary()
 				}
 
 			}
-			else if (ug.bctype == BC::OUTFLOW)
-			{
-
-				iinv.rf = iinv.rl;
-
-				iinv.uf[fId] = iinv.ul;
-
-				iinv.vf[fId] = iinv.vl;
-
-				iinv.wf[fId] = iinv.wl;
-
-				iinv.pf[fId] = iinv.pl;
-
-				iinv.fq[fId] = iinv.rf * ((*ug.a1)[fId] * iinv.uf[fId] + (*ug.a2)[fId] * iinv.vf[fId] + (*ug.a3)[fId] * iinv.wf[fId] - gcom.vfn);
-
-			}
-
-			else if (ug.bctype == BC::INFLOW)
-			{
-				iinv.rf = inscom.inflow[0];
-
-				iinv.uf[fId] = inscom.inflow[1];
-
-				iinv.vf[fId] = inscom.inflow[2];
-
-				iinv.wf[fId] = inscom.inflow[3];
-
-				iinv.pf[fId] = inscom.inflow[4];
-
-				iinv.fq[fId] = iinv.rf * ((*ug.a1)[fId] * iinv.uf[fId] + (*ug.a2)[fId] * iinv.vf[fId] + (*ug.a3)[fId] * iinv.wf[fId] - gcom.vfn);
-			}
+			
 		}
 	}
 }
 
 void UINsInvterm::CmpInvMassFlux()
 {
-	/*for (int fId = 0; fId < ug.nBFace; fId++)
-	{
-		ug.fId = fId;
-		ug.lc = (*ug.lcf)[fId];
-
-		this->CmpINsBcinvTerm();
-
-	}*/
-
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
 		ug.fId = fId;
@@ -592,7 +553,6 @@ void UINsInvterm::AddFlux()
 
 void UINsInvterm::CmpCorrectPresscoef()
 {
-	//this->CmpNewMomCoe();
 	iinv.remax_pp = 0;
 	for (int cId = 0; cId < ug.nCell; cId++)
 	{
@@ -614,49 +574,6 @@ void UINsInvterm::CmpCorrectPresscoef()
 		this->CmpINsFaceCorrectPresscoef();
 	}
 
-	for (int ir = 0; ir < ug.nRegion; ++ir)
-	{
-		ug.ir = ir;
-		ug.bctype = ug.bcRecord->bcInfo->bcType[ir];
-		ug.nRBFace = ug.bcRecord->bcInfo->bcFace[ir].size();
-
-		for (int ibc = 0; ibc < ug.nRBFace; ++ibc)
-		{
-			ug.bcfId = ibc;
-
-			BcInfo* bcInfo = ug.bcRecord->bcInfo;
-
-			ug.fId = bcInfo->bcFace[ug.ir][ibc];
-			ug.bcr = bcInfo->bcRegion[ug.ir][ibc];
-			ug.bcdtkey = bcInfo->bcdtkey[ug.ir][ibc];
-
-			if (ug.bcr == -1) return; //interface
-			int dd = bcdata.r2d[ug.bcr];
-			if (dd != -1)
-			{
-				ug.bcdtkey = 1;
-				//inscom.bcflow = &bcdata.dataList[dd];
-			}
-			if (ug.bctype == BC::SOLID_SURFACE)
-			{
-				continue;
-			}
-			else
-			{
-				ug.lc = (*ug.lcf)[ug.fId];
-				this->CmpINsBcFaceCorrectPresscoef();
-			}
-		}
-	}
-	//for (int fId = 0; fId < ug.nBFace; ++fId)
-	//{
-	//	ug.fId = fId;
-	//	ug.lc = (*ug.lcf)[ug.fId];
-
-	//	this->CmpINsBcFaceCorrectPresscoef();
-	//}
-
-	//cmp coefficient
 	for (int fId = ug.nBFace; fId < ug.nFace; fId++)
 	{
 		int lc = (*ug.lcf)[fId];
@@ -670,6 +587,7 @@ void UINsInvterm::CmpCorrectPresscoef()
 		iinv.remax_pp = MAX(abs(iinv.remax_pp), abs(iinv.bp[cId]));
 	}
 }
+
 
 void UINsInvterm::maxmin(RealField& a, Real& max_a, Real& min_a)
 {
@@ -688,9 +606,6 @@ void UINsInvterm::CmpPressCorrectEqu()
 	Real min_pp = 0;
 	this->maxmin(iinv.pp, max_pp, min_pp);
 
-	//iinv.res_p = 0;
-	//iinv.res_p = MAX(iinv.res_p, abs(iinv.ppd - iinv.pp[ug.cId]));
-
 	//boundary
 	for (int fId = 0; fId < ug.nBFace; ++fId)
 	{
@@ -698,24 +613,11 @@ void UINsInvterm::CmpPressCorrectEqu()
 
 		int bcType = ug.bcRecord->bcType[fId];
 
-		if (bcType == BC::OUTFLOW)
-		{
-			iinv.ppf[fId] = iinv.pp[lc];
-		}
-		else if (ug.bctype == BC::SOLID_SURFACE)
+		if (ug.bctype == BC::SOLID_SURFACE)
 		{
 			iinv.ppf[fId] = iinv.pp[lc];
 		}
 
-		else if (ug.bctype == BC::INFLOW)
-		{
-			iinv.ppf[fId] = iinv.pp[lc];
-		}
-
-		else if (ug.bctype == BC::FIXP)
-		{
-			iinv.ppf[fId] = 0;
-		}
 	}
 
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
@@ -743,7 +645,7 @@ void UINsInvterm::CmpPressCorrectEqu()
 		int lc = (*ug.lcf)[fId];
 
 		int bcType = ug.bcRecord->bcType[fId];
-		if (bcType == BC::SOLID_SURFACE || bcType == BC::INFLOW || bcType == BC::OUTFLOW)
+		if (bcType == BC::SOLID_SURFACE)
 		{
 			iinv.pf[fId] = (*uinsf.q)[IIDX::IIP][lc];
 		}
@@ -902,19 +804,7 @@ void UINsInvterm::CmpDun()
 	}
 	else if (ug.fId < ug.nBFace)
 	{
-
-		if (ug.bctype == BC::INFLOW)
-		{
-			iinv.uf[ug.fId] = inscom.inflow[1];
-
-			iinv.vf[ug.fId] = inscom.inflow[2];
-
-			iinv.wf[ug.fId] = inscom.inflow[3];
-
-			iinv.pf[ug.fId] = inscom.inflow[4];
-		}
-
-		else if (ug.bctype == BC::SOLID_SURFACE)
+		if (ug.bctype == BC::SOLID_SURFACE)
 		{
 			if (ug.bcdtkey == 0)     //静止流动状态时固壁边界面的速度应该为零
 			{
@@ -932,25 +822,6 @@ void UINsInvterm::CmpDun()
 
 				iinv.wf[ug.fId] = (*inscom.bcflow)[3];
 			}
-		}
-
-		else if (ug.bctype == BC::OUTFLOW)
-		{
-			iinv.uf[ug.cId] = (*uinsf.q)[IIDX::IIU][ug.lc];
-
-			iinv.vf[ug.cId] = (*uinsf.q)[IIDX::IIV][ug.lc];
-
-			iinv.wf[ug.cId] = (*uinsf.q)[IIDX::IIW][ug.lc];
-		}
-
-		else if (ug.bctype == BC::FIXP)
-		{
-			int lc = (*ug.lcf)[ug.fId];
-
-			ONEFLOW::CmpINsGrad(iinv.pf, iinv.dpdx, iinv.dpdy, iinv.dpdz);
-			iinv.uf[ug.fId] = iinv.uf[ug.fId] - iinv.dpdx[lc] * iinv.VdU[lc];
-			iinv.vf[ug.fId] = iinv.vf[ug.fId] - iinv.dpdy[lc] * iinv.VdV[lc];
-			iinv.wf[ug.fId] = iinv.wf[ug.fId] - iinv.dpdz[lc] * iinv.VdW[lc];
 		}
 
 		Real un = iinv.uf[ug.fId] * (*ug.a1)[ug.fId] + iinv.vf[ug.fId] * (*ug.a2)[ug.fId] + iinv.wf[ug.fId] * (*ug.a3)[ug.fId];

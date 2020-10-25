@@ -220,43 +220,6 @@ void INsInvterm::CmpINsBcFaceflux(RealField& dpdx, RealField& dpdy, RealField& d
 
 	}
 
-	else if (ug.bctype == BC::INFLOW)
-	{
-		iinv.rf = inscom.inflow[IIDX::IIR];    
-
-		iinv.uf[ug.fId] = inscom.inflow[IIDX::IIU];
-
-		iinv.vf[ug.fId] = inscom.inflow[IIDX::IIV];
-
-		iinv.wf[ug.fId] = inscom.inflow[IIDX::IIW];
-
-		iinv.vnflow = (*ug.a1)[ug.fId] * iinv.uf[ug.fId] + (*ug.a2)[ug.fId] * iinv.vf[ug.fId] + (*ug.a3)[ug.fId] * iinv.wf[ug.fId] -(*ug.vfn)[ug.fId] + iinv.dun[ug.fId];
-
-		iinv.fq[ug.fId] = iinv.rf * iinv.vnflow;
-	}
-
-	else if (ug.bctype == BC::OUTFLOW)
-	{
-
-		iinv.rf = iinv.rl;    
-
-		//iinv.uf[ug.fId] = iinv.ul + iinv.Deun * iinv.Bpe;
-
-		//iinv.vf[ug.fId] = iinv.vl + iinv.Devn * iinv.Bpe;
-
-		//iinv.wf[ug.fId] = iinv.wl + iinv.Dewn * iinv.Bpe;
-		
-		iinv.uf[ug.cId] = iinv.ul;
-
-		iinv.vf[ug.cId] = iinv.vl;
-
-		iinv.wf[ug.cId] = iinv.wl;
-
-		iinv.vnflow = (*ug.a1)[ug.fId] * iinv.uf[ug.fId] + (*ug.a2)[ug.fId] * iinv.vf[ug.fId] + (*ug.a3)[ug.fId] * iinv.wf[ug.fId] -(*ug.vfn)[ug.fId] + iinv.dun[ug.fId];
-
-		iinv.fq[ug.fId] = iinv.rf * iinv.vnflow;
-	}
-
 }
 
 void INsInvterm::CmpINsFaceCorrectPresscoef()
@@ -277,8 +240,6 @@ void INsInvterm::CmpINsFaceCorrectPresscoef()
 
 	iinv.rf = (*ug.fl)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.lc] + (1 - (*ug.fl)[ug.fId]) * (*uinsf.q)[IIDX::IIR][ug.rc];
 
-	//iinv.spp[ug.lc] += iinv.rf * Sfarea / dist;
-	//iinv.spp[ug.rc] += iinv.rf * Sfarea / dist;
 	iinv.ajp[ug.fId][0] += iinv.rf * Sfarea / dist;
 	iinv.ajp[ug.fId][1] += iinv.rf * Sfarea / dist;
 
