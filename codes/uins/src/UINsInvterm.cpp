@@ -873,7 +873,6 @@ void UINsInvterm::CmpDun()
 
 			iinv.wf[ug.fId] = inscom.inflow[3];
 
-			iinv.pf[ug.fId] = inscom.inflow[4];
 		}
 
 		else if (ug.bctype == BC::SOLID_SURFACE)
