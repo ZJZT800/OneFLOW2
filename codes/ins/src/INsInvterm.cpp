@@ -266,16 +266,17 @@ void INsInvterm::CmpINsBcFaceflux(RealField& dpdx, RealField& dpdy, RealField& d
 		Real fdpdy = dpdy[ug.lc] * dy1 - (iinv.pf[ug.fId] - iinv.pl);
 		Real fdpdz = dpdz[ug.lc] * dz1 - (iinv.pf[ug.fId] - iinv.pl);
 
-		iinv.uf[ug.fId] = iinv.ul;
+		/*iinv.uf[ug.fId] = iinv.ul;
 		iinv.vf[ug.fId] = iinv.vl;
-		iinv.wf[ug.fId] = iinv.wl;
+		iinv.wf[ug.fId] = iinv.wl;*/
 
-		/*iinv.uf[ug.fId] += fdpdx * Df1;
-		  iinv.vf[ug.fId] += fdpdy * Df2;
-		  iinv.wf[ug.fId] += fdpdz * Df3;*/
+		iinv.uf[ug.fId] += fdpdx * Df1;
+		iinv.vf[ug.fId] += fdpdy * Df2;
+		iinv.wf[ug.fId] += fdpdz * Df3;
 
 		iinv.rf = iinv.rl;
-		iinv.vnflow = (*ug.a1)[ug.fId] * (iinv.uf[ug.fId] + fdpdx * Df1) + (*ug.a2)[ug.fId] * (iinv.vf[ug.fId] + fdpdy * Df2) + (*ug.a3)[ug.fId] * (iinv.wf[ug.fId] + fdpdz * Df3)+ rurf * iinv.dun[ug.fId];
+		//iinv.vnflow = (*ug.a1)[ug.fId] * (iinv.uf[ug.fId] + fdpdx * Df1) + (*ug.a2)[ug.fId] * (iinv.vf[ug.fId] + fdpdy * Df2) + (*ug.a3)[ug.fId] * (iinv.wf[ug.fId] + fdpdz * Df3)+ rurf * iinv.dun[ug.fId];
+		iinv.vnflow = (*ug.a1)[ug.fId] * (iinv.uf[ug.fId]) + (*ug.a2)[ug.fId] * (iinv.vf[ug.fId]) + (*ug.a3)[ug.fId] * (iinv.wf[ug.fId]) + rurf * iinv.dun[ug.fId];
 		iinv.fq[ug.fId] = iinv.rf * iinv.vnflow;
 	}
 

@@ -67,10 +67,8 @@ public:
 	RealField spp, bp;
 	RealField dun, dup;
 	RealField  ppf, pp;
-    RealField dpdx, dpdy, dpdz;
-    RealField dudx, dudy, dudz;
-    RealField dvdx, dvdy, dvdz; 
-    RealField dwdx, dwdy, dwdz;
+	RealField  dppbdx, dppbdy, dppbdz;
+
     RealField2D ai,ajp;
 	
 

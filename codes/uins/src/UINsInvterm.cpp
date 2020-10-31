@@ -257,6 +257,9 @@ void UINsInvterm::Init()
 	iinv.ppf.resize(ug.nFace);
 	iinv.dup.resize(ug.nCell);
 	iinv.dun.resize(ug.nFace);
+	iinv.dppbdx.resize(ug.nBFace);
+	iinv.dppbdy.resize(ug.nBFace);
+	iinv.dppbdz.resize(ug.nBFace);
 
 	iinv.buc = 0;
 	iinv.bvc = 0;
@@ -897,11 +900,11 @@ void UINsInvterm::CmpDun()
 
 		else if (ug.bctype == BC::OUTFLOW)
 		{
-			iinv.uf[ug.cId] = (*uinsf.q)[IIDX::IIU][ug.lc];
+			iinv.uf[ug.fId] = (*uinsf.q)[IIDX::IIU][ug.lc] -(*ug.cvol)[ug.lc] / iinv.dup[ug.lc] * iinv.dppbdx[ug.fId];
 
-			iinv.vf[ug.cId] = (*uinsf.q)[IIDX::IIV][ug.lc];
+			iinv.vf[ug.fId] = (*uinsf.q)[IIDX::IIV][ug.lc] -(*ug.cvol)[ug.lc] / iinv.dup[ug.lc] * iinv.dppbdy[ug.fId];
 
-			iinv.wf[ug.cId] = (*uinsf.q)[IIDX::IIW][ug.lc];
+			iinv.wf[ug.fId] = (*uinsf.q)[IIDX::IIW][ug.lc] -(*ug.cvol)[ug.lc] / iinv.dup[ug.lc] * iinv.dppbdz[ug.fId];
 		}
 
 		(*uinsf.q)[IIDX::IIR][ug.rc] = iinv.rf;
@@ -918,6 +921,15 @@ void UINsInvterm::UpdateSpeed()
 	dqqdy.resize(ug.nCell);
 	dqqdz.resize(ug.nCell);
 	ONEFLOW::CmpINsGrad(iinv.ppf, dqqdx, dqqdy, dqqdz);
+
+	for (int fId = 0; fId < ug.nBFace; ++fId)
+	{
+		int lc = (*ug.lcf)[fId];
+
+		iinv.dppbdx[fId] = dqqdx[lc];
+		iinv.dppbdy[fId] = dqqdy[lc];
+		iinv.dppbdz[fId] = dqqdz[lc];
+	}
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
