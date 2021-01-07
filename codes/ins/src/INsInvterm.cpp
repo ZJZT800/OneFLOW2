@@ -106,7 +106,7 @@ void INsInvterm::CmpINsBcinvFlux()
 void INsInvterm::CmpINsinvTerm()
 {
 	Real clr = MAX(0, iinv.fq[ug.fId]);   
-	Real crl = clr- iinv.fq[ug.fId];
+	Real crl = clr - iinv.fq[ug.fId];
 
 	iinv.ai[ug.fId][0] = crl;
 	iinv.ai[ug.fId][1] = clr;
@@ -119,13 +119,34 @@ void INsInvterm::CmpINsBcinvTerm()
 	Real clr = MAX(0, iinv.fq[ug.fId]);
 	Real crl = clr-iinv.fq[ug.fId];
 
+	/*int bcType = ug.bcRecord->bcType[ug.fId];
+
+	if (bcType == BC::OUTFLOW|| bcType == BC::INFLOW)
+	{
+		if (iinv.fq[ug.fId] < 0)
+		{
+			iinv.spc[ug.lc] += crl;
+
+			iinv.buc[ug.lc] += crl * iinv.uf[ug.fId];
+
+			iinv.bvc[ug.lc] += crl * iinv.vf[ug.fId];
+
+			iinv.bwc[ug.lc] += crl * iinv.wf[ug.fId];
+		}
+	}
+
+	else if (bcType == BC::SOLID_SURFACE)
+	{
+		;
+	}*/
+
 	iinv.spc[ug.lc] += crl;
 
-	iinv.buc[ug.lc] = crl * iinv.uf[ug.fId];
+	iinv.buc[ug.lc] += crl * iinv.uf[ug.fId];
 
-	iinv.bvc[ug.lc] = crl * iinv.vf[ug.fId];
+	iinv.bvc[ug.lc] += crl * iinv.vf[ug.fId];
 
-	iinv.bwc[ug.lc] = crl * iinv.wf[ug.fId];
+	iinv.bwc[ug.lc] += crl * iinv.wf[ug.fId];
 }
 
 void INsInvterm::CmpINsFaceflux(RealField & dpdx, RealField & dpdy, RealField & dpdz)
@@ -275,8 +296,8 @@ void INsInvterm::CmpINsBcFaceflux(RealField& dpdx, RealField& dpdy, RealField& d
 		iinv.wf[ug.fId] += fdpdz * Df3;
 
 		iinv.rf = iinv.rl;
-		//iinv.vnflow = (*ug.a1)[ug.fId] * (iinv.uf[ug.fId] + fdpdx * Df1) + (*ug.a2)[ug.fId] * (iinv.vf[ug.fId] + fdpdy * Df2) + (*ug.a3)[ug.fId] * (iinv.wf[ug.fId] + fdpdz * Df3)+ rurf * iinv.dun[ug.fId];
 		iinv.vnflow = (*ug.a1)[ug.fId] * (iinv.uf[ug.fId]) + (*ug.a2)[ug.fId] * (iinv.vf[ug.fId]) + (*ug.a3)[ug.fId] * (iinv.wf[ug.fId]) + rurf * iinv.dun[ug.fId];
+		//iinv.vnflow = (*ug.a1)[ug.fId] * (iinv.uf[ug.fId] + fdpdx * Df1) + (*ug.a2)[ug.fId] * (iinv.vf[ug.fId] + fdpdy * Df2) + (*ug.a3)[ug.fId] * (iinv.wf[ug.fId] + fdpdz * Df3)+ rurf * iinv.dun[ug.fId];
 		iinv.fq[ug.fId] = iinv.rf * iinv.vnflow;
 	}
 
@@ -354,7 +375,23 @@ void INsInvterm::CmpINsBcFaceCorrectPresscoef()
 	Real Sfarea = Sf1 * (*ug.a1)[ug.fId] + Sf2 * (*ug.a2)[ug.fId] + Sf3 * (*ug.a3)[ug.fId];
 
 	iinv.rf = (*uinsf.q)[IIDX::IIR][ug.lc];
-	iinv.spp[ug.lc] += iinv.rf * Sfarea / dist;
+
+	int bcType = ug.bcRecord->bcType[ug.fId];
+
+	if (bcType == BC::OUTFLOW)
+	{
+		iinv.spp[ug.lc] += iinv.rf * Sfarea / dist;
+	}
+
+	else if (bcType == BC::SOLID_SURFACE)
+	{
+		;
+	}
+
+	else if (bcType == BC::INFLOW)
+	{
+		;
+	}
 	
 	iinv.bp[ug.lc] -= iinv.fq[ug.fId];
 }

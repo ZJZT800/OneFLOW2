@@ -81,7 +81,7 @@ void SolveMRhs::BGMRES()
 
 	//std::cout << "Iterations: " << result << " residual: " << tol << std::endl;
 	finish = clock();
-	time = (double)(finish - start);    //计算运行时间
+	time = (double)(finish - start);    //Calculation of run time
 
 	delete A;
 	delete x;
