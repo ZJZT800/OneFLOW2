@@ -104,6 +104,7 @@ void UINsInvterm::CmpINsPreflux()
 		uinsf.Init();
         this->Init();
 
+		ug.nRegion = ug.bcRecord->bcInfo->bcType.size();
 		for (int ir = 0; ir < ug.nRegion; ++ir)
 		{
 			ug.ir = ir;
