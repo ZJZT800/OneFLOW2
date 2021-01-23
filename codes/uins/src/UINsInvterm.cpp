@@ -195,6 +195,22 @@ void UINsInvterm::CmpINsPreflux()
 
 					iinv.fq[fId] = iinv.rf * ((*ug.a1)[fId] * iinv.uf[fId] + (*ug.a2)[fId] * iinv.vf[fId] + (*ug.a3)[fId] * iinv.wf[fId]);
 				}
+
+				else if (ug.bctype == BC::SYMMETRY)
+				{
+					iinv.rf = iinv.rl;
+
+					iinv.uf[fId] = 0;
+
+					iinv.vf[fId] = 0;
+
+					iinv.wf[fId] = 0;
+
+					iinv.pf[fId] = iinv.pl;
+
+					iinv.fq[fId] = iinv.rf * ((*ug.a1)[fId] * iinv.uf[fId] + (*ug.a2)[fId] * iinv.vf[fId] + (*ug.a3)[fId] * iinv.wf[fId]);
+				}
+
 			}
 		}
 
@@ -651,6 +667,11 @@ void UINsInvterm::CmpPressCorrectEqu()
 		{
 			iinv.ppf[fId] = iinv.pp[lc];
 		}
+
+		else if (ug.bctype == BC::SYMMETRY)
+		{
+			iinv.ppf[fId] = iinv.pp[lc];
+		}
 	}
 
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
@@ -692,6 +713,10 @@ void UINsInvterm::CmpPressCorrectEqu()
 		else if (bcType == BC::OUTFLOW)
 		{
 			iinv.pf[fId] += 0;
+		}
+		else if (ug.bctype == BC::SYMMETRY)
+		{
+			iinv.pf[fId] = (*uinsf.q)[IIDX::IIP][lc];
 		}
 	}
 
@@ -823,6 +848,11 @@ void UINsInvterm::CmpUpdateINsBcFaceflux()
 		iinv.fq[ug.fId] = iinv.fq[ug.fId] + iinv.fux;
 	}
 
+	else if (ug.bctype == BC::SYMMETRY)
+	{
+		iinv.fq[ug.fId] = 0;
+	}
+
 }
 
 
@@ -906,6 +936,15 @@ void UINsInvterm::CmpDun()
 			iinv.vf[ug.fId] = (*uinsf.q)[IIDX::IIV][ug.lc] -(*ug.cvol)[ug.lc] / iinv.dup[ug.lc] * iinv.dppbdy[ug.fId];
 
 			iinv.wf[ug.fId] = (*uinsf.q)[IIDX::IIW][ug.lc] -(*ug.cvol)[ug.lc] / iinv.dup[ug.lc] * iinv.dppbdz[ug.fId];
+		}
+
+		else if (ug.bctype == BC::SYMMETRY)
+		{
+			iinv.uf[ug.fId] = 0;
+
+			iinv.vf[ug.fId] = 0;
+
+			iinv.wf[ug.fId] = 0;
 		}
 
 		(*uinsf.q)[IIDX::IIR][ug.rc] = iinv.rf;

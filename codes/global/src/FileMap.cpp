@@ -23,6 +23,7 @@ License
 #include "FileInfo.h"
 #include "ActionState.h"
 #include "DataBase.h"
+#include "Iteration.h"
 #include "Task.h"
 #include "TaskState.h"
 #include "TaskRegister.h"
@@ -41,15 +42,31 @@ void SetFile( StringField & data )
 
     string fileName = GetDataValue< string >( fileNameVar );
 
-    ios_base::openmode openMode = GetOpenMode( data[ 1 ] );
+	int innerSteps = Iteration::innerSteps;
 
-    for ( int i = 2; i < data.size(); ++ i )
-    {
-        openMode |= GetOpenMode( data[ i ] );
-    }
+	int addVisualizationSteps = ONEFLOW::GetDataValue< int >("addVisualizationSteps");
 
-    TaskState::task->fileInfo->fileName = fileName;
-    TaskState::task->fileInfo->openMode = openMode;
+	if (fileName == "visual/visual.dat" && addVisualizationSteps==1)
+	{
+		ios_base::openmode openMode = GetOpenMode(data[1]);
+
+		fileName = "visual/visual" + std::to_string(innerSteps) + ".dat";
+
+		TaskState::task->fileInfo->fileName = fileName;
+		TaskState::task->fileInfo->openMode = openMode;
+	}
+	else
+	{
+		ios_base::openmode openMode = GetOpenMode(data[1]);
+
+		for (int i = 2; i < data.size(); ++i)
+		{
+			openMode |= GetOpenMode(data[i]);
+		}
+
+		TaskState::task->fileInfo->fileName = fileName;
+		TaskState::task->fileInfo->openMode = openMode;
+	}
 }
 
 ios_base::openmode GetOpenMode( const string & openModeName )

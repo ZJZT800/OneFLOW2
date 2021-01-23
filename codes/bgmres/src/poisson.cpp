@@ -20,7 +20,7 @@ Poisson::Poisson(int number, int ranknumber)
 	A  = ArrayUtils<double>::onetensor(number);
 	IA = ArrayUtils<int>::onetensor(ranknumber + 1);
 	JA = ArrayUtils<int>::onetensor(number);
-	coeMatrix(A,IA,JA);  //Line storage method
+	coeMatrix(A,IA,JA);  //按行存储方法
 }
 
 
@@ -46,7 +46,7 @@ double& Poisson::operator()(int row)
 }
 
 /**
- * Corresponding coematrix Compression Function
+ * 对应coeMatrix压缩函数
 */
 Solution Poisson::operator*(class Solution vector)
 {

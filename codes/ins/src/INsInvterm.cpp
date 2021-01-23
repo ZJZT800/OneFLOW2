@@ -258,8 +258,6 @@ void INsInvterm::CmpINsBcFaceflux(RealField& dpdx, RealField& dpdy, RealField& d
 	else if (ug.bctype == BC::OUTFLOW)
 	{
 
-		INsExtractl(*uinsf.q, iinv.rl, iinv.ul, iinv.vl, iinv.wl, iinv.pl);
-
 		Real l2rdx = (*ug.xfc)[ug.fId] - (*ug.xcc)[ug.lc];
 		Real l2rdy = (*ug.yfc)[ug.fId] - (*ug.ycc)[ug.lc];
 		Real l2rdz = (*ug.zfc)[ug.fId] - (*ug.zcc)[ug.lc];
@@ -298,6 +296,22 @@ void INsInvterm::CmpINsBcFaceflux(RealField& dpdx, RealField& dpdy, RealField& d
 		iinv.rf = iinv.rl;
 		iinv.vnflow = (*ug.a1)[ug.fId] * (iinv.uf[ug.fId]) + (*ug.a2)[ug.fId] * (iinv.vf[ug.fId]) + (*ug.a3)[ug.fId] * (iinv.wf[ug.fId]) + rurf * iinv.dun[ug.fId];
 		//iinv.vnflow = (*ug.a1)[ug.fId] * (iinv.uf[ug.fId] + fdpdx * Df1) + (*ug.a2)[ug.fId] * (iinv.vf[ug.fId] + fdpdy * Df2) + (*ug.a3)[ug.fId] * (iinv.wf[ug.fId] + fdpdz * Df3)+ rurf * iinv.dun[ug.fId];
+		iinv.fq[ug.fId] = iinv.rf * iinv.vnflow;
+	}
+
+	else if (ug.bctype == BC::SYMMETRY)
+	{
+
+		iinv.rf = iinv.rl;
+
+		iinv.uf[ug.fId] = 0;
+
+		iinv.vf[ug.fId] = 0;
+
+		iinv.wf[ug.fId] = 0;
+
+		iinv.vnflow = (*ug.a1)[ug.fId] * iinv.uf[ug.fId] + (*ug.a2)[ug.fId] * iinv.vf[ug.fId] + (*ug.a3)[ug.fId] * iinv.wf[ug.fId];
+
 		iinv.fq[ug.fId] = iinv.rf * iinv.vnflow;
 	}
 
@@ -393,6 +407,11 @@ void INsInvterm::CmpINsBcFaceCorrectPresscoef()
 		;
 	}
 	
+	else if (ug.bctype == BC::SYMMETRY)
+	{
+		;
+	}
+
 	iinv.bp[ug.lc] -= iinv.fq[ug.fId];
 }
 
