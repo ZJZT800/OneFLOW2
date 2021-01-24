@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -22,6 +22,7 @@ License
 #pragma once
 #include "HXClone.h"
 #include <ios>
+#include <string>
 using namespace std;
 
 BeginNameSpace( ONEFLOW )
@@ -29,6 +30,8 @@ BeginNameSpace( ONEFLOW )
 DEFINE_DATA_CLASS( SetFile );
 
 void RegisterFileTask();
+
+string GetParallelFileName( const string & fileNameVar );
 
 ios_base::openmode GetOpenMode( const string & openModeName );
 

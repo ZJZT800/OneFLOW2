@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------*\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
-    Copyright (C) 2017-2019 He Xin and the OneFLOW contributors.
+    Copyright (C) 2017-2020 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
 License
     This file is part of OneFLOW.
@@ -23,10 +23,11 @@ License
 #include "FileInfo.h"
 #include "ActionState.h"
 #include "DataBase.h"
-#include "Iteration.h"
 #include "Task.h"
 #include "TaskState.h"
 #include "TaskRegister.h"
+#include "Iteration.h"
+#include "FileUtil.h"
 BeginNameSpace( ONEFLOW )
 
 REGISTER_TASK( RegisterFileTask )
@@ -36,37 +37,38 @@ void RegisterFileTask()
     REGISTER_DATA_CLASS( SetFile );
 }
 
+string GetParallelFileName( const string & fileNameVar )
+{
+    string fileName = GetDataValue< string >( fileNameVar );
+
+    if ( fileNameVar == "visualFile" )
+    {
+        int addVisualizationSteps = GetDataValue< int >( "addVisualizationSteps" );
+        if ( addVisualizationSteps == 1 )
+        {
+            fileName = AddSymbolToFileName( fileName, Iteration::outerSteps );
+        }
+    }
+    return fileName;
+}
+
 void SetFile( StringField & data )
 {
     string & fileNameVar = data[ 0 ];
 
-    string fileName = GetDataValue< string >( fileNameVar );
+    //string fileName = GetDataValue< string >( fileNameVar );
 
-	int innerSteps = Iteration::innerSteps;
+    string fileName = GetParallelFileName( fileNameVar );
+    
+    ios_base::openmode openMode = GetOpenMode( data[ 1 ] );
 
-	int addVisualizationSteps = ONEFLOW::GetDataValue< int >("addVisualizationSteps");
+    for ( int i = 2; i < data.size(); ++ i )
+    {
+        openMode |= GetOpenMode( data[ i ] );
+    }
 
-	if (fileName == "visual/visual.dat" && addVisualizationSteps==1)
-	{
-		ios_base::openmode openMode = GetOpenMode(data[1]);
-
-		fileName = "visual/visual" + std::to_string(innerSteps) + ".dat";
-
-		TaskState::task->fileInfo->fileName = fileName;
-		TaskState::task->fileInfo->openMode = openMode;
-	}
-	else
-	{
-		ios_base::openmode openMode = GetOpenMode(data[1]);
-
-		for (int i = 2; i < data.size(); ++i)
-		{
-			openMode |= GetOpenMode(data[i]);
-		}
-
-		TaskState::task->fileInfo->fileName = fileName;
-		TaskState::task->fileInfo->openMode = openMode;
-	}
+    TaskState::task->fileInfo->fileName = fileName;
+    TaskState::task->fileInfo->openMode = openMode;
 }
 
 ios_base::openmode GetOpenMode( const string & openModeName )
