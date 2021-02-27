@@ -36,7 +36,7 @@ License
 #include "UINsCom.h"
 #include "INsCom.h"
 #include "VisGrad.h"
-#include "UINsGrad.h"
+//#include "UINsGrad.h"
 #include "INsIdx.h"
 #include "HXMath.h"
 #include "Boundary.h"
