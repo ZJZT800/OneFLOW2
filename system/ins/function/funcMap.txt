@@ -1,6 +1,5 @@
 INIT_FIRST                , CInitFirst, 1, ins
 INIT_FINAL                , CINsInitFinal, 0
-READ_INSRESTART，, CReadinsRestart, 0
 READ_RESTART              , CReadRestart, 0
 DUMP_RESTART              , CDumpRestart, 0
 INIT_RESTART              , CInitRestart, 0

@@ -67,8 +67,8 @@ void RegisterRestartTask()
     REGISTER_DATA_CLASS( InitRestart );
     REGISTER_DATA_CLASS( InitFlowField );
 
-	REGISTER_DATA_CLASS( ReadinsRestart );
-	REGISTER_DATA_CLASS( DumpinsRestart );
+	//REGISTER_DATA_CLASS( ReadinsRestart );
+	//REGISTER_DATA_CLASS( DumpinsRestart );
 	REGISTER_DATA_CLASS( InitinsRestart );
 }
 
@@ -99,14 +99,14 @@ void DumpRestart( StringField & data )
     delete restart;
 }
 
-void DumpinsRestart(StringField & data)
+/*void DumpinsRestart(StringField & data)
 {
 	int sTid = SolverState::tid;
 
 	Restart * restart = CreateRestart(sTid);
 	restart->Dump(sTid);
 	delete restart;
-}
+}*/
 
 void InitRestart( StringField & data )
 {
@@ -126,14 +126,14 @@ void InitinsRestart( StringField & data )
 	delete restart;
 }
 
-void ReadinsRestart(StringField & data)
+/*void ReadinsRestart(StringField & data)
 {
 	int sTid = SolverState::tid;
 
 	Restart * restart = CreateRestart(sTid);
 	restart->Read( sTid );
 	delete restart;
-}
+}*/
 
 
 void InitFlowField( StringField & data )

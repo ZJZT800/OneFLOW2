@@ -22,7 +22,6 @@ License
 
 #include "INsSolverImp.h"
 #include "SolverImp.h"
-#include "UITimestep.h"
 #include "Zone.h"
 #include "GridState.h"
 #include "UINsVisterm.h"
@@ -59,20 +58,17 @@ void RegisterINsFunc()
 void INsInitFinal( StringField & data )
 {
     INSCmpGamaT( F_INNER );
-    //ICmpLaminarViscosity( F_INNER );
-    INsCmpBc();
+    //INsCmpBc();
     INSCmpGamaT( F_GHOST );
-    //ICmpLaminarViscosity( F_GHOST );
 
     Grid * grid = Zone::GetGrid();
 
     if ( Zone::GetCGrid( grid ) )
     {
-        //RestrictAllQ( NS_SOLVER, FLOW_FIELD_INDEX );
 
         GridState::gridLevel += 1;
 
-        NsCmpBc();
+        //NsCmpBc();
 
         GridState::gridLevel -= 1;
     }
@@ -87,17 +83,16 @@ void INsCmpBoundary( StringField & data )
 {
     INSCmpGamaT( F_INNER );
    // ICmpLaminarViscosity( F_INNER );
-    INsCmpBc();
+    //INsCmpBc();
     INSCmpGamaT( F_GHOST );
    // ICmpLaminarViscosity( F_GHOST );
 }
 
-void INsCmpTimeStep( StringField & data )
+void INsCmpTimeStep(StringField &data)
 {
-    UITimestep * uTimestep = new UITimestep();
-    uTimestep->CmpTimestep();
-    delete uTimestep;
+	;
 }
+
 
 void INsUpdateResiduals( StringField & data )
 {

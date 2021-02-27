@@ -38,7 +38,6 @@ License
 #include "Multigrid.h"
 #include "Boundary.h"
 #include "BcRecord.h"
-#include "UINsLimiter.h"
 #include "FieldImp.h"
 #include "Iteration.h"
 #include "TurbCom.h"
@@ -52,44 +51,14 @@ BeginNameSpace(ONEFLOW)
 
 UINsInvterm::UINsInvterm()
 {
-	limiter = new INsLimiter();
-	limf = limiter->limf;
+	;
 }
 
 UINsInvterm::~UINsInvterm()
 {
-	delete limiter;
+	;
 }
 
-void UINsInvterm::CmpLimiter()
-{
-	limiter->CmpLimiter();
-}
-
-void UINsInvterm::CmpInvFace()  //单元数据重构
-{
-	this->CmpLimiter();   //不改
-
-	this->GetQlQrField();  //不改
-
-	//this->BoundaryQlQrFixField();  //不改，ghost单元
-}
-
-void UINsInvterm::GetQlQrField()
-{
-	limf->GetQlQr();
-}
-
-void UINsInvterm::ReconstructFaceValueField()
-{
-	limf->CmpFaceValue();
-	//limf->CmpFaceValueWeighted();
-}
-
-void UINsInvterm::BoundaryQlQrFixField()
-{
-	limf->BcQlQrFix();
-}
 
 void UINsInvterm::CmpInvcoff()
 {
@@ -313,49 +282,6 @@ void UINsInvterm::CmpInvMassFlux()
 
 		this->CmpINsinvTerm();
 	}
-
-}
-
-void UINsInvterm::PrepareFaceValue()
-{
-	gcom.xfn = (*ug.xfn)[ug.fId];
-	gcom.yfn = (*ug.yfn)[ug.fId];
-	gcom.zfn = (*ug.zfn)[ug.fId];
-	gcom.vfn = (*ug.vfn)[ug.fId];
-	gcom.farea = (*ug.farea)[ug.fId];
-
-	//inscom.gama1 = (*uinsf.gama)[0][ug.lc];
-	//inscom.gama2 = (*uinsf.gama)[0][ug.rc];
-
-	//iinv.gama1 = inscom.gama1;
-	//iinv.gama2 = inscom.gama2;
-
-	for (int iEqu = 0; iEqu < limf->nEqu; ++iEqu)
-	{
-		iinv.prim1[iEqu] = (*limf->q)[iEqu][ug.lc];         
-		iinv.prim2[iEqu] = (*limf->q)[iEqu][ug.rc];
-	}
-}
-
-void UINsInvterm::PrepareProFaceValue()
-{
-	gcom.xfn = (*ug.xfn)[ug.fId];
-	gcom.yfn = (*ug.yfn)[ug.fId];
-	gcom.zfn = (*ug.zfn)[ug.fId];
-	gcom.vfn = (*ug.vfn)[ug.fId];
-	gcom.farea = (*ug.farea)[ug.fId];
-
-	/*iinv.prim1[IIDX::IIR] = (*uinsf.q)[IIDX::IIR][ug.lc];
-	iinv.prim1[IIDX::IIU] = iinv.uc[ug.lc];
-	iinv.prim1[IIDX::IIV] = iinv.vc[ug.lc];
-	iinv.prim1[IIDX::IIW] = iinv.wc[ug.lc];
-	iinv.prim1[IIDX::IIP] = (*uinsf.q)[IIDX::IIP][ug.lc];
-
-	iinv.prim2[IIDX::IIR] = (*uinsf.q)[IIDX::IIR][ug.rc];
-	iinv.prim2[IIDX::IIU] = iinv.uc[ug.rc];
-	iinv.prim2[IIDX::IIV] = iinv.vc[ug.rc];
-	iinv.prim2[IIDX::IIW] = iinv.wc[ug.rc];
-	iinv.prim2[IIDX::IIP] = (*uinsf.q)[IIDX::IIP][ug.rc];*/
 
 }
 
@@ -1019,77 +945,6 @@ void UINsInvterm::UpdateINsRes()
 	fileres_pp << iinv.remax_pp << endl;
 	fileres_pp.close();
 }
-
-void UINsInvterm::Alloc()
-{
-	uinsf.qf = new MRField(inscom.nEqu, ug.nFace);
-}
-
-void UINsInvterm::DeAlloc()
-{
-	delete uinsf.qf;
-}
-
-
-void UINsInvterm::ReadTmp()
-{
-	static int iii = 0;
-	if (iii) return;
-	iii = 1;
-	fstream file;
-	file.open("nsflow.dat", ios_base::in | ios_base::binary);
-	if (!file) exit(0);
-
-	uinsf.Init();
-
-	for (int cId = 0; cId < ug.nTCell; ++cId)
-	{
-		for (int iEqu = 0; iEqu < 5; ++iEqu)
-		{
-			file.read(reinterpret_cast<char*>(&(*uinsf.q)[iEqu][cId]), sizeof(double));
-		}
-	}
-
-	for (int cId = 0; cId < ug.nTCell; ++cId)
-	{
-		file.read(reinterpret_cast<char*>(&(*uinsf.visl)[0][cId]), sizeof(double));
-	}
-
-	for (int cId = 0; cId < ug.nTCell; ++cId)
-	{
-		file.read(reinterpret_cast<char*>(&(*uinsf.vist)[0][cId]), sizeof(double));
-	}
-
-	vector< Real > tmp1(ug.nTCell), tmp2(ug.nTCell);
-
-	for (int cId = 0; cId < ug.nTCell; ++cId)
-	{
-		tmp1[cId] = (*uinsf.timestep)[0][cId];
-	}
-
-	for (int cId = 0; cId < ug.nTCell; ++cId)
-	{
-		file.read(reinterpret_cast<char*>(&(*uinsf.timestep)[0][cId]), sizeof(double));
-	}
-
-	for (int cId = 0; cId < ug.nTCell; ++cId)
-	{
-		tmp2[cId] = (*uinsf.timestep)[0][cId];
-	}
-
-	turbcom.Init();
-	uturbf.Init();
-	for (int iCell = 0; iCell < ug.nTCell; ++iCell)
-	{
-		for (int iEqu = 0; iEqu < turbcom.nEqu; ++iEqu)
-		{
-			file.read(reinterpret_cast<char*>(&(*uturbf.q)[iEqu][iCell]), sizeof(double));
-		}
-	}
-	file.close();
-	file.clear();
-}
-
 
 
 EndNameSpace

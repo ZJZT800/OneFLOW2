@@ -82,16 +82,16 @@ void UINsVisterm::DeAlloc()
 	delete uinsf.qf;
 }
 
-void UINsVisterm::PrepareField()
+/*void UINsVisterm::PrepareField()
 {
 
 	ONEFLOW::CmpINsGrad((*uinsf.q)[IIDX::IIU], (*uinsf.dqdx)[IIDX::IIU], (*uinsf.dqdy)[IIDX::IIU], (*uinsf.dqdz)[IIDX::IIU]);
 	ONEFLOW::CmpINsGrad((*uinsf.q)[IIDX::IIV], (*uinsf.dqdx)[IIDX::IIV], (*uinsf.dqdy)[IIDX::IIV], (*uinsf.dqdz)[IIDX::IIV]);
 	ONEFLOW::CmpINsGrad((*uinsf.q)[IIDX::IIW], (*uinsf.dqdx)[IIDX::IIW], (*uinsf.dqdy)[IIDX::IIW], (*uinsf.dqdz)[IIDX::IIW]);
 
-}
+}*/
 
-void UINsVisterm::CmpPreandVisGrad()
+/*void UINsVisterm::CmpPreandVisGrad()
 {
 	(*uinsf.dqdx)[IIDX::IIR] = 0;
 	(*uinsf.dqdy)[IIDX::IIR] = 0;
@@ -147,7 +147,7 @@ void UINsVisterm::CmpPreandVisGrad()
 		/*Real value1 = iinv.uf[ug.fId];
 		Real value2 = iinv.vf[ug.fId];
 		Real value3 = iinv.wf[ug.fId];
-		Real value4 = iinv.pf[ug.fId];*/
+		Real value4 = iinv.pf[ug.fId];
 
 		Real fnxa = (*ug.xfn)[ug.fId] * (*ug.farea)[ug.fId];
 		Real fnya = (*ug.yfn)[ug.fId] * (*ug.farea)[ug.fId];
@@ -233,7 +233,7 @@ void UINsVisterm::CmpPreandVisGrad()
 		(*uinsf.dqdz)[IIDX::IIP][ug.cId] *= ovol;
 	}
 
-}
+}*/
 
 
 void UINsVisterm::CmpVisterm()

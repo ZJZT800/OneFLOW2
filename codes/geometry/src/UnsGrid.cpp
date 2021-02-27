@@ -511,6 +511,7 @@ void UnsGrid::CmpMetrics3D()
     this->ComputeFaceNormal3D();
     this->ComputeFaceCenter3D();
     this->ComputeCellCenterVol3D();
+	this->ComputeFaceWeight2D();
 }
 
 void UnsGrid::ComputeFaceCenter1D()

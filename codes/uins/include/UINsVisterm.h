@@ -27,7 +27,7 @@ License
 
 BeginNameSpace( ONEFLOW )
 
-class UINsVisterm : public INsVisterm
+class UINsVisterm// : public INsVisterm
 {
 public:
 	UINsVisterm();
@@ -39,9 +39,9 @@ public:
 
 public:
     void CmpViscoff();
-    void PrepareField();
-    void CmpVisGrad();
-	void CmpPreandVisGrad();
+   // void PrepareField();
+   // void CmpVisGrad();
+	//void CmpPreandVisGrad();
     
 	void CmpVisterm();
 	void CmpFaceVisterm(RealField& dudx, RealField& dudy, RealField& dudz, RealField& dvdx, RealField& dvdy, RealField& dvdz, RealField& dwdx, RealField& dwdy, RealField& dwdz);
@@ -56,15 +56,15 @@ public:
 
 	void CmpTranst();
 public:
-    void PrepareFaceValue();
-    void SaveFacePara();
-    void CmpFaceWeight();
+    //void PrepareFaceValue();
+    //void SaveFacePara();
+    //void CmpFaceWeight();
 public:
-    void CmpGradCoef();
-    void PrepareCellGeom();
+    //void CmpGradCoef();
+    //void PrepareCellGeom();
 };
 
-void ICmpLaminarViscosity( int flag );
+//void ICmpLaminarViscosity( int flag );
 
 
 

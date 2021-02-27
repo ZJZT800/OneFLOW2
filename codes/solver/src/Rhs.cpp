@@ -45,7 +45,6 @@ License
 #include "UINsInvterm.h"
 #include "UINsVisterm.h"
 //#include "UINsUnsteady.h"
-#include "UINsBcSolver.h"
 #include <iostream>
 using namespace std;
 
@@ -163,14 +162,6 @@ void NsCmpDualTimeStepSrc()
 void Rhs::UpdateINsResiduals()
 {
 	//INsCmpRHS();
-}
-
-void INsCmpBc()
-{
-	UINsBcSolver * uINsBcSolver = new UINsBcSolver();
-	uINsBcSolver->Init();
-	uINsBcSolver->CmpBc();
-	delete uINsBcSolver;
 }
 
 void INSCmpGamaT(int flag)

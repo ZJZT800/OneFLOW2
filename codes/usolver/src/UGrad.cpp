@@ -89,30 +89,33 @@ void CmpINsGrad(RealField & q, RealField & dqdx, RealField & dqdy, RealField & d
 	dqdx = 0;
 	dqdy = 0;
 	dqdz = 0;
-	for (int fId = 0; fId < ug.nFace; ++fId)
+	for (int fId = 0; fId < ug.nBFace; ++fId)
+	{ 
+		int lc = (*ug.lcf)[fId];
+		dqdx[lc] += (*ug.a1)[fId] * q[fId];
+		dqdy[lc] += (*ug.a2)[fId] * q[fId];
+		dqdz[lc] += (*ug.a3)[fId] * q[fId];
+	}
+	for (int fId = ug.nBFace ; fId < ug.nFace; ++fId)
 	{
-        int lc = (*ug.lcf)[fId];
-        Real voll = (*ug.cvol)[lc];
+		int lc = (*ug.lcf)[fId];
+		int rc = (*ug.rcf)[fId];
+		dqdx[lc] += (*ug.a1)[fId] * q[fId];
+		dqdy[lc] += (*ug.a2)[fId] * q[fId];
+		dqdz[lc] += (*ug.a3)[fId] * q[fId];
 
-        if (fId > ug.nBFace - 1)
-        {
-            int rc = (*ug.rcf)[fId];
-            Real volr = (*ug.cvol)[rc];
+				 
+		dqdx[rc] -= (*ug.a1)[fId] * q[fId] ;
+		dqdy[rc] -= (*ug.a2)[fId] * q[fId] ;
+		dqdz[rc] -= (*ug.a3)[fId] * q[fId] ;
+	}
+	for (int cId = 0; cId < ug.nCell; ++cId)
+	{
+		Real vol = (*ug.cvol)[cId];
+		dqdx[cId] /= vol;
+		dqdy[cId] /= vol;
+		dqdz[cId] /= vol;
 
-            dqdx[lc] += (*ug.a1)[fId] * q[fId] / voll;
-            dqdy[lc] += (*ug.a2)[fId] * q[fId] / voll;
-            dqdz[lc] += (*ug.a3)[fId] * q[fId] / voll;
-
-            dqdx[rc] -= (*ug.a1)[fId] * q[fId] / volr;
-            dqdy[rc] -= (*ug.a2)[fId] * q[fId] / volr;
-            dqdz[rc] -= (*ug.a3)[fId] * q[fId] / volr;
-        }
-        else if (fId < ug.nBFace)
-        {
-            dqdx[lc] += (*ug.a1)[fId] * q[fId] / voll;
-            dqdy[lc] += (*ug.a2)[fId] * q[fId] / voll;
-            dqdz[lc] += (*ug.a3)[fId] * q[fId] / voll;
-        }
 	}
 }
 

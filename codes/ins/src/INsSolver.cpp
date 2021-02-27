@@ -25,7 +25,7 @@ License
 #include "INsCtrl.h"
 #include "SolverInfo.h"
 #include "SolverDef.h"
-#include "UINsBcSolver.h"
+//#include "UINsBcSolver.h"
 #include "HeatFlux.h"
 #include "DataBase.h"
 #include <iostream>
@@ -51,7 +51,7 @@ void INsSolver::StaticInit()
     INsSolver::initFlag = true;
     this->sTid = ONEFLOW::INC_NS_SOLVER;
 
-    ins_ctrl.Init();
+    //ins_ctrl.Init();
     inscom.Init();
 
     SolverInfo * solverInfo = SolverInfoFactory::GetSolverInfo( this->sTid );

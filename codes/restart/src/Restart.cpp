@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Restart.h"
+#include "INsRestart.h"
 #include "NsRestart.h"
 #include "TurbRestart.h"
 #include "ActionState.h"
@@ -38,7 +39,6 @@ License
 #include "FieldAlloc.h"
 #include "UsdPara.h"
 #include "RegisterUtil.h"
-#include "INsRestart.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -48,10 +48,12 @@ Restart * CreateRestart( int sTid )
     {
         return CreateNsRestart();
     }
-    else if ( sTid == INC_NS_SOLVER )
-    {
-        return CreateINsRestart();
-    }
+
+	else if (sTid == INC_NS_SOLVER)
+	{
+		return CreateINsRestart();
+	}
+
     else if ( sTid == TURB_SOLVER )
     {
         return CreateTurbRestart();

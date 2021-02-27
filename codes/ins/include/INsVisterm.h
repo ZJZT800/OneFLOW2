@@ -64,7 +64,7 @@ public:
 	INsVisterm();
     ~INsVisterm();
 public:
-    void AverGrad();
+   /* void AverGrad();
     void ZeroNormalGrad();
     void AverFaceValue();
     void AverOtherFaceValue();
@@ -75,7 +75,7 @@ public:
     void CmpTestMethod();
     void CmpNew1Method();
     void CmpNew2Method();
-    void ModifyFaceGrad();
+    void ModifyFaceGrad();*/
 };
 
 extern VisGrad visQ;

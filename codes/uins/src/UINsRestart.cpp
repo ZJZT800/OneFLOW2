@@ -54,7 +54,7 @@ void UINsRestart::InitinsRestart( int sTid )
 
     MRField * q  = GetFieldPointer< MRField > ( grid, "q" );
 
-    int nEqu = inscom.inflow.size();
+	int nEqu = inscom.inflow.size();
 
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {

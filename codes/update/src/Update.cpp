@@ -22,7 +22,6 @@ License
 
 #include "Update.h"
 #include "NsUpdate.h"
-#include "INsUpdate.h"
 #include "TurbUpdate.h"
 #include "SolverDef.h"
 #include "SolverInfo.h"
@@ -49,10 +48,6 @@ Update * CreateUpdate( int sTid )
     if ( sTid == NS_SOLVER )
     {
         return CreateNsUpdate();
-    }
-    else if ( sTid == INC_NS_SOLVER )
-    {
-        return CreateINsUpdate();
     }
     else if ( sTid == TURB_SOLVER )
     {

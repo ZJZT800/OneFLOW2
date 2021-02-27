@@ -59,6 +59,7 @@ INsVisterm::~INsVisterm()
     ;
 }
 
+/*
 void INsVisterm::AverGrad()
 {
     visQ.AverGrad();
@@ -132,6 +133,8 @@ void INsVisterm::ModifyFaceGrad()
     visQ.ModifyFaceGrad();
     visT.ModifyFaceGrad();
 }
+
+*/
 Real Iutherland::Icdim = 110.4;
 Real Iutherland::Ic;
 
