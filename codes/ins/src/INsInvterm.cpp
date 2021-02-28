@@ -75,13 +75,130 @@ void INsInvterm::Solve()
 }
 
 
-void INsInvterm::CmpINsinvTerm()
+void INsInvterm::CmpINsinvTerm(RealField& dudx, RealField& dudy, RealField& dudz, RealField& dvdx, RealField& dvdy, RealField& dvdz, RealField& dwdx, RealField& dwdy, RealField& dwdz)
 {
 	Real clr = MAX(0, iinv.fq[ug.fId]);   
 	Real crl = clr - iinv.fq[ug.fId];
 
 	iinv.ai[ug.fId][0] = crl;
 	iinv.ai[ug.fId][1] = clr;
+
+	int conv_ischeme = ONEFLOW::GetDataValue< int >("conv_ischeme");
+
+	if (conv_ischeme == 1)
+	{
+
+		Real l2rdx = (*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc];
+		Real l2rdy = (*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc];
+		Real l2rdz = (*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc];
+
+		if (iinv.fq[ug.fId] > 0)
+		{
+			Real su = iinv.ur - 2 * (dudx[ug.lc] * l2rdx + dudy[ug.lc] * l2rdy + dudz[ug.lc] * l2rdz);
+			Real sv = iinv.vr - 2 * (dvdx[ug.lc] * l2rdx + dvdy[ug.lc] * l2rdy + dvdz[ug.lc] * l2rdz);
+			Real sw = iinv.wr - 2 * (dwdx[ug.lc] * l2rdx + dwdy[ug.lc] * l2rdy + dwdz[ug.lc] * l2rdz);
+
+			Real c1 = half * iinv.fq[ug.fId] * (iinv.ul - su);
+			iinv.buc[ug.lc] -= c1;
+			iinv.buc[ug.rc] += c1;
+			c1 = half * iinv.fq[ug.fId] * (iinv.vl - sv);
+			iinv.bvc[ug.lc] -= c1;
+			iinv.bvc[ug.rc] += c1;
+			c1 = half * iinv.fq[ug.fId] * (iinv.wl - sw);
+			iinv.bwc[ug.lc] -= c1;
+			iinv.bwc[ug.rc] += c1;
+		}
+		else
+		{
+			Real su = iinv.ul + 2 * (dudx[ug.rc] * l2rdx + dudy[ug.rc] * l2rdy + dudz[ug.rc] * l2rdz);
+			Real sv = iinv.vl + 2 * (dvdx[ug.rc] * l2rdx + dvdy[ug.rc] * l2rdy + dvdz[ug.rc] * l2rdz);
+			Real sw = iinv.wl + 2 * (dwdx[ug.rc] * l2rdx + dwdy[ug.rc] * l2rdy + dwdz[ug.rc] * l2rdz);
+
+			Real c1 = half * iinv.fq[ug.fId] * (iinv.ur - su);
+			iinv.buc[ug.lc] -= c1;
+			iinv.buc[ug.rc] += c1;
+			c1 = half * iinv.fq[ug.fId] * (iinv.vr - sv);
+			iinv.bvc[ug.lc] -= c1;
+			iinv.bvc[ug.rc] += c1;
+			c1 = half * iinv.fq[ug.fId] * (iinv.wr - sw);
+			iinv.bwc[ug.lc] -= c1;
+			iinv.bwc[ug.rc] += c1;
+		}
+	}
+
+	else if (conv_ischeme == 2)
+	{
+
+		Real c11 = (MAX(0, -iinv.fq[ug.fId]) + (*ug.fl)[ug.fId] * iinv.fq[ug.fId]);
+		Real c1 = c11 * (iinv.ur - iinv.ul);
+		iinv.buc[ug.lc] -= c1;
+		iinv.buc[ug.rc] += c1;
+		c1 = c11 * (iinv.vr - iinv.vl);
+		iinv.bvc[ug.lc] -= c1;
+		iinv.bvc[ug.rc] += c1;
+		c1 = c11  * (iinv.wr - iinv.wl);
+		iinv.bwc[ug.lc] -= c1;
+		iinv.bwc[ug.rc] += c1;
+	}
+
+	/*else if (conv_ischeme == 2)
+	{
+
+		Real l2rdx = (*ug.xcc)[ug.rc] - (*ug.xcc)[ug.lc];
+		Real l2rdy = (*ug.ycc)[ug.rc] - (*ug.ycc)[ug.lc];
+		Real l2rdz = (*ug.zcc)[ug.rc] - (*ug.zcc)[ug.lc];
+
+		Real c11 = (MAX(0, -iinv.fq[ug.fId]) + (*ug.fl)[ug.fId] * iinv.fq[ug.fId]);
+		Real c1 = 3*0.25*c11 * (iinv.ur - iinv.ul);
+		iinv.buc[ug.lc] -= c1;
+		iinv.buc[ug.rc] += c1;
+		c1 = 3 * 0.25*c11  * (iinv.vr - iinv.vl);
+		iinv.bvc[ug.lc] -= c1;
+		iinv.bvc[ug.rc] += c1;
+		c1 = 3 * 0.25*c11  * (iinv.wr - iinv.wl);
+		iinv.bwc[ug.lc] -= c1;
+		iinv.bwc[ug.rc] += c1;
+
+
+		if (iinv.fq[ug.fId] > 0)
+		{
+			Real su = iinv.ur - 2 * (dudx[ug.lc] * l2rdx + dudy[ug.lc] * l2rdy + dudz[ug.lc] * l2rdz);
+			Real sv = iinv.vr - 2 * (dvdx[ug.lc] * l2rdx + dvdy[ug.lc] * l2rdy + dvdz[ug.lc] * l2rdz);
+			Real sw = iinv.wr - 2 * (dwdx[ug.lc] * l2rdx + dwdy[ug.lc] * l2rdy + dwdz[ug.lc] * l2rdz);
+
+			//Real c1 = half * 0.25 * 3 * iinv.fq[ug.fId] * (iinv.ur - iinv.ul) + half * 0.25 * (iinv.ul - su);
+			c1 = half * 0.25 * (iinv.ul - su);
+			iinv.buc[ug.lc] -= c1;
+			iinv.buc[ug.rc] += c1;
+			//c1 = half * 0.25 * 3 * iinv.fq[ug.fId] * (iinv.vr - iinv.vl) + half * 0.25 * (iinv.vl - sv);
+			c1 = half * 0.25 * (iinv.vl - sv);
+			iinv.bvc[ug.lc] -= c1;
+			iinv.bvc[ug.rc] += c1;
+			//c1 = half * 0.25 * 3 * iinv.fq[ug.fId] * (iinv.wr - iinv.wl) + half * 0.25 * (iinv.wl - sw);
+			c1 = half * 0.25 * (iinv.wl - sw);
+			iinv.bwc[ug.lc] -= c1;
+			iinv.bwc[ug.rc] += c1;
+		}
+		else
+		{
+			Real su = iinv.ul + 2 * (dudx[ug.rc] * l2rdx + dudy[ug.rc] * l2rdy + dudz[ug.rc] * l2rdz);
+			Real sv = iinv.vl + 2 * (dvdx[ug.rc] * l2rdx + dvdy[ug.rc] * l2rdy + dvdz[ug.rc] * l2rdz);
+			Real sw = iinv.wl + 2 * (dwdx[ug.rc] * l2rdx + dwdy[ug.rc] * l2rdy + dwdz[ug.rc] * l2rdz);
+
+			//Real c1 = half * 0.25 * 3 * iinv.fq[ug.fId] * (iinv.ul - iinv.ur) + half * 0.25 * (iinv.ur - su);
+			c1 = half * 0.25 * (iinv.ur - su);
+			iinv.buc[ug.lc] -= c1;
+			iinv.buc[ug.rc] += c1;
+			//c1 = half * 0.25 * 3 * iinv.fq[ug.fId] * (iinv.vl - iinv.vr) + half * 0.25 * (iinv.vr - sv);
+			c1 = half * 0.25 * (iinv.vr - sv);
+			iinv.bvc[ug.lc] -= c1;
+			iinv.bvc[ug.rc] += c1;
+			//c1 = half * 0.25 * 3 * iinv.fq[ug.fId] * (iinv.wl - iinv.wr) + half * 0.25 * (iinv.wr - sw);
+			c1 = half * 0.25 * (iinv.wr - sw);
+			iinv.bwc[ug.lc] -= c1;
+			iinv.bwc[ug.rc] += c1;
+		}
+	}*/
 
 }
 

@@ -266,6 +266,24 @@ void UINsInvterm::CmpInvMassFlux()
 {
 	InitInv();
 
+	RealField dudx, dudy, dudz;
+	RealField dvdx, dvdy, dvdz;
+	RealField dwdx, dwdy, dwdz;
+
+	dudx.resize(ug.nCell);
+	dudy.resize(ug.nCell);
+	dudz.resize(ug.nCell);
+	dvdx.resize(ug.nCell);
+	dvdy.resize(ug.nCell);
+	dvdz.resize(ug.nCell);
+	dwdx.resize(ug.nCell);
+	dwdy.resize(ug.nCell);
+	dwdz.resize(ug.nCell);
+
+	ONEFLOW::CmpINsGrad(iinv.uf, dudx, dudy, dudz);
+	ONEFLOW::CmpINsGrad(iinv.vf, dvdx, dvdy, dvdz);
+	ONEFLOW::CmpINsGrad(iinv.wf, dwdx, dwdy, dwdz);
+
 	for(int fId = 0; fId < ug.nBFace; fId++)
 	{
 		ug.fId = fId;
@@ -280,7 +298,13 @@ void UINsInvterm::CmpInvMassFlux()
 	{
 		ug.fId = fId;
 
-		this->CmpINsinvTerm();
+		ug.lc = (*ug.lcf)[ug.fId];
+		ug.rc = (*ug.rcf)[ug.fId];
+
+		INsExtractl(*uinsf.q, iinv.rl, iinv.ul, iinv.vl, iinv.wl, iinv.pl);
+		INsExtractr(*uinsf.q, iinv.rr, iinv.ur, iinv.vr, iinv.wr, iinv.pr);
+
+		this->CmpINsinvTerm(dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz);
 	}
 
 }
