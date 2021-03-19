@@ -202,24 +202,24 @@ void Rhs::FieldInit()
 void Rhs::UINsSolver()
 {
 
-		INsCmpInv(); //计算对流项
+		INsCmpConv(); //计算对流项
 
-		INsCmpVis(); //计算扩散项
+		INsCmpDiffus(); //计算扩散项
 
 		int transt = ONEFLOW::GetDataValue< int >("transt");
 		if (transt != 0) INsTranst();  //瞬态项
 
 		INsCmpSrc(); //计算压力梯度和动量方程系数
 
-		DifEqua();     //和对流扩散项平级
+		MomEqu();     //和对流扩散项平级
 
 		Relaxation();
 
-		INsMomPre(); //求解动量方程
+		SolveMom(); //求解动量方程
 
 		INsCmpFaceflux(); //计算界面流量
 
-		INsCorrectPresscoef(); //计算压力修正方程系数
+		PresEqu(); //计算压力修正方程系数
 
 		INsCmpPressCorrectEquandUpdatePress();  //需要解压力修正方程组，增设单元修正压力未知量
 
@@ -238,17 +238,17 @@ void INsPreflux()
 	delete uINsInvterm;
 }
 
-void INsCmpInv()
+void INsCmpConv()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
-	uINsInvterm->CmpInvcoff();
+	uINsInvterm->CmpConv();
 	delete uINsInvterm;
 }
 
-void INsCmpVis()
+void INsCmpDiffus()
 {
 	UINsVisterm * uINsVisterm = new UINsVisterm();
-	uINsVisterm->CmpViscoff();
+	uINsVisterm->CmpDiffus();
 	delete uINsVisterm;
 }
 
@@ -262,14 +262,14 @@ void INsTranst()
 void INsCmpSrc()
 {
 	UINsVisterm * uINsVisterm = new UINsVisterm();
-	uINsVisterm->CmpINsSrc();
+	uINsVisterm->CmpSrc();
 	delete uINsVisterm;
 }
 
-void DifEqua()
+void MomEqu()
 {
 	UINsVisterm* uINsVisterm = new UINsVisterm();
-	uINsVisterm->DifEquaMom();
+	uINsVisterm->MomEquCoeff();
 	delete uINsVisterm;
 }
 
@@ -280,10 +280,10 @@ void Relaxation()
 	delete uINsVisterm;
 }
 
-void INsMomPre()
+void SolveMom()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
-	uINsInvterm->MomPre();
+	uINsInvterm->Solveuvw();
 	delete uINsInvterm;
 }
 
@@ -294,10 +294,10 @@ void INsCmpFaceflux()
 	delete uINsInvterm;
 }
 
-void INsCorrectPresscoef()
+void PresEqu()
 {
 	UINsInvterm * uINsInvterm = new UINsInvterm();
-	uINsInvterm->CmpCorrectPresscoef();
+	uINsInvterm->PresEquCoeff();
 	delete uINsInvterm;
 }
 

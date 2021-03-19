@@ -50,17 +50,17 @@ void UINsField::Init()
     q  = GetFieldPointer< MRField > ( grid, "q" );
     //q1  = GetFieldPointer< MRField > ( grid, "q1" );
     //q2  = GetFieldPointer< MRField > ( grid, "q2" );
-	qf = GetFieldPointer< MRField >(grid, "qf");
-	dq = GetFieldPointer< MRField >(grid, "dq");
+	//qf = GetFieldPointer< MRField >(grid, "qf");
+	//dq = GetFieldPointer< MRField >(grid, "dq");
     //limiter  = GetFieldPointer< MRField > ( grid, "limiter" );
     //gama  = GetFieldPointer< MRField > ( grid, "gama" );
-    dqdx  = GetFieldPointer< MRField > ( grid, "dqdx" );
-    dqdy  = GetFieldPointer< MRField > ( grid, "dqdy" );
-    dqdz  = GetFieldPointer< MRField > ( grid, "dqdz" );
+    //dqdx  = GetFieldPointer< MRField > ( grid, "dqdx" );
+    //dqdy  = GetFieldPointer< MRField > ( grid, "dqdy" );
+    //dqdz  = GetFieldPointer< MRField > ( grid, "dqdz" );
 
-    dtdx  = GetFieldPointer< MRField > ( grid, "dtdx" );
-    dtdy  = GetFieldPointer< MRField > ( grid, "dtdy" );
-    dtdz  = GetFieldPointer< MRField > ( grid, "dtdz" );
+    //dtdx  = GetFieldPointer< MRField > ( grid, "dtdx" );
+    //dtdy  = GetFieldPointer< MRField > ( grid, "dtdy" );
+    //dtdz  = GetFieldPointer< MRField > ( grid, "dtdz" );
     bc_q    = GetFieldPointer< MRField > ( grid, "bc_q" );
     //bcdqdx  = GetFieldPointer< MRField > ( grid, "bcdqdx" );
     //bcdqdy  = GetFieldPointer< MRField > ( grid, "bcdqdy" );
@@ -77,16 +77,16 @@ void UINsField::Init()
     //vissr = ONEFLOW::GetFieldPointer< MRField >( grid, "vissr" );
     //impsr = ONEFLOW::GetFieldPointer< MRField >( grid, "impsr" );
 
-    res  = GetFieldPointer< MRField > ( grid, "res" );
-    res1  = GetFieldPointer< MRField > ( grid, "res1" );
-    res2  = GetFieldPointer< MRField > ( grid, "res2" );
+    //res  = GetFieldPointer< MRField > ( grid, "res" );
+    //res1  = GetFieldPointer< MRField > ( grid, "res1" );
+    //res2  = GetFieldPointer< MRField > ( grid, "res2" );
 
-    rhs = res;
+    //rhs = res;
 
-    if ( ctrl.time_integral == MULTI_STAGE )
-    {
-        dq = res;
-    }
+    //if ( ctrl.time_integral == MULTI_STAGE )
+   // {
+   //     dq = res;
+   // }
 }
 
 EndNameSpace

@@ -131,22 +131,22 @@ void INsExtract(RealField& prim, Real& rm, Real& um, Real& vm, Real& wm, Real& p
     pm = prim[IIDX::IIR];
 }
 
-void INsExtractl(MRField & q, Real & rm, Real & um, Real & vm, Real & wm, Real & pm)
+void INsExtractl(MRField & q, Real & rm, Real & um, Real & vm, Real & wm, Real & pm, int &lc)
 {
-	rm = q[IIDX::IIR][ug.lc];
-	um = q[IIDX::IIU][ug.lc];
-	vm = q[IIDX::IIV][ug.lc];
-	wm = q[IIDX::IIW][ug.lc];
-	pm = q[IIDX::IIP][ug.lc];
+	rm = q[IIDX::IIR][lc];
+	um = q[IIDX::IIU][lc];
+	vm = q[IIDX::IIV][lc];
+	wm = q[IIDX::IIW][lc];
+	pm = q[IIDX::IIP][lc];
 }
 
-void INsExtractr(MRField& q, Real& rm, Real& um, Real& vm, Real& wm, Real& pm)
+void INsExtractr(MRField & q, Real & rm, Real & um, Real & vm, Real & wm, Real & pm, int & rc)
 {
-    rm = q[IIDX::IIR][ug.rc];
-    um = q[IIDX::IIU][ug.rc];
-    vm = q[IIDX::IIV][ug.rc];
-    wm = q[IIDX::IIW][ug.rc];
-    pm = q[IIDX::IIP][ug.rc];
+    rm = q[IIDX::IIR][rc];
+    um = q[IIDX::IIU][rc];
+    vm = q[IIDX::IIV][rc];
+    wm = q[IIDX::IIW][rc];
+    pm = q[IIDX::IIP][rc];
 }
 
 bool INsCheckFunction( RealField & q )

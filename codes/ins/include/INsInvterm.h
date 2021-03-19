@@ -26,24 +26,6 @@ License
 #include "HXArray.h"
 BeginNameSpace( ONEFLOW )
 
-const int _ISCHEME_ROE            = 1;
-const int _ISCHEME_VANLEER        = 2;
-const int _ISCHEME_STEGER         = 3;
-const int _ISCHEME_HLLE           = 4;
-const int _ISCHEME_LAX_FRIEDRICHS = 5;
-const int _ISCHEME_AUSMP          = 6;
-const int _ISCHEME_AUSMPUP        = 7;
-const int _ISCHEME_AUSMDV         = 8;
-const int _ISCHEME_AUSMW          = 9;
-const int _ISCHEME_AUSMPW         = 10;
-const int _ISCHEME_HYBRIDROE      = 11;
-const int _ISCHEME_SLAU2          = 12;
-
-
-Real FMSplit1( const Real & mach, const Real & ipn );
-Real FMSplit2( const Real & mach, const Real & ipn );
-Real FMSplit4( const Real & mach, const Real & beta , const Real & ipn );
-Real FPSplit5( const Real & mach, const Real & alpha, const Real & ipn );
 
 class INsInv
 {
@@ -52,38 +34,29 @@ public:
     ~INsInv();
 public:
     void Init();
-public:
+/*public:
     Real gama;
     Real gama1;
-    Real gama2; 
+    Real gama2;*/ 
 public:
-    RealField prim, prim1, prim2;
-    RealField q, q1, q2;
-    RealField dq;
-    RealField flux, flux1, flux2;
-	RealField uf, vf, wf, pf;
-	RealField fq, VdU, Vdvu;
-	RealField spc, buc, bvc, bwc;
+    //RealField prim, prim1, prim2;
+    //RealField q, q1, q2;
+    //RealField dq;
+	RealField flux; //flux1, flux2;
+	//RealField uf, vf, wf, pf;
+	//RealField fq, VdU, Vdvu;
+	RealField spu, bu, bv, bw;
 	RealField spp, bp;
 	RealField dun, dup;
 	RealField  ppf, pp;
-	RealField  dppbdx, dppbdy, dppbdz;
-
-    RealField2D ai,ajp;
-	
+	//RealField  dppbdx, dppbdy, dppbdz;
+	RealField2D ai;//ajp;
 
 public:
-    Real aeig1, aeig2, aeig3;
-    Real meig1, meig2, meig3;
-
-    Real eig11, eig12, eig13;
-    Real eig21, eig22, eig23;
-
-public:
-    Real rl, ul, vl, wl, pl, hl, el;
+    /*Real rl, ul, vl, wl, pl, hl, el;
     Real rr, ur, vr, wr, pr, hr, er;
     Real rm, um, vm, wm, pm, hm, em;
-	Real rf, vnflow, fux;
+	Real rf, vnflow, fux;*/
 	Real remax_up, remax_vp, remax_wp, remax_pp, res_u, res_v, res_w, res_p;
 
 };
@@ -103,14 +76,14 @@ public:
     //void SetPointer( int schemeIndex );
 	//InvtermPointer InvtermPointer;
 public:
-	void CmpINsinvFlux();
-	void CmpINsBcinvFlux();
-	void CmpINsinvTerm(RealField& dudx, RealField& dudy, RealField& dudz, RealField& dvdx, RealField& dvdy, RealField& dvdz, RealField& dwdx, RealField& dwdy, RealField& dwdz);
-	void CmpINsBcinvTerm();
-	void CmpINsFaceflux(RealField & dpdx, RealField & dpdy, RealField & dpdz);
-	void CmpINsBcFaceflux(RealField& dpdx, RealField& dpdy, RealField& dpdz);
-	void CmpINsFaceCorrectPresscoef();
-	void CmpINsBcFaceCorrectPresscoef();
+	//void CmpINsinvFlux();
+	//void CmpINsBcinvFlux();
+	void InConvCoff(int&fId);
+	void BcConvCoff(Real &ub1, Real &vb1, Real &wb1,int&fId);
+	void CmpINsFaceflux(Real & dpdx1, Real & dpdx2, Real & dpdy1, Real & dpdy2, Real & dpdz1, Real & dpdz2, int& fId );
+	void CmpINsBcFaceflux(Real& dpdx1, Real& dpdy1, Real& dpdz1, Real& pb1, int& fId);
+	void CmpInPressCoeff(int& fId);
+	void CmpBcPressCoeff(int& fId);
 	//void Roe      ();
     //void RoeOld   (){};
     //void HybridRoe(){};

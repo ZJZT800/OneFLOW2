@@ -38,19 +38,19 @@ public:
     MRField * visflux;
 
 public:
-    void CmpViscoff();
+    void CmpDiffus();
    // void PrepareField();
    // void CmpVisGrad();
 	//void CmpPreandVisGrad();
     
-	void CmpVisterm();
-	void CmpFaceVisterm(RealField& dudx, RealField& dudy, RealField& dudz, RealField& dvdx, RealField& dvdy, RealField& dvdz, RealField& dwdx, RealField& dwdy, RealField& dwdz);
-	void CmpBcFaceVisterm(RealField& dudx, RealField& dudy, RealField& dudz, RealField& dvdx, RealField& dvdy, RealField& dvdz, RealField& dwdx, RealField& dwdy, RealField& dwdz);
+	void CmpDiffusTerm();
+	void InDiffusCoff(RealField& dudx, RealField& dudy, RealField& dudz, RealField& dvdx, RealField& dvdy, RealField& dvdz, RealField& dwdx, RealField& dwdy, RealField& dwdz,int& fId);
+	void BcDiffusCoff(RealField& dudx, RealField& dudy, RealField& dudz, RealField& dvdx, RealField& dvdy, RealField& dvdz, RealField& dwdx, RealField& dwdy, RealField& dwdz,Real& ub1, Real& vb1, Real& wb1, int& fId);
 
     void Alloc();
     void DeAlloc();
-	void CmpINsSrc();
-    void DifEquaMom();
+	void CmpSrc();
+    void MomEquCoeff();
     void RelaxMom(Real a);
 	//void Addcoff();
 

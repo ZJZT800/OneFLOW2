@@ -144,8 +144,8 @@ public:
 extern INsCom inscom;
 
 void INsExtract( RealField & prim, Real & rm, Real & um, Real & vm, Real & wm, Real & pm);
-void INsExtractl( MRField & q, Real & rm, Real & um, Real & vm, Real & wm, Real & pm );
-void INsExtractr( MRField & q, Real & rm, Real & um, Real & vm, Real & wm, Real & pm);
+void INsExtractl( MRField & q, Real & rm, Real & um, Real & vm, Real & wm, Real & pm,int &lc );
+void INsExtractr( MRField & q, Real & rm, Real & um, Real & vm, Real & wm, Real & pm, int & rc);
 
 bool INsCheckFunction( RealField & q );
 

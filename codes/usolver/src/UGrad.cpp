@@ -89,6 +89,7 @@ void CmpINsGrad(RealField & q, RealField & dqdx, RealField & dqdy, RealField & d
 	dqdx = 0;
 	dqdy = 0;
 	dqdz = 0;
+
 	for (int fId = 0; fId < ug.nBFace; ++fId)
 	{ 
 		int lc = (*ug.lcf)[fId];
@@ -100,10 +101,10 @@ void CmpINsGrad(RealField & q, RealField & dqdx, RealField & dqdy, RealField & d
 	{
 		int lc = (*ug.lcf)[fId];
 		int rc = (*ug.rcf)[fId];
+
 		dqdx[lc] += (*ug.a1)[fId] * q[fId];
 		dqdy[lc] += (*ug.a2)[fId] * q[fId];
 		dqdz[lc] += (*ug.a3)[fId] * q[fId];
-
 				 
 		dqdx[rc] -= (*ug.a1)[fId] * q[fId] ;
 		dqdy[rc] -= (*ug.a2)[fId] * q[fId] ;
@@ -115,7 +116,6 @@ void CmpINsGrad(RealField & q, RealField & dqdx, RealField & dqdy, RealField & d
 		dqdx[cId] /= vol;
 		dqdy[cId] /= vol;
 		dqdz[cId] /= vol;
-
 	}
 }
 
