@@ -268,9 +268,9 @@ void INsInvterm::CmpINsBcFaceflux(Real& dpdx1, Real& dpdy1, Real& dpdz1, Real& p
 		Real fdpdy = dpdy1 * dy1 - (pb1 - pl);
 		Real fdpdz = dpdz1 * dz1 - (pb1 - pl);
 
-		uf += fdpdx * Df1;
-		vf += fdpdy * Df2;
-		wf += fdpdz * Df3;
+		uf = ul+fdpdx * Df1;
+		vf = vl+fdpdy * Df2;
+		wf = wl+fdpdz * Df3;
 
 		vnflow = (*ug.a1)[fId] * uf + (*ug.a2)[fId] * vf + (*ug.a3)[fId] * wf + rurf * iinv.dun[fId];
 		iinv.flux[fId] = rl * vnflow;

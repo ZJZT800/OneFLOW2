@@ -24,14 +24,13 @@ License
 #pragma once
 #include "INsInvterm.h"
 #include "systemSolver.h"
-#include "poisson.h"
 
 BeginNameSpace(ONEFLOW)
 
 class UINsFField;
 class Limiter;
 class LimField;
-class SolveMRhs;
+class SolveEqua;
 
 
 class UINsInvterm : public INsInvterm
@@ -54,7 +53,6 @@ public:
 	void FacePressure(RealField& pb, RealField& pf);
     void CmpInvFace();
     void CmpLimiter();
-	void SolveEquation(RealField& sp, RealField2D& ai, RealField& b, RealField& x, Real res);
 	void CmpFaceflux();
 	void CmpFaceVelocityValue(RealField& uf, RealField& vf, RealField& wf);
 	void CmpINsMomRes();

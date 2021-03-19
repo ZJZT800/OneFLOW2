@@ -471,9 +471,14 @@ void UINsInvterm::Solveuvw()
 	vCorrect.resize(ug.nCell);
 	wCorrect.resize(ug.nCell);
 	this->CmpINsMomRes();
-	this->SolveEquation(iinv.spu, iinv.ai, iinv.bu, uCorrect, iinv.res_u);
-	this->SolveEquation(iinv.spu, iinv.ai, iinv.bv, vCorrect, iinv.res_v);
-	this->SolveEquation(iinv.spu, iinv.ai, iinv.bw, wCorrect, iinv.res_w);
+	int MaxIter = GetDataValue< int >("EquaMomIter");
+	Real Tol = GetDataValue< Real >("EquaMomTol");
+	int mRestarts = GetDataValue< int >("EquaMomRestarts");
+	string gt = GetDataValue< string >("EquaMomMethod");
+	SolveEqua(iinv.spu, iinv.ai, iinv.bu, uCorrect, iinv.res_u, gt, MaxIter, Tol, mRestarts);
+	SolveEqua(iinv.spu, iinv.ai, iinv.bv, vCorrect, iinv.res_v, gt, MaxIter, Tol, mRestarts);
+	SolveEqua(iinv.spu, iinv.ai, iinv.bw, wCorrect, iinv.res_w, gt, MaxIter, Tol, mRestarts);
+
 	for (int cId = 0; cId < ug.nCell; cId++)
 	{
 		(*uinsf.q)[IIDX::IIU][cId] += uCorrect[cId];
@@ -482,94 +487,6 @@ void UINsInvterm::Solveuvw()
 	}
 }
 
-void UINsInvterm::SolveEquation(RealField& sp, RealField2D& ai, RealField& b, RealField& x, Real res)
-{
-
-	Rank.NUMBER = 0;
-	Rank.RANKNUMBER = ug.nCell;
-	Rank.COLNUMBER = 1;
-
-	RealField dj;
-	dj.resize(ug.nCell);
-	for (int cId = 0; cId < ug.nCell; ++cId)
-	{
-		dj[cId] = (*ug.c2f)[cId].size();
-		for (int iFace = 0; iFace < (*ug.c2f)[cId].size(); ++iFace)
-		{
-			int fId = (*ug.c2f)[cId][iFace];
-			if (fId < ug.nBFace)
-			{
-				dj[cId] -= 1;
-			}
-		}
-		Rank.NUMBER += dj[cId];
-	}
-	Rank.NUMBER += ug.nCell;
-	Rank.Init();
-
-	//ofstream file("CoeMatrix.txt", ios::app);
-	for (int cId = 0; cId < ug.nCell; ++cId)
-	{
-		Rank.TempIA[0] = 0;
-		int n = Rank.TempIA[cId];
-		int fn = (*ug.c2f)[cId].size();
-		Rank.TempIA[cId + 1] = Rank.TempIA[cId] + dj[cId] + 1;
-		int tempCout = 0;
-		for (int iFace = 0; iFace < fn; ++iFace)
-		{
-			int fId = (*ug.c2f)[cId][iFace];
-			int lc = (*ug.lcf)[fId];
-
-			if (fId > ug.nBFace - 1)
-			{
-				int rc = (*ug.rcf)[fId];
-				if (cId == lc)
-				{
-					Rank.TempA[n + tempCout] = -ai[0][fId];
-					Rank.TempJA[n + tempCout] = rc;
-					//file << cId + 1 << "\t" << rc + 1 << "\t" << setprecision(18) << Rank.TempA[n + tempCout] << std::endl;
-					tempCout += 1;
-				}
-				else if (cId == rc)
-				{
-					Rank.TempA[n + tempCout] = -ai[1][fId];
-					Rank.TempJA[n + tempCout] = lc;
-					//file << cId + 1 << "\t" << lc + 1 << "\t" << setprecision(18) << Rank.TempA[n + tempCout] << std::endl;
-					tempCout += 1;
-				}
-			}
-			else
-			{
-				continue;
-			}
-		}
-
-		int fj = dj[cId];
-		Rank.TempA[n + fj] = sp[cId];
-		Rank.TempJA[n + fj] = cId;
-		//file << cId + 1 << "\t" << cId + 1 << "\t" << setprecision(18) << sp[cId] << std::endl;
-	}
-	//file.close();
-	//ofstream RHS("rhs.txt", ios::app);
-	for (int cId = 0; cId < ug.nCell; cId++)
-	{
-		Rank.TempB[cId][0] = b[cId];
-		//RHS << setprecision(18) << Rank.TempB[cId][0] << endl;
-	}
-	//RHS.close();
-	bgx.BGMRES();
-	//ofstream X("x.txt", ios::app);
-	for (int cId = 0; cId < ug.nCell; cId++)
-	{
-		x[cId] = Rank.TempX[cId][0];
-		//X << x[cId] << endl;
-	}
-	//X.close();
-	res = Rank.residual;
-
-	Rank.Deallocate();
-
-}
 
 void UINsInvterm::CmpFaceflux()
 {
@@ -756,11 +673,12 @@ void UINsInvterm::maxmin(RealField& a, Real& max_a, Real& min_a)
 
 void UINsInvterm::CmpPressCorrectEqu()
 {
-	this->SolveEquation(iinv.spp, iinv.ai, iinv.bp, iinv.pp, iinv.res_p);
-	
-	/*Real max_pp = 0;
-	Real min_pp = 0;
-	this->maxmin(iinv.pp, max_pp, min_pp);*/
+	int MaxIter = GetDataValue< int >("EquaPressIter");
+	Real Tol = GetDataValue< Real >("EquaPressTol");
+	int mRestarts = GetDataValue< int >("EquaPressRestarts");
+	string gt = GetDataValue< string >("EquaPressMethod");
+	SolveEqua(iinv.spp, iinv.ai, iinv.bp, iinv.pp, iinv.res_p, gt, MaxIter, Tol, mRestarts);
+	//std::cout << iinv.res_p << std::endl;
 
 	//�߽絥Ԫ
 	for (int fId = 0; fId < ug.nBFace; ++fId)
