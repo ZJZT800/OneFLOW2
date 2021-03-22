@@ -63,27 +63,27 @@ public:
 
 extern INsInv iinv;
 
-class INsInvterm
-{
-public:
-	INsInvterm();
-    ~INsInvterm();
-public:
+//class INsInvterm
+//{
+//public:
+//	INsInvterm();
+//    ~INsInvterm();
+//public:
     //typedef void (INsInvterm:: * InvtermPointer )();
-public:
-    void Solve();
-public:
+//public:
+    //void Solve();
+//public:
     //void SetPointer( int schemeIndex );
 	//InvtermPointer InvtermPointer;
-public:
+//public:
 	//void CmpINsinvFlux();
 	//void CmpINsBcinvFlux();
-	void InConvCoff(int&fId);
+	/*void InConvCoff(int&fId);
 	void BcConvCoff(Real &ub1, Real &vb1, Real &wb1,int&fId);
 	void CmpINsFaceflux(Real & dpdx1, Real & dpdx2, Real & dpdy1, Real & dpdy2, Real & dpdz1, Real & dpdz2, int& fId );
 	void CmpINsBcFaceflux(Real& dpdx1, Real& dpdy1, Real& dpdz1, Real& pb1, int& fId);
 	void CmpInPressCoeff(int& fId);
-	void CmpBcPressCoeff(int& fId);
+	void CmpBcPressCoeff(int& fId);*/
 	//void Roe      ();
     //void RoeOld   (){};
     //void HybridRoe(){};
@@ -97,14 +97,14 @@ public:
     //void Ausmw    ();
     //void Ausmpw   ();
     //void Slau2();
-public:
+//public:
    // void ModifyAbsoluteEigenvalue();
-};
+//};
 
-void INsCmpEnthalpy( RealField & prim, Real gama, Real & enthalpy );
+/*void INsCmpEnthalpy( RealField & prim, Real gama, Real & enthalpy );
 void INsCmpTotalEnthalpyChange( RealField & prim, Real & gama, RealField & dq, Real & dh );
 void INsPrimToQ( RealField & prim, Real gama, RealField & q );
 void INsQToPrim( RealField & q, Real gama, RealField & prim, RealField & temp );
-void INsCmpInternalEnergy( RealField & prim, Real gama, Real & em );
+void INsCmpInternalEnergy( RealField & prim, Real gama, Real & em );*/
 
 EndNameSpace

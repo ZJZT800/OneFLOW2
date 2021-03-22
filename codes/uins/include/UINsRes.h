@@ -20,53 +20,20 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "UINsSolver.h"
-#include "Mesh.h"
-#include "FaceMesh.h"
-#include "CellMesh.h"
-#include "SolverInfo.h"
-#include "SolverState.h"
-#include "FaceTopo.h"
-#include "Boundary.h"
-#include "BcRecord.h"
-#include "DataBase.h"
-#include "INsIdx.h"
-#include "HXMath.h"
-//#include "UINsLusgs.h"
+
+#pragma once
 #include "INsInvterm.h"
-//#include "UINsVisterm.h"
-//#include "UINsInvterm.h"
-#include "UCom.h"
-#include "Zone.h"
-#include "UINsCom.h"
-#include <iostream>
+#include "systemSolver.h"
 
-using namespace std;
+BeginNameSpace(ONEFLOW)
 
-BeginNameSpace( ONEFLOW )
-
-REGISTER_SOLVER( UINsSolver )
-
-UINsSolver::UINsSolver()
+class UINsRes : public INsInv
 {
-}
+public:
+	UINsRes();
+    ~UINsRes();
+public:
+	void UpdateINsRes();
 
-UINsSolver::~UINsSolver()
-{
-}
-
-void UINsSolver::Init()
-{
-}
-
-void UINsSolver::StaticInit()
-{
-    INsSolver::StaticInit();
-   // LusgsState::AddSolver( this->sid, this->gridType, new UINsLusgs() );
-}
-
-void UINsSolver::Run()
-{
-}
-
+};
 EndNameSpace

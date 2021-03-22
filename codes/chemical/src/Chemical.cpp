@@ -20,6 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "Chemical.h"
+#include "DataBase.h"
 #include "MolecularProperty.h"
 #include "ReactionRate.h"
 #include "Stoichiometric.h"
@@ -805,9 +806,9 @@ void Chemical::INsComputeRefPrim()
 	inscom.pref = 0;
 
 	inscom.inflow.resize(inscom.nTEqu);
-	inscom.refns.resize(inscom.nTEqu);
+	//inscom.refns.resize(inscom.nTEqu);
 
-	inscom.refns[IIDX::IIR] = inscom.dref;
+	/*inscom.refns[IIDX::IIR] = inscom.dref;
 	inscom.refns[IIDX::IIU] = 1.0 * cos(inscom.aoa) * cos(inscom.aos);
 	inscom.refns[IIDX::IIV] = 1.0 * sin(inscom.aoa) * cos(inscom.aos);
 	inscom.refns[IIDX::IIW] = 1.0                    * sin(inscom.aos);
@@ -819,11 +820,21 @@ void Chemical::INsComputeRefPrim()
 		{
 			inscom.refns[inscom.nBEqu + iSpecies] = moleProp->mfrac[iSpecies];
 		}
-	}
+	}*/
 
-	for (int iEqu = 0; iEqu < inscom.nTEqu; ++iEqu)
+	/*for (int iEqu = 0; iEqu < inscom.nTEqu; ++iEqu)
 	{
 		inscom.inflow[iEqu] = inscom.refns[iEqu];
+	}*/
+
+	inscom.inflow[IIDX::IIR] = inscom.dref;
+	inscom.inflow[IIDX::IIP] = inscom.pref;
+
+	if (ctrl.inflowType == 0)
+	{
+		inscom.inflow[IIDX::IIU] = GetDataValue< Real >("inflowVelocity");  
+		inscom.inflow[IIDX::IIV] = 0;
+		inscom.inflow[IIDX::IIW] = 0;
 	}
 
 	if (ctrl.inflowType == 1)

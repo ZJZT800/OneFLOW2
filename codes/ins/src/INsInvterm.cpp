@@ -22,7 +22,6 @@ License
 
 //#include "UINsCorrectSpeed.h"
 #include "INsInvterm.h"
-#include "INsVisterm.h"
 #include "Iteration.h"
 #include "UINsCom.h"
 #include "Zone.h"
@@ -61,7 +60,6 @@ void INsInv::Init()
 	bp.resize(ug.nCell);
 	flux.resize(ug.nFace);
 	spu.resize(ug.nCell);
-	//ai.resize(ug.nFace, 2);
 	ai.resize(2, ug.nFace);
 	spp.resize(ug.nCell);
 	pp.resize(ug.nCell);
@@ -70,31 +68,22 @@ void INsInv::Init()
 	dun.resize(ug.nFace);
 }
 
-INsInvterm::INsInvterm()
+
+/*void INsInvterm::Solve()
 {
-	;
-}
-
-INsInvterm::~INsInvterm()
-{
-	;
-}
-
-void INsInvterm::Solve()
-{
-}
+}*/
 
 
-void INsInvterm::InConvCoff(int&fId)
+/*void INsInvterm::InConvCoff(int&fId)
 {
 	Real clr = MAX(0, iinv.flux[fId]);   
 	Real crl = clr - iinv.flux[fId];
 
 	iinv.ai[0][fId] = crl;
 	iinv.ai[1][fId] = clr;
-}
+}*/
 
-void INsInvterm::BcConvCoff(Real &ub1, Real &vb1, Real &wb1, int&fId)
+/*void INsInvterm::BcConvCoff(Real &ub1, Real &vb1, Real &wb1, int&fId)
 {
 	int lc = (*ug.lcf)[fId];
 	int bctype = ug.bcRecord->bcType[fId];
@@ -129,9 +118,9 @@ void INsInvterm::BcConvCoff(Real &ub1, Real &vb1, Real &wb1, int&fId)
 		}
 	}
 
-}
+}*/
 
-void INsInvterm::CmpINsFaceflux(Real & dpdx1, Real & dpdx2, Real & dpdy1, Real & dpdy2, Real & dpdz1, Real & dpdz2, int& fId)
+/*void INsInvterm::CmpINsFaceflux(Real & dpdx1, Real & dpdx2, Real & dpdy1, Real & dpdy2, Real & dpdz1, Real & dpdz2, int& fId)
 {
 	int lc = (*ug.lcf)[fId];
 	int rc = (*ug.rcf)[fId];
@@ -183,10 +172,10 @@ void INsInvterm::CmpINsFaceflux(Real & dpdx1, Real & dpdx2, Real & dpdy1, Real &
 	vnflow = (*ug.a1)[fId] * (uf + fdpdx * Df1) + (*ug.a2)[fId] * (vf + fdpdy * Df2) + (*ug.a3)[fId] * (wf + fdpdz * Df3) +rurf*iinv.dun[fId];
 	iinv.flux[fId] = rl * vnflow;  
 
-}
+}*/
 
 
-void INsInvterm::CmpINsBcFaceflux(Real& dpdx1, Real& dpdy1, Real& dpdz1, Real& pb1, int& fId)
+/*void INsInvterm::CmpINsBcFaceflux(Real& dpdx1, Real& dpdy1, Real& dpdz1, Real& pb1, int& fId)
 {
 	int lc = (*ug.lcf)[fId];
 	
@@ -287,9 +276,9 @@ void INsInvterm::CmpINsBcFaceflux(Real& dpdx1, Real& dpdy1, Real& dpdz1, Real& p
 		iinv.flux[fId] = 0;
 	}
 
-}
+}*/
 
-void INsInvterm::CmpInPressCoeff(int& fId)
+/*void INsInvterm::CmpInPressCoeff(int& fId)
 {
 	   int lc = (*ug.lcf)[fId];
 	   int rc = (*ug.rcf)[fId];
@@ -316,9 +305,9 @@ void INsInvterm::CmpInPressCoeff(int& fId)
 
 		iinv.bp[lc] -= iinv.flux[fId];
 		iinv.bp[rc] += iinv.flux[fId];
-}
+}*/
 
-void INsInvterm::CmpBcPressCoeff(int& fId)
+/*void INsInvterm::CmpBcPressCoeff(int& fId)
 {
 	int lc = (*ug.lcf)[fId];
 
@@ -358,6 +347,6 @@ void INsInvterm::CmpBcPressCoeff(int& fId)
 	}
 
 	iinv.bp[lc] -= iinv.flux[fId];
-}
+}*/
 
 EndNameSpace

@@ -1,19 +1,21 @@
 #ifndef GMRES_H
 #define GMRES_H
 
-#define MKL_Complex16 std::complex<double>
 
 #include "Utils.h"
+#include "BasicComputation.h"
 #include <complex>
 #include <fstream>
 #include <iostream>
 #include <vector>
-#include <mkl.h>
+//#include <mkl.h>
 using namespace std;
 
+class BasicCompute;
 class GMRes
 {
   public:
+	BasicCompute basic;
 	const int krylovDemension;
 	const int mRestart;
 	const int unknows;
@@ -25,16 +27,17 @@ class GMRes
 	const double ONE = 1.0;
 	const double NEGONE = -1.0;
 	const double ZERO = 0.0;
-	double *residual, *H, *v, *q, *y, *x, *beta, *res_n, **givens;
+	double *residual, **H, *v, *q, *y, *x, *beta, *res_n, **givens;
 	std::vector<double*>Q;
 
 
 	GMRes(int krylovDemension, int mRestart, int unknows, double tolerance);
 	~GMRes();
-	double Solve(double* A, int* IA, int* JA, double* x0, double* b);
+	int Solve(double* A, int* IA, int* JA, double* x0, double* b);
 	double RestartGMRes(double *A, int* IA, int* JA, double *x0, double *b);
 	double InnerLoop(double *A, int* IA, int* JA, double *x0, double *b);
-	void Update(double* H, double* x, double* beta, std::vector<double*> Q, int iteration);
+	void Update(double** H, double* x, double* beta, std::vector<double*> Q, int iteration);
+	void Deallocate();
 };
 
 #endif // GMRES_H

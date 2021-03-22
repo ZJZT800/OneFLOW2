@@ -22,7 +22,7 @@ License
 
 #include "Grad.h"
 #include "UGrad.h"
-#include "INsVisterm.h"
+//#include "INsVisterm.h"
 #include "UINsCom.h"
 #include "UCom.h"
 #include "FieldImp.h"

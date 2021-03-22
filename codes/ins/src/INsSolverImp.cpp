@@ -24,8 +24,9 @@ License
 #include "SolverImp.h"
 #include "Zone.h"
 #include "GridState.h"
-#include "UINsVisterm.h"
+//#include "UINsVisterm.h"
 #include "Rhs.h"
+#include "InnerIter.h"
 #include "UCom.h"
 #include "CmxTask.h"
 #include "Iteration.h"
@@ -60,6 +61,10 @@ void INsInitFinal( StringField & data )
     INSCmpGamaT( F_INNER );
     //INsCmpBc();
     INSCmpGamaT( F_GHOST );
+
+	Inner* uINsSolver = new Inner;
+	uINsSolver->FieldInit();
+	delete uINsSolver;
 
     Grid * grid = Zone::GetGrid();
 

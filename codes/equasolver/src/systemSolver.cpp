@@ -1,4 +1,5 @@
 #include "GMRes.h"
+#include "CGS.h"
 #include "Utils.h"
 #include "systemSolver.h"
 #include <time.h>
@@ -21,6 +22,10 @@ SolveEqua::SolveEqua(RealField& sp, RealField2D& ai, RealField& rhs, RealField& 
 	{
 		this->solveGMRES();
 	}
+	else if (TypeNum == "CGS")
+	{
+		CGS(A, IA, JA, b, x0, Tol, MaxIter, unknowns, entryNum);
+	}
 	this->vecCopy(x0, x);
 
 	res = ress;
@@ -34,21 +39,10 @@ SolveEqua::~SolveEqua()
 
 void SolveEqua::solveGMRES()
 {
-	//double dur;
-	//clock_t start, end;
 
 	GMRes solver(MaxIter, restarts, unknowns, Tol);
 
-	//start = clock();
-
 	ress = solver.Solve(A, IA, JA, x0, b);
-
-	//end = clock();
-	//dur = (double)(end - start);
-
-	//std::cout << dur << "ms" << std::endl;
-	//printf("Use Time:%f\n", (dur / CLOCKS_PER_SEC));
-
 }
 
 void SolveEqua::CSR(RealField& sp, RealField2D& ai, RealField& rhs)
@@ -72,7 +66,6 @@ void SolveEqua::CSR(RealField& sp, RealField2D& ai, RealField& rhs)
 	entryNum += ug.nCell;
 	this->Init();
 
-	//ofstream file("CoeMatrix.txt", ios::app);
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		IA[0] = 0;
@@ -92,14 +85,12 @@ void SolveEqua::CSR(RealField& sp, RealField2D& ai, RealField& rhs)
 				{
 					A[n + tempCout] = -ai[0][fId];
 					JA[n + tempCout] = rc;
-					//file << cId + 1 << "\t" << rc + 1 << "\t" << setprecision(18) << A[n + tempCout] << std::endl;
 					tempCout += 1;
 				}
 				else if (cId == rc)
 				{
 					A[n + tempCout] = -ai[1][fId];
 					JA[n + tempCout] = lc;
-					//file << cId + 1 << "\t" << lc + 1 << "\t" << setprecision(18) << A[n + tempCout] << std::endl;
 					tempCout += 1;
 				}
 			}
@@ -112,17 +103,11 @@ void SolveEqua::CSR(RealField& sp, RealField2D& ai, RealField& rhs)
 		int fj = dj[cId];
 		A[n + fj] = sp[cId];
 		JA[n + fj] = cId;
-		//file << cId + 1 << "\t" << cId + 1 << "\t" << setprecision(18) << A[n + fj] << std::endl;
 	}
-	//file.close();
-	//ofstream RHS("rhs.txt", ios::app);
-	for (int cId = 0; cId < ug.nCell; cId++)
+	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		b[cId] = rhs[cId];
-		//RHS << setprecision(18) << b[cId] << endl;
 	}
-	//RHS.close();
-
 }
 
 void SolveEqua::Init()
@@ -141,14 +126,18 @@ void SolveEqua::Deallocate()
 	ArrayUtils<double>::delonetensor(A);
 	ArrayUtils<int>::delonetensor(IA);
 	ArrayUtils<int>::delonetensor(JA);
-
+	b = NULL;
+	x0 = NULL;
+	A = NULL;
+	IA = NULL;
+	JA = NULL;
 
 }
 
 void SolveEqua::vecCopy(double* x0, RealField& x)
 {
 	int k = x.size();
-	for (int i = 0; i < k; i++)
+	for (int i = 0; i < k; ++i)
 	{
 		x[i] = x0[i];
 	}

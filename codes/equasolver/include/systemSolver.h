@@ -9,14 +9,6 @@ BeginNameSpace(ONEFLOW)
 class SolveEqua 
 {
 public:
-	enum SolverType
-	{
-		GMRES = 1,
-		BiCGStab = 2,
-		CGS = 3,
-	};
-
-public:
 	SolveEqua();
 	SolveEqua(RealField& sp, RealField2D& ai, RealField& rhs, RealField& x, Real res, std::string TypeNum, int MaxIter, double Tol, int Restarts);
 	~SolveEqua();

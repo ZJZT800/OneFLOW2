@@ -22,50 +22,60 @@ License
 
 
 #pragma once
-#include "INsVisterm.h"
-#include "HXArray.h"
+#include "HXDefine.h"
 
 BeginNameSpace( ONEFLOW )
 
-class UINsVisterm// : public INsVisterm
+class Inner
 {
 public:
-	UINsVisterm();
-    ~UINsVisterm();
+    Inner ();
+    ~Inner();
 public:
-    typedef void ( UINsVisterm:: * VisPointer )();
-    VisPointer visPointer;
-    MRField * visflux;
-
-public:
-    void CmpDiffus();
-   // void PrepareField();
-   // void CmpVisGrad();
-	//void CmpPreandVisGrad();
-    
-	void CmpDiffusTerm();
-	void InDiffusCoff(RealField& dudx, RealField& dudy, RealField& dudz, RealField& dvdx, RealField& dvdy, RealField& dvdz, RealField& dwdx, RealField& dwdy, RealField& dwdz,int& fId);
-	void BcDiffusCoff(RealField& dudx, RealField& dudy, RealField& dudz, RealField& dvdx, RealField& dvdy, RealField& dvdz, RealField& dwdx, RealField& dwdy, RealField& dwdz,Real& ub1, Real& vb1, Real& wb1, int& fId);
-
-    void Alloc();
-    void DeAlloc();
-	void CmpSrc();
-    void MomEquCoeff();
-    void RelaxMom(Real a);
-	//void Addcoff();
-
-	void CmpTranst();
-public:
-    //void PrepareFaceValue();
-    //void SaveFacePara();
-    //void CmpFaceWeight();
-public:
-    //void CmpGradCoef();
-    //void PrepareCellGeom();
+    void UpdateNsResiduals();
+	void UpdateINsResiduals();
+    void FieldInit();
+    void SolveFlow();
 };
 
-//void ICmpLaminarViscosity( int flag );
+void NsCmpBc();
+void NSCmpGamaT( int flag );
+void NsCmpRHS();
+void NsCmpInvFlux();
+void NsCmpVisFlux();
+void NsCmpSrcFlux();
+void NsCmpChemSrc();
+void NsCmpTurbEnergy();
+void NsCmpDualTimeStepSrc();
 
+void INsCmpBc();
+void INSCmpGamaT(int flag);
+//void INsCmpRHS();
+//void INsCmpInvFlux();
+//void INsCmpVisFlux();
+//void INsCmpSrcFlux();
+void INsCmpChemSrc();
+void INsCmpTurbEnergy();
+//void INsCmpDualTimeStepSrc();
+void PresEqu();
+//void INsCorrectSpeed();
+void INsCmpTimestep();
+void INsPreflux();
+
+void Mom_pre();
+void INsCmpConv();
+void INsCmpDiffus();
+void INsTranst();
+void INsCmpSrc();
+void MomEqu();
+void Relaxation();
+void SolveMom();
+void INsCmpFaceflux();
+void Pres_cor();
+void INsCmpPressCorrectEquandUpdatePress();
+void INsUpdateFaceflux();
+void INsUpdateRes();
+void INsCmpSpeedCorrectandUpdateSpeed();
 
 
 EndNameSpace

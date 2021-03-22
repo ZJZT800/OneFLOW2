@@ -33,60 +33,23 @@ class LimField;
 class SolveEqua;
 
 
-class UINsInvterm : public INsInvterm
+class UINsPressCorrect : public INsInv
 {
 public:
-    UINsInvterm();
-    ~UINsInvterm();
+	UINsPressCorrect();
+    ~UINsPressCorrect();
 public:
-    void Alloc();
-    void DeAlloc();
-	void CmpINsTimestep();
-	void CmpINsPreflux();
-	void Init();
-    void CmpConv();
-	void InitMomCoeff();
-    void CmpConvTerm();
-	void BcVelocity(RealField& ub, RealField& vb, RealField& wb);
-	void BcPressure(RealField& pb);
-	void FaceVelocity(RealField& ub, RealField& vb, RealField& wb, RealField& uf, RealField& vf, RealField& wf);
-	void FacePressure(RealField& pb, RealField& pf);
-    void CmpInvFace();
-    void CmpLimiter();
-	void CmpFaceflux();
-	void CmpFaceVelocityValue(RealField& uf, RealField& vf, RealField& wf);
-	void CmpINsMomRes();
-	void CmpINsPreRes();
 	void PresEquCoeff();
 	void InitPressCoeff();
-	void maxmin(RealField& a, Real& max_a, Real& min_a);
+	void CmpInPressCoeff(int& fId);
+	void CmpBcPressCoeff(int& fId);
 	void CmpPressCorrectEqu();
 	void UpdateFaceflux();
 	void CmpUpdateINsFaceflux(int& fId);
     void CmpDun(int& fId);
 	void CmpUpdateINsBcFaceflux(int& fId);
 	void UpdateSpeed();
-	void UpdateINsRes();
-    void AddFlux();
-    void PrepareFaceValue();
-	void PrepareProFaceValue();
-	void CmpPreGrad();
-	//void CmpINsinvTerm();
-    //void UpdateFaceInvFlux();
-    void ReadTmp();
-public:
-    void GetQlQrField();
-    void ReconstructFaceValueField();
-    void BoundaryQlQrFixField();
-    //void Init();
-    void Solveuvw();
-public:
-    Limiter* limiter;
-    LimField* limf;
-    MRField* iinvflux;
-public:
-    Real Number;
 };
 //void PrimToQ(RealField & prim, Real gama, RealField & q);
-extern UINsInvterm NonZero;
+//extern UINsPressCorrect NonZero;
 EndNameSpace

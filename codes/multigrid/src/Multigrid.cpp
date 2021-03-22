@@ -112,69 +112,6 @@ void MG::MultigridSolve()
 
 void MG::Run()
 {
-	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
-	if (startStrategy == 2|| startStrategy == 3)
-	{
-
-		double rhs_V = 1e-8;
-		double rhs_u = 1e-8;
-		double rhs_v = 1e-8;
-		double rhs_w = 1e-8;
-
-		iinv.remax_up = 1;
-		iinv.remax_vp = 1;
-		iinv.remax_wp = 1;
-
-		int transt = ONEFLOW::GetDataValue< int >("transt");
-		if(transt!=0)
-		{
-			TimeSpan * timeSpan = new TimeSpan();
-			while (SimuIterState::Running())
-			{
-				Iteration::outerSteps++;
-				ctrl.currTime += ctrl.pdt;
-
-				Rhs* uINsSolver = new Rhs;
-				uINsSolver->FieldInit();
-				delete uINsSolver;
-				int maxIterSteps = GetDataValue< int >("maxIterSteps");
-				while (iinv.remax_up > rhs_u || iinv.remax_vp > rhs_v || iinv.remax_wp > rhs_w)
-				{
-					if (Iteration::innerSteps >= maxIterSteps) break;
-
-					Iteration::innerSteps++;
-
-					this->SolveInnerIter();
-
-				}
-				this->OuterProcess(timeSpan);
-			}
-			delete timeSpan;
-		}
-		else
-		{
-			TimeSpan * timeSpan = new TimeSpan();
-			Rhs* uINsSolver = new Rhs;
-			uINsSolver->FieldInit();
-			delete uINsSolver;
-			int maxIterSteps = GetDataValue< int >("maxIterSteps");
-			while (iinv.remax_up > rhs_u || iinv.remax_vp > rhs_v || iinv.remax_wp > rhs_w)
-			{
-				if (Iteration::innerSteps >= maxIterSteps) break;
-
-				Iteration::innerSteps++;
-
-				this->SolveInnerIter();
-
-			}
-			this->OuterProcess(timeSpan);
-			delete timeSpan;
-		}
-
-	}
-
-	else
-	{
 		TimeSpan * timeSpan = new TimeSpan();
 		while (SimuIterState::Running())
 		{
@@ -192,7 +129,7 @@ void MG::Run()
 			this->OuterProcess(timeSpan);
 		}
 		delete timeSpan;
-	}
+
 }
 
 void MG::InnerProcess()
@@ -353,16 +290,7 @@ void MG::SolveMultigridFlowField( int gl )
 
 void MG::SolveInnerIter()
 {
-	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
 
-	if (startStrategy == 2 || startStrategy == 3)
-	{
-		Rhs* uINsSolver = new Rhs;
-		uINsSolver->UINsSolver();
-		delete uINsSolver;
-	}
-	else
-	{
 		if (MG::iterMode == 0)
 		{
 			this->WeakIter();
@@ -371,7 +299,6 @@ void MG::SolveInnerIter()
 		{
 			this->StrongIter();
 		}
-	}
 
     this->InnerProcess();
 }

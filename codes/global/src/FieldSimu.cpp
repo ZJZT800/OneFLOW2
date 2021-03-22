@@ -24,8 +24,10 @@ License
 #include "Ctrl.h"
 #include "NsCom.h"
 #include "UsdData.h"
+#include "DataBase.h"
 #include "MultiBlock.h"
 #include "SolverMap.h"
+#include "SIMPLEC.h"
 #include "CmxTask.h"
 #include "Multigrid.h"
 #include "BcData.h"
@@ -39,7 +41,17 @@ void FieldSimu()
     MultiBlock::ProcessFlowWallDist();
     SolverMap::CreateSolvers();
     InitializeSolver();
-    MultigridSolve();
+	
+	int compressible = ONEFLOW::GetDataValue< int >("compressible");
+
+	if (compressible == 1)
+	{
+		SIMPLECSolve();
+	}
+	else
+	{
+		MultigridSolve();
+	}
 }
 
 void InitFlowSimuGlobal()
