@@ -59,8 +59,8 @@ MRField * CreateNodeVar( RealField & qc )
     UnsGrid * grid = Zone::GetUnsGrid();
     MRField * fn = AllocNodeVar( 1 );
 
-	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
-	if (startStrategy == 2 || startStrategy == 3)
+	int compressible = ONEFLOW::GetDataValue< int >("compressible");
+	if (compressible == 1)
 	{
 		CmpInsNodeVar((*fn)[0], qc);
 	}

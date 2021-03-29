@@ -130,8 +130,8 @@ void INsPostprocess( StringField & data )
         ONEFLOW::AddCmdToList( "DUMP_AERODYNAMIC" );
     }
 
-	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
-	if (startStrategy == 2)
+	int compressible = ONEFLOW::GetDataValue< int >("compressible");
+	if (compressible == 1)
 	{
 		;
 	}
@@ -143,7 +143,7 @@ void INsPostprocess( StringField & data )
 	}
 
 	
-	if (startStrategy == 2)
+	if (compressible == 1)
 	{
 		if (Iteration::innerSteps % Iteration::nVisualSave == 0)
 		{
@@ -170,7 +170,7 @@ void INsPostprocess( StringField & data )
 		}
 	}
 
-	if (startStrategy == 2)
+	if (compressible == 1)
 	{
 		if (Iteration::innerSteps % Iteration::nFieldSave == 0)
 		{

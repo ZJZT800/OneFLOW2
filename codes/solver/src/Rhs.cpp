@@ -42,6 +42,7 @@ License
 #include "UINsCom.h"
 #include "INsCom.h"
 #include "INsIdx.h"
+//#include "UINsBcSolver.h"
 //#include "UINsInvterm.h"
 //#include "UINsVisterm.h"
 //#include "UINsUnsteady.h"
@@ -172,7 +173,7 @@ void INSCmpGamaT(int flag)
 	uinsf.Init();
 	ug.SetStEd(flag);
 
-	if (inscom.chemModel == 1)
+	/*if (inscom.chemModel == 1)
 	{
 	}
 	else
@@ -191,8 +192,16 @@ void INSCmpGamaT(int flag)
 			//( * uinsf.tempr )[ IIDX::IITT ][ cId ] = pressure / ( inscom.statecoef * density * oamw );
 			//(*uinsf.tempr)[IIDX::IITT][cId] = 0;
 		}
-	}
+	}*/
 }
+
+/*void INsCmpBc()
+{
+	UINsBcSolver * uINsBcSolver = new UINsBcSolver();
+	uINsBcSolver->Init();
+	uINsBcSolver->CmpBc();
+	delete uINsBcSolver;
+}*/
 
 
 

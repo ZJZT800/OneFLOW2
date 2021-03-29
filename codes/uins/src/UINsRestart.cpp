@@ -52,14 +52,31 @@ void UINsRestart::InitinsRestart( int sTid )
 
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    MRField * q  = GetFieldPointer< MRField > ( grid, "q" );
+   // MRField * q  = GetFieldPointer< MRField > ( grid, "q" );
+
+	MRField * r = GetFieldPointer< MRField  >(grid, "r");
+
+	MRField * u = GetFieldPointer< MRField  >(grid, "u");
+
+	MRField * v = GetFieldPointer< MRField  >(grid, "v");
+
+	MRField * w = GetFieldPointer< MRField  >(grid, "w");
+
+	MRField * p = GetFieldPointer< MRField  >(grid, "p");
 
 	int nEqu = inscom.inflow.size();
 
-    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+   /* for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
         SetField( ( * q )[ iEqu ], inscom.inflow[ iEqu ] );
-    }
+    }*/
+
+	SetField((*r)[0], inscom.inflow[0]);
+	SetField((*u)[0], inscom.inflow[1]);
+	SetField((*v)[0], inscom.inflow[2]);
+	SetField((*w)[0], inscom.inflow[3]);
+	SetField((*p)[0], inscom.inflow[4]);
+
     this->InitUnsteady( sTid );
 
     RwInterface( sTid, GREAT_ZERO );
@@ -85,17 +102,29 @@ void UINsRestart::InitinsRestart( int sTid )
             Real s = a * x + b * y + c * z + d;
             if ( s < 0 )
             {
-                for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+                /*for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
                 {
                     ( * q )[ iEqu ][ cId ] = ctrl.initflow1[ iEqu ];
-                }
+                }*/
+
+				(*r)[0][cId] = ctrl.initflow1[0];
+				(*u)[0][cId] = ctrl.initflow1[1];
+				(*v)[0][cId] = ctrl.initflow1[2];
+				(*w)[0][cId] = ctrl.initflow1[3];
+				(*p)[0][cId] = ctrl.initflow1[4];
             }
             else
             {
-                for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+                /*for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
                 {
                     ( * q )[ iEqu ][ cId ] = ctrl.initflow2[ iEqu ];
-                }
+                }*/
+
+				(*r)[0][cId] = ctrl.initflow2[0];
+				(*u)[0][cId] = ctrl.initflow2[1];
+				(*v)[0][cId] = ctrl.initflow2[2];
+				(*w)[0][cId] = ctrl.initflow2[3];
+				(*p)[0][cId] = ctrl.initflow2[4];
             }
         }
     }

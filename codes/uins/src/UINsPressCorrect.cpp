@@ -22,7 +22,7 @@ License
 
 //#include "UINsInvterm.h"
 #include "UINsPressCorrect.h"
-#include "INsInvterm.h"
+#include "UINsMomPre.h"
 //#include "UINsVisterm.h"
 //#include "UINsGrad.h"
 #include "UGrad.h"
@@ -126,10 +126,10 @@ void UINsPressCorrect::CmpInPressCoeff(int& fId)
 
 	//iinv.rf = (*ug.fl)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.lc] + ((*ug.fr)[ug.fId]) * (*uinsf.q)[IIDX::IIR][ug.rc];
 
-	iinv.spp[lc] += (*uinsf.q)[IIDX::IIR][lc] * Sfarea / dist;
-	iinv.spp[rc] += (*uinsf.q)[IIDX::IIR][lc] * Sfarea / dist;
-	iinv.ai[0][fId] = (*uinsf.q)[IIDX::IIR][lc] * Sfarea / dist;
-	iinv.ai[1][fId] = (*uinsf.q)[IIDX::IIR][lc] * Sfarea / dist;
+	iinv.spp[lc] += (*uinsf.r)[0][lc] * Sfarea / dist;
+	iinv.spp[rc] += (*uinsf.r)[0][lc] * Sfarea / dist;
+	iinv.ai[0][fId] = (*uinsf.r)[0][lc] * Sfarea / dist;
+	iinv.ai[1][fId] = (*uinsf.r)[0][lc] * Sfarea / dist;
 
 	iinv.bp[lc] -= iinv.flux[fId];
 	iinv.bp[rc] += iinv.flux[fId];
@@ -156,7 +156,7 @@ void UINsPressCorrect::CmpBcPressCoeff(int& fId)
 
 	if (bcType == BC::OUTFLOW)
 	{
-		iinv.spp[lc] += (*uinsf.q)[IIDX::IIR][lc] * Sfarea / dist;
+		iinv.spp[lc] += (*uinsf.r)[0][lc] * Sfarea / dist;
 	}
 
 	else if (bcType == BC::SOLID_SURFACE)
@@ -223,14 +223,13 @@ void UINsPressCorrect::CmpPressCorrectEqu()
 		iinv.ppf[fId] = (*ug.fl)[fId] * iinv.pp[lc] + (*ug.fr)[fId] * iinv.pp[rc];
 	}
 
+	Real press_relax = GetDataValue< Real >("press_relax");
+
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
-		(*uinsf.q)[IIDX::IIP][cId] = (*uinsf.q)[IIDX::IIP][cId] + 0.4 * (iinv.pp[cId]);
+		(*uinsf.p)[0][cId] = (*uinsf.p)[0][cId] + press_relax * (iinv.pp[cId]);
 	}
 
-	RealField pb;
-
-	pb.resize(ug.nBFace);
 
 	for (int fId = 0; fId < ug.nBFace; fId++)
 	{
@@ -239,20 +238,20 @@ void UINsPressCorrect::CmpPressCorrectEqu()
 
 		if (bcType == BC::SOLID_SURFACE)
 		{
-			pb[fId] = (*uinsf.q)[IIDX::IIP][lc];
+			iinv.pb[fId] = (*uinsf.p)[0][lc];
 
 		}
 		else if (bcType == BC::INFLOW)
 		{
-			pb[fId] = (*uinsf.q)[IIDX::IIP][lc];
+			iinv.pb[fId] = (*uinsf.p)[0][lc];
 		}
 		else if (bcType == BC::OUTFLOW)
 		{
-			pb[fId] = 0;
+			iinv.pb[fId] += 0;
 		}
 		else if (ug.bctype == BC::SYMMETRY)
 		{
-			pb[fId] = (*uinsf.q)[IIDX::IIP][lc];
+			iinv.pb[fId] = (*uinsf.p)[0][lc];
 		}
 	}
 
@@ -290,7 +289,7 @@ void UINsPressCorrect::CmpPressCorrectEqu()
 	for (int fId = 0; fId < ug.nBFace; fId++)
 	{
 		int rc = (*ug.rcf)[fId];
-		(*uinsf.q)[IIDX::IIP][rc] = pb[fId];
+		(*uinsf.p)[0][rc] = iinv.pb[fId];
 	}
 }
 
@@ -376,7 +375,7 @@ void UINsPressCorrect::CmpUpdateINsBcFaceflux(int& fId)
 
 		Real dist = l2rdx * (*ug.a1)[fId] + l2rdy * (*ug.a2)[fId] + l2rdz * (*ug.a3)[fId];
 
-		Real fux = (*uinsf.q)[IIDX::IIR][lc] * Df / dist * (iinv.pp[lc] - iinv.ppf[fId]);
+		Real fux = (*uinsf.r)[0][lc] * Df / dist * (iinv.pp[lc] - iinv.ppf[fId]);
 		iinv.flux[fId] = iinv.flux[fId] + fux;
 	}
 
@@ -393,7 +392,7 @@ void UINsPressCorrect::CmpUpdateINsFaceflux(int& fId)
 	int rc = (*ug.rcf)[fId];
 
 	Real dupf;
-	dupf = (*ug.fl)[fId] * ((*ug.cvol)[lc] / iinv.dup[lc]) + (*ug.fr)[fId] * ((*ug.cvol)[lc] / iinv.dup[rc]);
+	dupf = (*ug.fl)[fId] * ((*ug.cvol)[lc] / iinv.dup[lc]) + (*ug.fr)[fId] * ((*ug.cvol)[rc] / iinv.dup[rc]);
 	Real Df1 = dupf * (*ug.a1)[fId];
 	Real Df2 = dupf * (*ug.a2)[fId];
 	Real Df3 = dupf * (*ug.a3)[fId];
@@ -406,7 +405,7 @@ void UINsPressCorrect::CmpUpdateINsFaceflux(int& fId)
 
 	Real dist = l2rdx * (*ug.a1)[fId] + l2rdy * (*ug.a2)[fId] + l2rdz * (*ug.a3)[fId];
 
-	Real fux = (*uinsf.q)[IIDX::IIR][lc] * Df / dist * (iinv.pp[lc] - iinv.pp[rc]);
+	Real fux = (*uinsf.r)[0][lc] * Df / dist * (iinv.pp[lc] - iinv.pp[rc]);
 	iinv.flux[fId] = iinv.flux[fId] + fux;
 
 }
@@ -416,20 +415,20 @@ void UINsPressCorrect::CmpDun(int& fId)
 	int lc = (*ug.lcf)[fId];
 	int rc = (*ug.rcf)[fId];
 
-	Real ub1, vb1, wb1;
+	//Real ub1, vb1, wb1;
 
 	//if (fId > ug.nBFace - 1)
 	//{
-		Real uf1 = (*ug.fl)[fId] * (*uinsf.q)[IIDX::IIU][lc] + (*ug.fr)[fId] * (*uinsf.q)[IIDX::IIU][rc];
-		Real vf1 = (*ug.fl)[fId] * (*uinsf.q)[IIDX::IIV][lc] + (*ug.fr)[fId] * (*uinsf.q)[IIDX::IIV][rc];
-		Real wf1 = (*ug.fl)[fId] * (*uinsf.q)[IIDX::IIW][lc] + (*ug.fr)[fId] * (*uinsf.q)[IIDX::IIW][rc];
+		Real uf1 = (*ug.fl)[fId] * (*uinsf.u)[0][lc] + (*ug.fr)[fId] * (*uinsf.u)[0][rc];
+		Real vf1 = (*ug.fl)[fId] * (*uinsf.v)[0][lc] + (*ug.fr)[fId] * (*uinsf.v)[0][rc];
+		Real wf1 = (*ug.fl)[fId] * (*uinsf.w)[0][lc] + (*ug.fr)[fId] * (*uinsf.w)[0][rc];
 
 		/*iinv.uf[ug.fId] = (*ug.fl)[ug.fId] * (*uinsf.q)[IIDX::IIU][ug.lc] + (*ug.fr)[ug.fId] * (*uinsf.q)[IIDX::IIU][ug.rc];
 		iinv.vf[ug.fId] = (*ug.fl)[ug.fId] * (*uinsf.q)[IIDX::IIV][ug.lc] + (*ug.fr)[ug.fId] * (*uinsf.q)[IIDX::IIV][ug.rc];
 		iinv.wf[ug.fId] = (*ug.fl)[ug.fId] * (*uinsf.q)[IIDX::IIW][ug.lc] + (*ug.fr)[ug.fId] * (*uinsf.q)[IIDX::IIW][ug.rc];*/
 		Real un = uf1 * (*ug.a1)[fId] + vf1 * (*ug.a2)[fId] + wf1 * (*ug.a3)[fId];
 
-		iinv.dun[ug.fId] = iinv.flux[fId] / ((*uinsf.q)[IIDX::IIR][lc] + SMALL) - un;
+		iinv.dun[fId] = iinv.flux[fId] / ((*uinsf.r)[0][lc] + SMALL) - un;
 	//}
 
 	/*else 
@@ -532,14 +531,10 @@ void UINsPressCorrect::UpdateSpeed()
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
-		(*uinsf.q)[IIDX::IIU][cId] -= (*ug.cvol)[cId] / iinv.dup[cId] * dppdx[cId];
-		(*uinsf.q)[IIDX::IIV][cId] -= (*ug.cvol)[cId] / iinv.dup[cId] * dppdy[cId];
-		(*uinsf.q)[IIDX::IIW][cId] -= (*ug.cvol)[cId] / iinv.dup[cId] * dppdz[cId];
+		(*uinsf.u)[0][cId] -= (*ug.cvol)[cId] / iinv.dup[cId] * dppdx[cId];
+		(*uinsf.v)[0][cId] -= (*ug.cvol)[cId] / iinv.dup[cId] * dppdy[cId];
+		(*uinsf.w)[0][cId] -= (*ug.cvol)[cId] / iinv.dup[cId] * dppdz[cId];
 	}
-
-	Real ub1, vb1, wb1;
-
-
 
 	for (int ir = 0; ir < ug.nRegion; ++ir)
 	{
@@ -566,16 +561,18 @@ void UINsPressCorrect::UpdateSpeed()
 
 			if (ug.bctype == BC::INFLOW)
 			{
-				ub1 = inscom.inflow[1];
+				/*ub1 = inscom.inflow[IIDX::IIU];
 
-				vb1 = inscom.inflow[2];
+				vb1 = inscom.inflow[IIDX::IIV];
 
-				wb1 = inscom.inflow[3];
+				wb1 = inscom.inflow[IIDX::IIW];*/
+
+				;
 			}
 
 			else if (ug.bctype == BC::SOLID_SURFACE)
 			{
-				if (ug.bcdtkey == 0)     //静止流动状态时固壁边界面的速度应该为零
+				/*if (ug.bcdtkey == 0)     //静止流动状态时固壁边界面的速度应该为零
 				{
 					ub1 = (*ug.vfx)[fId];
 
@@ -585,36 +582,46 @@ void UINsPressCorrect::UpdateSpeed()
 				}
 				else
 				{
-					ub1 = (*inscom.bcflow)[1];
+					ub1 = (*inscom.bcflow)[IIDX::IIU];
 
-					vb1 = (*inscom.bcflow)[2];
+					vb1 = (*inscom.bcflow)[IIDX::IIV];
 
-					wb1 = (*inscom.bcflow)[3];
-				}
+					wb1 = (*inscom.bcflow)[IIDX::IIW];
+				}*/
+
+				;
 			}
 
 			else if (ug.bctype == BC::OUTFLOW)
 			{
 
-				ub1 = (*uinsf.q)[IIDX::IIU][lc] - (*ug.cvol)[lc] / iinv.dup[lc] * dppdx[lc];
+				/*ub1 = (*uinsf.u)[0][lc] - (*ug.cvol)[lc] / iinv.dup[lc] * dppdx[lc];
 
-				vb1 = (*uinsf.q)[IIDX::IIV][lc] - (*ug.cvol)[lc] / iinv.dup[lc] * dppdy[lc];
+				vb1 = (*uinsf.v)[0][lc] - (*ug.cvol)[lc] / iinv.dup[lc] * dppdy[lc];
 
-				wb1 = (*uinsf.q)[IIDX::IIW][lc] - (*ug.cvol)[lc] / iinv.dup[lc] * dppdz[lc];
+				wb1 = (*uinsf.w)[0][lc] - (*ug.cvol)[lc] / iinv.dup[lc] * dppdz[lc];*/
+
+				iinv.ub[fId] = (*uinsf.u)[0][lc] - (*ug.cvol)[lc] / iinv.dup[lc] * dppdx[lc];
+
+				iinv.vb[fId] = (*uinsf.v)[0][lc] - (*ug.cvol)[lc] / iinv.dup[lc] * dppdy[lc];
+
+				iinv.wb[fId] = (*uinsf.w)[0][lc] - (*ug.cvol)[lc] / iinv.dup[lc] * dppdz[lc];
+
 			}
 
 			else if (ug.bctype == BC::SYMMETRY)
 			{
-				ub1 = 0;
+				/*iinv.ub[fId] = 0;
 
-				vb1 = 0;
+				iinv.vb[fId] = 0;
 
-				wb1 = 0;
+				iinv.wb[fId] = 0;*/
+				;
 			}
 
-			(*uinsf.q)[IIDX::IIU][rc] = ub1;
-			(*uinsf.q)[IIDX::IIV][rc] = vb1;
-			(*uinsf.q)[IIDX::IIW][rc] = wb1;
+			(*uinsf.u)[0][rc] = iinv.ub[fId];
+			(*uinsf.v)[0][rc] = iinv.vb[fId];
+			(*uinsf.w)[0][rc] = iinv.wb[fId];
 
 		}
 	}

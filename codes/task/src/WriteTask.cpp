@@ -44,8 +44,8 @@ CWriteFile::~CWriteFile()
 
 void CWriteFile::Run()
 {
-	int startStrategy = ONEFLOW::GetDataValue< int >("startStrategy");
-	if (startStrategy == 2)
+	int compressible = ONEFLOW::GetDataValue< int >("compressible");
+	if (compressible == 1)
 	{
 		ActionState::dataBook = this->dataBook;
 		if (Parallel::mode == 0)

@@ -1,6 +1,6 @@
 
 #include "SIMPLEC.h"
-#include "INsInvterm.h"
+#include "UINsMomPre.h"
 //#include "UINsInvterm.h"
 #include "Mesh.h"
 #include "Ctrl.h"
@@ -25,6 +25,65 @@ using namespace std;
 
 
 BeginNameSpace(ONEFLOW)
+
+INsInv iinv;
+
+INsInv::INsInv()
+{
+	;
+}
+
+INsInv::~INsInv()
+{
+	;
+}
+
+void INsInv::FluxInit()
+{
+	flux.resize(ug.nFace);
+	ub.resize(ug.nBFace);
+	vb.resize(ug.nBFace);
+	wb.resize(ug.nBFace);
+	pb.resize(ug.nBFace);
+	dun.resize(ug.nFace);
+}
+
+void INsInv::MomPreInit()
+{
+	bu.resize(ug.nCell);
+	bv.resize(ug.nCell);
+	bw.resize(ug.nCell);
+	spu.resize(ug.nCell);
+	ai.resize(2, ug.nFace);
+}
+
+void INsInv::DeleteMomPreVar()
+{
+	bu.clear();
+	bv.clear();
+	bw.clear();
+}
+
+void INsInv::PressCorInit()
+{
+	bp.resize(ug.nCell);
+	spp.resize(ug.nCell);
+	pp.resize(ug.nCell);
+	ppf.resize(ug.nFace);
+	dup.resize(ug.nCell);
+}
+
+void INsInv::DeletePressCorVar()
+{
+	bp.clear();
+	spp.clear();
+	pp.clear();
+	ppf.clear();
+	dup.clear();
+	spu.clear();
+	ai.clear();
+}
+
 
 SIMPLEC::SIMPLEC()
 {
@@ -88,7 +147,6 @@ void SIMPLEC::Run()
 			Iteration::innerSteps++;
 
 			this->SolveInnerIter();
-
 		}
 	//}
 }

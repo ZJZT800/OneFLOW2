@@ -22,7 +22,7 @@ License
 
 
 #pragma once
-#include "INsInvterm.h"
+#include "UINsMomPre.h"
 #include "systemSolver.h"
 
 BeginNameSpace(ONEFLOW)

@@ -60,6 +60,7 @@ VisualTool::~VisualTool()
     {
         delete qNodeField[ i ];
     }
+
 }
 
 void VisualTool::Init()
@@ -544,12 +545,13 @@ void UVisualize::ShowField( ostringstream & oss, VisualTool * visualTool )
     Plot::DumpField( grid->nodeMesh->yN );
     Plot::DumpField( grid->nodeMesh->zN );
     
-    int nVar = visualTool->qNodeField.size();        
-    for ( int iVar = 0; iVar < nVar; ++ iVar )
-    {
-        RealField & q = ( * visualTool->qNodeField[ iVar ] )[ 0 ];
-        Plot::DumpField( q );
-    }
+
+	    int nVar = visualTool->qNodeField.size();
+	    for (int iVar = 0; iVar < nVar; ++iVar)
+	    {
+		 RealField & q = (*visualTool->qNodeField[iVar])[0];
+		 Plot::DumpField(q);
+	    }
 
     if ( Dim::dimension == THREE_D )
     {
@@ -615,21 +617,47 @@ void UVisualize::ShowBcDebugTest( ostringstream & oss, VisualTool * visualTool )
 void UVisualize::CmpNodeField( VisualTool * visualTool )
 {
     UnsGrid * grid = Zone::GetUnsGrid();
-    MRField * q = ONEFLOW::GetFieldPointer< MRField >( grid, "q" );
+	int compressible = ONEFLOW::GetDataValue< int >("compressible");
+	if (compressible == 1)
+	{
+		MRField * r = GetFieldPointer< MRField  >(grid, "r");
+		MRField * u = GetFieldPointer< MRField  >(grid, "u");
+		MRField * v = GetFieldPointer< MRField  >(grid, "v");
+		MRField * w = GetFieldPointer< MRField  >(grid, "w");
+		MRField * p = GetFieldPointer< MRField  >(grid, "p");
 
-   MRField * rn = visualTool->AddField( ( * q )[ IDX::IR ], "r" );
-    MRField * un = visualTool->AddField( ( * q )[ IDX::IU ], "u" );
-    MRField * vn = visualTool->AddField( ( * q )[ IDX::IV ], "v" );
-    MRField * wn = visualTool->AddField( ( * q )[ IDX::IW ], "w" );
-    MRField * pn = visualTool->AddField( ( * q )[ IDX::IP ], "p" );
+		MRField * rn = visualTool->AddField((*r)[0], "r");
+		MRField * un = visualTool->AddField((*u)[0], "u");
+		MRField * vn = visualTool->AddField((*v)[0], "v");
+		MRField * wn = visualTool->AddField((*w)[0], "w");
+		MRField * pn = visualTool->AddField((*p)[0], "p");
 
-    MRField * gaman = CreateNodeVar( "gama" );
-    MRField * machn = visualTool->CreateField( "mach" );
-    CmpMach( rn, un, vn, wn, pn, gaman, machn );
-    delete gaman;
+		MRField * gaman = CreateNodeVar("gama");
+		MRField * machn = visualTool->CreateField("mach");
+		CmpMach(rn, un, vn, wn, pn, gaman, machn);
+		delete gaman;
 
-    MRField * tempr = ONEFLOW::GetFieldPointer< MRField >( grid, "tempr" );
-    visualTool->AddField( ( * tempr )[ IDX::ITT ], "tempr" );
+		MRField * tempr = ONEFLOW::GetFieldPointer< MRField >(grid, "tempr");
+		visualTool->AddField((*tempr)[IDX::ITT], "tempr");
+	}
+	else
+	{
+		MRField * q = ONEFLOW::GetFieldPointer< MRField >(grid, "q");
+
+		MRField * rn = visualTool->AddField((*q)[IDX::IR], "r");
+		MRField * un = visualTool->AddField((*q)[IDX::IU], "u");
+		MRField * vn = visualTool->AddField((*q)[IDX::IV], "v");
+		MRField * wn = visualTool->AddField((*q)[IDX::IW], "w");
+		MRField * pn = visualTool->AddField((*q)[IDX::IP], "p");
+
+		MRField * gaman = CreateNodeVar("gama");
+		MRField * machn = visualTool->CreateField("mach");
+		CmpMach(rn, un, vn, wn, pn, gaman, machn);
+		delete gaman;
+
+		MRField * tempr = ONEFLOW::GetFieldPointer< MRField >(grid, "tempr");
+		visualTool->AddField((*tempr)[IDX::ITT], "tempr");
+	}
 
     if ( vis_model.vismodel > 0 )
     {

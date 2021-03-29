@@ -22,7 +22,7 @@ License
 
 
 #pragma once
-#include "INsInvterm.h"
+#include "SIMPLEC.h"
 #include "systemSolver.h"
 
 BeginNameSpace(ONEFLOW)
@@ -31,7 +31,6 @@ class UINsFField;
 class Limiter;
 class LimField;
 class SolveEqua;
-
 
 class UINsMomPre : public INsInv
 {
@@ -60,8 +59,8 @@ public:
 	void CmpINsMomRes();
 	void Solveuvw();
 	void CmpFaceflux();
-	void CmpINsFaceflux(Real & dpdx1, Real & dpdx2, Real & dpdy1, Real & dpdy2, Real & dpdz1, Real & dpdz2, int& fId);
-	void CmpINsBcFaceflux(Real& dpdx1, Real& dpdy1, Real& dpdz1, Real& pb1, int& fId);
+	void CmpINsFaceflux(Real & dpdx1, Real & dpdx2, Real & dpdy1, Real & dpdy2, Real & dpdz1, Real & dpdz2, Real & rurf, int& fId);
+	void CmpINsBcFaceflux(Real& dpdx1, Real& dpdy1, Real& dpdz1, Real& pb1, Real & rurf, int& fId);
 };
 //void PrimToQ(RealField & prim, Real gama, RealField & q);
 //extern UINsMomPre NonZero;

@@ -36,9 +36,10 @@ public:
 public:
     void Init();
 public:
-	MRField * q, *q1, *q2,*qf;
-    MRField * dq;
-    MRField * rhs, * drhs;
+//	MRField * q, *q1, *q2,*qf;
+	MRField * r, *u, *v, *w, *p;
+//    MRField * dq;
+//    MRField * rhs, * drhs;
     MRField * gama, * gama1, * gama2;
     MRField * dqdx, * dqdy, * dqdz;
     MRField * dtdx, * dtdy, * dtdz;

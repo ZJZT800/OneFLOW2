@@ -47,7 +47,14 @@ void UINsField::Init()
 {
     UnsGrid * grid = Zone::GetUnsGrid();
 
-    q  = GetFieldPointer< MRField > ( grid, "q" );
+   // q  = GetFieldPointer< MRField > ( grid, "q" );
+
+	r = GetFieldPointer< MRField >(grid, "r");
+	u = GetFieldPointer< MRField >(grid, "u");
+	v = GetFieldPointer< MRField >(grid, "v");
+	w = GetFieldPointer< MRField >(grid, "w");
+	p = GetFieldPointer< MRField >(grid, "p");
+
     //q1  = GetFieldPointer< MRField > ( grid, "q1" );
     //q2  = GetFieldPointer< MRField > ( grid, "q2" );
 	//qf = GetFieldPointer< MRField >(grid, "qf");

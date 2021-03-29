@@ -47,15 +47,15 @@ void INsCom::Init()
     if ( init_flag ) return;
     init_flag = true;
     icmpInv = 1;
-    ischeme = GetDataValue< int >( "ischeme" );
-    ivischeme = GetDataValue< int >( "ivischeme" );
-    timestepModel = GetDataValue< int >( "timestepModel" );
-    visSRModel = GetDataValue< int >( "visSRModel" );
+	/*ischeme = GetDataValue< int >( "ischeme" );
+	ivischeme = GetDataValue< int >( "ivischeme" );
+	timestepModel = GetDataValue< int >("timestepModel");
+	visSRModel = GetDataValue< int >( "visSRModel" );
     visTimestepModel = GetDataValue< int >( "visTimestepModel" );
-    chemModel = GetDataValue< int >( "chemModel" );
-    nTModel = GetDataValue< int >( "nTModel" );
+	chemModel = GetDataValue< int >("chemModel");
+	nTModel = GetDataValue< int >("nTModel");
 
-    faceOuterNormal = 1;
+	faceOuterNormal = 1;
     reynolds = GetDataValue< Real >( "reynolds" );
 
     prl = GetDataValue< Real >( "prl" );
@@ -83,71 +83,58 @@ void INsCom::Init()
     schmidtl = GetDataValue< Real >( "schmidtl" );
     schmidtt = GetDataValue< Real >( "schmidtt" );
 
-    max_time_ratio = GetDataValue< Real >( "max_time_ratio" );
+    max_time_ratio = GetDataValue< Real >( "max_time_ratio" );*/
 
     nEqu = GetDataValue< int >( "nEqu" );
     nTEqu = GetDataValue< int >( "nTEqu" );
     chem.INsInit();
 
-    oprl = 1.0 / prl;
-    oprt = 1.0 / prt;
+      /*oprl = 1.0 / prl;
+      oprt = 1.0 / prt;
 
     twall = twall_dim / tref_dim;
 
-    const_cp = 1.0 / ( ( gama_ref - 1.0 ) * SQR( mach_ref ) );
+    const_cp = 1.0 / ( ( gama_ref - 1.0 ) * SQR( mach_ref ) );*/
 
-    q1.resize( nTEqu );
-    q2.resize( nTEqu );
+	/*q1.resize(nTEqu);
+	q2.resize(nTEqu);
 
-    q.resize( nTEqu );
-    q0.resize( nTEqu );
-    dq.resize( nTEqu );
+	q.resize(nTEqu);
+	q0.resize( nTEqu );
+	dq.resize( nTEqu );
 
-    prim.resize( nTEqu );
-    prim0.resize( nTEqu );
+	prim.resize(nTEqu);
+	prim0.resize(nTEqu);
 
-    prims1.resize( nTEqu );
-    prims2.resize( nTEqu );
+	prims1.resize(nTEqu);
+	prims2.resize(nTEqu);
 
-    primt1.resize( nTEqu );
-    primt2.resize( nTEqu );
+	primt1.resize(nTEqu);
+	primt2.resize(nTEqu);
 
-    t.resize( nTModel );
-    t0.resize( nTModel );
+	t.resize(nTModel);
+	t0.resize(nTModel);
 
-    ts1.resize( nTModel );
-    ts2.resize( nTModel );
+	ts1.resize(nTModel);
+	ts2.resize(nTModel);
 
-    tt1.resize( nTModel );
-    tt2.resize( nTModel );
+	tt1.resize(nTModel);
+	tt2.resize(nTModel);*/
 }
 
-void INsExtract(RealField& prim, Real& rm, Real& um, Real& vm, Real& wm, Real& pm)
+void INsExtract(RealField & prim, Real & rm, Real & um, Real & vm, Real & wm, Real & pm)
 {
-    rm = prim[IIDX::IIR];
-    um = prim[IIDX::IIR];
-    vm = prim[IIDX::IIR];
-    wm = prim[IIDX::IIR];
-    pm = prim[IIDX::IIR];
+		rm = prim[IIDX::IIR];
+		um = prim[IIDX::IIR];
+		vm = prim[IIDX::IIR];
+		wm = prim[IIDX::IIR];
+		pm = prim[IIDX::IIR];
 }
 
-void INsExtractl(MRField & q, Real & rm, Real & um, Real & vm, Real & wm, Real & pm, int &lc)
+/*void INsExtractr(MRField & q, Real & qm, int &rc)
 {
-	rm = q[IIDX::IIR][lc];
-	um = q[IIDX::IIU][lc];
-	vm = q[IIDX::IIV][lc];
-	wm = q[IIDX::IIW][lc];
-	pm = q[IIDX::IIP][lc];
-}
-
-void INsExtractr(MRField & q, Real & rm, Real & um, Real & vm, Real & wm, Real & pm, int & rc)
-{
-    rm = q[IIDX::IIR][rc];
-    um = q[IIDX::IIU][rc];
-    vm = q[IIDX::IIV][rc];
-    wm = q[IIDX::IIW][rc];
-    pm = q[IIDX::IIP][rc];
-}
+	qm = q[0][rc];
+}*/
 
 bool INsCheckFunction( RealField & q )
 {

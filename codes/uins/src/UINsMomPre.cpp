@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UINsMomPre.h"
-#include "INsInvterm.h"
+//#include "INsInvterm.h"
 //#include "UINsVisterm.h"
 //#include "UINsGrad.h"
 #include "UGrad.h"
@@ -68,13 +68,13 @@ void UINsMomPre::CmpConv()
 
 void UINsMomPre::CmpINsPreflux()
 {
-		iinv.Init();
+	    iinv.FluxInit();
 		ug.Init();
 		uinsf.Init();
         //this->Init();
 
-		Real rl, ul, vl, wl, pl;
-		Real rr, ur, vr, wr, pr;
+		Real  rl,ul, vl, wl,pl;
+		Real  rr,ur, vr, wr,pw;
 
 		ug.nRegion = ug.bcRecord->bcInfo->bcType.size();
 		for (int ir = 0; ir < ug.nRegion; ++ir)
@@ -99,95 +99,71 @@ void UINsMomPre::CmpINsPreflux()
 					inscom.bcflow = &bcdata.dataList[dd];
 				}
 
-				
-				INsExtractl(*uinsf.q, rl, ul,vl,wl,pl,lc); 
+				/*INsExtract(*uinsf.r, rl, lc);
+				INsExtract(*uinsf.u, ul,lc);
+				INsExtract(*uinsf.v, vl,lc);
+				INsExtract(*uinsf.w, wl, lc);*/
 
 				if (ug.bctype == BC::SOLID_SURFACE)
 				{
-					//if (ug.bcdtkey == 0)     
-					//{
-						/*iinv.rf = iinv.rl;   
 
-						iinv.uf[fId] = (*ug.vfx)[fId];
+					if (ug.bcdtkey == 0)
+					{
 
-						iinv.vf[fId] = (*ug.vfy)[fId];
+						iinv.ub[fId] = (*ug.vfx)[fId];
 
-						iinv.wf[fId] = (*ug.vfz)[fId];
+						iinv.vb[fId] = (*ug.vfy)[fId];
 
-						iinv.pf[fId] = iinv.pl;*/
+						iinv.wb[fId] = (*ug.vfz)[fId];
 
-						//iinv.flux[fId] = iinv.rf * ((*ug.a1)[fId] * iinv.uf[fId] + (*ug.a2)[fId] * iinv.vf[fId] + (*ug.a3)[fId] * iinv.wf[fId]);
+						iinv.pb[fId] = (*uinsf.p)[0][lc];
+					}
+					else
+					{
+						iinv.ub[fId] = (*inscom.bcflow)[1];
 
-						iinv.flux[fId] =0;
-					//}
-					//else
-					//{
-						/*iinv.rf = iinv.rl;   
+						iinv.vb[fId] = (*inscom.bcflow)[2];
 
-						iinv.uf[fId] = (*inscom.bcflow)[1];
+						iinv.wb[fId] = (*inscom.bcflow)[3];
 
-						iinv.vf[fId] = (*inscom.bcflow)[2];
-
-						iinv.wf[fId] = (*inscom.bcflow)[3];
-
-						iinv.pf[fId] = iinv.pl;*/
-
-						//iinv.flux[fId] = iinv.rf * ((*ug.a1)[fId] * iinv.uf[fId] + (*ug.a2)[fId] * iinv.vf[fId] + (*ug.a3)[fId] * iinv.wf[fId]);
-
-						//iinv.flux[fId] = rl * ((*ug.a1)[fId] * (*inscom.bcflow)[1] + (*ug.a2)[fId] * (*inscom.bcflow)[2] + (*ug.a3)[fId] * (*inscom.bcflow)[3]);
-
-					//}
-
+						iinv.pb[fId] = (*uinsf.p)[0][lc];
+					}
+					iinv.flux[fId] =0;
 				}
+
 				else if (ug.bctype == BC::OUTFLOW)
 				{
+					iinv.ub[fId] = (*uinsf.u)[0][lc];
+					iinv.vb[fId] = (*uinsf.v)[0][lc];
+					iinv.wb[fId] = (*uinsf.w)[0][lc];
+					iinv.pb[fId] = (*uinsf.p)[0][lc];
 
-					/*iinv.rf = iinv.rl;   
-
-					iinv.uf[fId] = iinv.ul;
-
-					iinv.vf[fId] = iinv.vl;
-
-					iinv.wf[fId] = iinv.wl;
-
-					iinv.pf[fId] = iinv.pl;*/
-
-					//iinv.flux[fId] = iinv.rf * ((*ug.a1)[fId] * iinv.uf[fId] + (*ug.a2)[fId] * iinv.vf[fId] + (*ug.a3)[fId] * iinv.wf[fId]);
-
-					iinv.flux[fId] = rl * ((*ug.a1)[fId] * ul + (*ug.a2)[fId] * vl + (*ug.a3)[fId] * wl);
+					iinv.flux[fId] = (*uinsf.r)[0][lc] * ((*ug.a1)[fId] * iinv.ub[fId] + (*ug.a2)[fId] * iinv.vb[fId] + (*ug.a3)[fId] * iinv.wb[fId]);
 				}
 
 				else if (ug.bctype == BC::INFLOW)
 				{
-					/*iinv.rf = inscom.inflow[0];   
+					iinv.ub[fId] = inscom.inflow[IIDX::IIU];
 
-					iinv.uf[fId] = inscom.inflow[1];
+					iinv.vb[fId] = inscom.inflow[IIDX::IIV];
 
-					iinv.vf[fId] = inscom.inflow[2];
+					iinv.wb[fId] = inscom.inflow[IIDX::IIW];
 
-					iinv.wf[fId] = inscom.inflow[3];
+					iinv.pb[fId] = inscom.inflow[IIDX::IIP];
 
-					iinv.pf[fId] = inscom.inflow[4];*/
-
-					//iinv.flux[fId] = iinv.rf * ((*ug.a1)[fId] * iinv.uf[fId] + (*ug.a2)[fId] * iinv.vf[fId] + (*ug.a3)[fId] * iinv.wf[fId]);
-
-					iinv.flux[fId] = inscom.inflow[0] * ((*ug.a1)[fId] * inscom.inflow[1] + (*ug.a2)[fId] * inscom.inflow[2] + (*ug.a3)[fId] * inscom.inflow[3]);
+					iinv.flux[fId] = inscom.inflow[0] * ((*ug.a1)[fId] * iinv.ub[fId] + (*ug.a2)[fId] * iinv.vb[fId] + (*ug.a3)[fId] * iinv.wb[fId]);
 				}
 
 				else if (ug.bctype == BC::SYMMETRY)
 				{
-					/*iinv.rf = iinv.rl;
+					iinv.ub[fId] = 0;
 
-					iinv.uf[fId] = 0;
+					iinv.vb[fId] = 0;
 
-					iinv.vf[fId] = 0;
+					iinv.wb[fId] = 0;
 
-					iinv.wf[fId] = 0;
-
-					iinv.pf[fId] = iinv.pl;*/
-
-					//iinv.flux[fId] = iinv.rf * ((*ug.a1)[fId] * iinv.uf[fId] + (*ug.a2)[fId] * iinv.vf[fId] + (*ug.a3)[fId] * iinv.wf[fId]);
-
+					iinv.pb[fId] = (*uinsf.p)[0][lc];
+					
 					iinv.flux[fId] =0;
 				}
 
@@ -201,18 +177,28 @@ void UINsMomPre::CmpINsPreflux()
 			int lc = (*ug.lcf)[fId];
 			int rc = (*ug.rcf)[fId];
 
-			INsExtractl(*uinsf.q, rl, ul, vl, wl, pl,lc);
-			INsExtractr(*uinsf.q, rr, ur, vr, wr, pr,rc);
+			/*INsExtract(*uinsf.r, rl, lc);
+			INsExtract(*uinsf.u, ul, lc);
+			INsExtract(*uinsf.v, vl, lc);
+			INsExtract(*uinsf.w, wl, lc);
+			INsExtract(*uinsf.r, rr, rc);
+			INsExtract(*uinsf.u, ur, rc);
+			INsExtract(*uinsf.v, vr, rc);
+			INsExtract(*uinsf.w, wr, rc);*/
 
-			//iinv.rf = iinv.rl * (*ug.fl)[fId] + iinv.rr * (*ug.fr)[fId];
+			rl = (*uinsf.r)[0][lc];
+			ul = (*uinsf.u)[0][lc];
+			vl = (*uinsf.v)[0][lc];
+			wl = (*uinsf.w)[0][lc];
+			ur = (*uinsf.u)[0][rc];
+			vr = (*uinsf.v)[0][rc];
+			wr = (*uinsf.w)[0][rc];
 
 			uf = ul * (*ug.fl)[fId] + ur * (*ug.fr)[fId];
 
 			vf = vl * (*ug.fl)[fId] + vr * (*ug.fr)[fId];
 
 			wf = wl * (*ug.fl)[fId] + wr * (*ug.fr)[fId];
-
-		   //iinv.pf[fId] = iinv.pl * (*ug.fl)[fId] + iinv.pr * (*ug.fr)[fId];
 
 			iinv.flux[fId] = rl * ((*ug.a1)[fId] * uf + (*ug.a2)[fId] * vf + (*ug.a3)[fId] * wf);
 		}
@@ -253,7 +239,7 @@ void UINsMomPre::CmpConvTerm()
 	vb.resize(ug.nBFace);
 	wb.resize(ug.nBFace);
 
-	BcVelocity(ub, vb, wb);
+	//BcVelocity(ub, vb, wb);
 
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
@@ -266,7 +252,7 @@ void UINsMomPre::CmpConvTerm()
 		Real vb1 = vb[fId];
 		Real wb1 = wb[fId];
 
-		this->BcConvCoff(ub1, vb1, wb1, fId);
+		this->BcConvCoff(iinv.ub[fId], iinv.vb[fId], iinv.wb[fId], fId);
 	}
 }
 
@@ -370,20 +356,20 @@ void UINsMomPre::BcVelocity(RealField& ub, RealField& vb, RealField& wb)
 			}
 			else if (ug.bctype == BC::OUTFLOW)
 			{
-				ub[fId] = (*uinsf.q)[IIDX::IIU][ug.lc];
+				ub[fId] = (*uinsf.u)[0][ug.lc];
 
-				vb[fId] = (*uinsf.q)[IIDX::IIV][ug.lc];
+				vb[fId] = (*uinsf.v)[0][ug.lc];
 
-				wb[fId] = (*uinsf.q)[IIDX::IIW][ug.lc];
+				wb[fId] = (*uinsf.w)[0][ug.lc];
 			}
 
 			else if (ug.bctype == BC::INFLOW)
 			{
-				ub[fId] = inscom.inflow[1];
+				ub[fId] = inscom.inflow[IIDX::IIU];
 
-				vb[fId] = inscom.inflow[2];
+				vb[fId] = inscom.inflow[IIDX::IIV];
 
-				wb[fId] = inscom.inflow[3];
+				wb[fId] = inscom.inflow[IIDX::IIW];
 			}
 
 			else if (ug.bctype == BC::SYMMETRY)
@@ -430,8 +416,8 @@ void UINsMomPre::CmpDiffusTerm()
 	vf.resize(ug.nFace);
 	wf.resize(ug.nFace);
 
-    BcVelocity(ub, vb, wb);
-	FaceVelocity(ub, vb, wb, uf, vf, wf);
+    //BcVelocity(ub, vb, wb);
+	FaceVelocity(iinv.ub, iinv.vb, iinv.wb, uf, vf, wf);
 
 	ONEFLOW::CmpINsGrad(uf, dudx, dudy, dudz);
 	ONEFLOW::CmpINsGrad(vf, dvdx, dvdy, dvdz);
@@ -445,9 +431,9 @@ void UINsMomPre::CmpDiffusTerm()
 	//Direchlet Boundary Condition
 	for (int fId = 0; fId < ug.nBFace; ++fId)
 	{
-		Real ub1 = ub[fId];
-		Real vb1 = vb[fId];
-		Real wb1 = wb[fId];
+		Real ub1 = iinv.ub[fId];
+		Real vb1 = iinv.vb[fId];
+		Real wb1 = iinv.wb[fId];
 
 		this->BcDiffusCoff(dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz, ub1, vb1, wb1, fId);
 	}
@@ -557,12 +543,12 @@ void UINsMomPre::BcPressure(RealField& pb)
 
 			if (ug.bctype == BC::SOLID_SURFACE|| ug.bctype == BC::OUTFLOW|| ug.bctype == BC::SYMMETRY)
 			{
-				pb[fId] = (*uinsf.q)[IIDX::IIP][ug.lc];
+				pb[fId] = (*uinsf.p)[0][ug.lc];
 			}
 
 			else if (ug.bctype == BC::INFLOW)
 			{
-				pb[fId] = inscom.inflow[4];
+				pb[fId] = inscom.inflow[IIDX::IIP];
 			}
 		}
 	}
@@ -586,9 +572,9 @@ void UINsMomPre::FaceVelocity(RealField& ub, RealField& vb, RealField& wb, RealF
 		int lc = (*ug.lcf)[fId];
 		int rc = (*ug.rcf)[fId];
 
-		uf[fId] = (*ug.fl)[fId] * (*uinsf.q)[IIDX::IIU][lc] + (*ug.fr)[fId] * (*uinsf.q)[IIDX::IIU][rc];
-		vf[fId] = (*ug.fl)[fId] * (*uinsf.q)[IIDX::IIV][lc] + (*ug.fr)[fId] * (*uinsf.q)[IIDX::IIV][rc];
-		wf[fId] = (*ug.fl)[fId] * (*uinsf.q)[IIDX::IIW][lc] + (*ug.fr)[fId] * (*uinsf.q)[IIDX::IIW][rc];
+		uf[fId] = (*ug.fl)[fId] * (*uinsf.u)[0][lc] + (*ug.fr)[fId] * (*uinsf.u)[0][rc];
+		vf[fId] = (*ug.fl)[fId] * (*uinsf.v)[0][lc] + (*ug.fr)[fId] * (*uinsf.v)[0][rc];
+		wf[fId] = (*ug.fl)[fId] * (*uinsf.w)[0][lc] + (*ug.fr)[fId] * (*uinsf.w)[0][rc];
 	}
 
 }
@@ -607,7 +593,7 @@ void UINsMomPre::FacePressure(RealField& pb, RealField& pf)
 		int lc = (*ug.lcf)[fId];
 		int rc = (*ug.rcf)[fId];
 
-		pf[fId] = (*ug.fl)[fId] * (*uinsf.q)[IIDX::IIP][lc] + (*ug.fr)[fId] * (*uinsf.q)[IIDX::IIP][rc];
+		pf[fId] = (*ug.fl)[fId] * (*uinsf.p)[0][lc] + (*ug.fr)[fId] * (*uinsf.p)[0][rc];
 	}
 
 }
@@ -618,12 +604,11 @@ void UINsMomPre::CmpTranst()
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
+		iinv.spu[cId] += (*ug.cvol)[cId] * (*uinsf.r)[0][cId] / timestep;  //矩阵对角线元素的非稳态项
 
-		iinv.spu[cId] += (*ug.cvol)[cId] * (*uinsf.q)[IIDX::IIR][cId] / timestep;  //矩阵对角线元素的非稳态项
-
-		iinv.bu[cId] += (*ug.cvol)[cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * (*uinsf.q)[IIDX::IIU][cId] / timestep; //源项的非稳态项
-		iinv.bv[cId] += (*ug.cvol)[cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * (*uinsf.q)[IIDX::IIV][cId] / timestep;
-		iinv.bw[cId] += (*ug.cvol)[cId] * (*uinsf.q)[IIDX::IIR][ug.cId] * (*uinsf.q)[IIDX::IIW][cId] / timestep;
+		iinv.bu[cId] += (*ug.cvol)[cId] * (*uinsf.r)[0][cId] * (*uinsf.u)[0][cId] / timestep; //源项的非稳态项
+		iinv.bv[cId] += (*ug.cvol)[cId] * (*uinsf.r)[0][cId] * (*uinsf.v)[0][cId] / timestep;
+		iinv.bw[cId] += (*ug.cvol)[cId] * (*uinsf.r)[0][cId] * (*uinsf.w)[0][cId] / timestep;
 	}
 
 }
@@ -631,7 +616,7 @@ void UINsMomPre::CmpTranst()
 void UINsMomPre::CmpSrc()
 {
 	RealField dpdx, dpdy, dpdz;
-	RealField pb, pf;
+	RealField pb,pf;
 
 	dpdx.resize(ug.nCell);
 	dpdy.resize(ug.nCell);
@@ -640,8 +625,7 @@ void UINsMomPre::CmpSrc()
 	pb.resize(ug.nBFace);
 	pf.resize(ug.nFace);
 
-	BcPressure(pb);
-	FacePressure(pb, pf);
+	FacePressure(iinv.pb, pf);
 
 	ONEFLOW::CmpINsGrad(pf, dpdx, dpdy, dpdz);
 
@@ -675,20 +659,20 @@ void UINsMomPre::MomEquCoeff()
 		int lc = (*ug.lcf)[fId];
 		int rc = (*ug.rcf)[fId];
 
-		iinv.bu[lc] += iinv.ai[0][fId] * (*uinsf.q)[IIDX::IIU][rc];
-		iinv.bv[lc] += iinv.ai[0][fId] * (*uinsf.q)[IIDX::IIV][rc];
-		iinv.bw[lc] += iinv.ai[0][fId] * (*uinsf.q)[IIDX::IIW][rc];
+		iinv.bu[lc] += iinv.ai[0][fId] * (*uinsf.u)[0][rc];
+		iinv.bv[lc] += iinv.ai[0][fId] * (*uinsf.v)[0][rc];
+		iinv.bw[lc] += iinv.ai[0][fId] * (*uinsf.w)[0][rc];
 
-		iinv.bu[rc] += iinv.ai[1][fId] * (*uinsf.q)[IIDX::IIU][lc];
-		iinv.bv[rc] += iinv.ai[1][fId] * (*uinsf.q)[IIDX::IIV][lc];
-		iinv.bw[rc] += iinv.ai[1][fId] * (*uinsf.q)[IIDX::IIW][lc];
+		iinv.bu[rc] += iinv.ai[1][fId] * (*uinsf.u)[0][lc];
+		iinv.bv[rc] += iinv.ai[1][fId] * (*uinsf.v)[0][lc];
+		iinv.bw[rc] += iinv.ai[1][fId] * (*uinsf.w)[0][lc];
 	}
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
-		iinv.bu[cId] -= iinv.spu[cId] * (*uinsf.q)[IIDX::IIU][cId];
-		iinv.bv[cId] -= iinv.spu[cId] * (*uinsf.q)[IIDX::IIV][cId];
-		iinv.bw[cId] -= iinv.spu[cId] * (*uinsf.q)[IIDX::IIW][cId];
+		iinv.bu[cId] -= iinv.spu[cId] * (*uinsf.u)[0][cId];
+		iinv.bv[cId] -= iinv.spu[cId] * (*uinsf.v)[0][cId];
+		iinv.bw[cId] -= iinv.spu[cId] * (*uinsf.w)[0][cId];
 
 		/*iinv.remax_up = MAX(abs(iinv.remax_up), abs(iinv.buc[cId]));
 		iinv.remax_vp = MAX(abs(iinv.remax_vp), abs(iinv.bvc[cId]));
@@ -699,7 +683,7 @@ void UINsMomPre::MomEquCoeff()
 		iinv.remax_wp += abs(iinv.bw[cId]);
 	}
 }
-
+ 
 void UINsMomPre::RelaxMom(Real a)
 {
 	for (int cId = 0; cId < ug.nCell; cId++)
@@ -726,9 +710,9 @@ void UINsMomPre::Solveuvw()
 
 	for (int cId = 0; cId < ug.nCell; cId++)
 	{
-		(*uinsf.q)[IIDX::IIU][cId] += uCorrect[cId];
-		(*uinsf.q)[IIDX::IIV][cId] += vCorrect[cId];
-		(*uinsf.q)[IIDX::IIW][cId] += wCorrect[cId];
+		(*uinsf.u)[0][cId] += uCorrect[cId];
+		(*uinsf.v)[0][cId] += vCorrect[cId];
+		(*uinsf.w)[0][cId] += wCorrect[cId];
 	}
 }
 
@@ -736,19 +720,22 @@ void UINsMomPre::Solveuvw()
 void UINsMomPre::CmpFaceflux()
 {
 	RealField dpdx, dpdy, dpdz;
-	RealField pb, pf;
+	RealField  pf,pb;
 
 	dpdx.resize(ug.nCell);
 	dpdy.resize(ug.nCell);
 	dpdz.resize(ug.nCell);
 
-	pb.resize(ug.nBFace);
 	pf.resize(ug.nFace);
+	pb.resize(ug.nBFace);
 
-	BcPressure(pb);
-	FacePressure(pb, pf);
+	//BcPressure(pb);
+	FacePressure(iinv.pb, pf);
 
 	ONEFLOW::CmpINsGrad(pf, dpdx, dpdy, dpdz);
+
+	Real mom_relax = GetDataValue< Real >("mom_relax");
+	Real rurf = mom_relax / (1 + mom_relax);
 
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
@@ -762,7 +749,7 @@ void UINsMomPre::CmpFaceflux()
 		Real dpdz1 = dpdz[lc];
 		Real dpdz2 = dpdz[rc];
 
-		CmpINsFaceflux(dpdx1, dpdx2, dpdy1, dpdy2, dpdz1, dpdz2, fId);
+		CmpINsFaceflux(dpdx1, dpdx2, dpdy1, dpdy2, dpdz1, dpdz2, rurf,fId);
 	}
 
 	ug.nRegion = ug.bcRecord->bcInfo->bcType.size();
@@ -795,9 +782,9 @@ void UINsMomPre::CmpFaceflux()
 			Real dpdy1 = dpdy[lc];
 			Real dpdz1 = dpdz[lc];
 
-			Real pb1 = pb[fId];
+			Real pb1 = iinv.pb[fId];
 
-			CmpINsBcFaceflux(dpdx1, dpdy1, dpdz1, pb1,fId);
+			CmpINsBcFaceflux(dpdx1, dpdy1, dpdz1, pb1, rurf, fId);
 		}
 	}
 
@@ -818,7 +805,7 @@ void UINsMomPre::CmpFaceflux()
 
 }
 
-void UINsMomPre::CmpINsFaceflux(Real & dpdx1, Real & dpdx2, Real & dpdy1, Real & dpdy2, Real & dpdz1, Real & dpdz2, int& fId)
+void UINsMomPre::CmpINsFaceflux(Real & dpdx1, Real & dpdx2, Real & dpdy1, Real & dpdy2, Real & dpdz1, Real & dpdz2, Real &rurf, int& fId)
 {
 	int lc = (*ug.lcf)[fId];
 	int rc = (*ug.rcf)[fId];
@@ -832,13 +819,20 @@ void UINsMomPre::CmpINsFaceflux(Real & dpdx1, Real & dpdx2, Real & dpdy1, Real &
 
 	Real vnflow;
 
-	INsExtractl(*uinsf.q, rl, ul, vl, wl, pl, lc);
-	INsExtractr(*uinsf.q, rr, ur, vr, wr, pr, rc);
+	rl = (*uinsf.r)[0][lc];
+	ul = (*uinsf.u)[0][lc];
+	vl = (*uinsf.v)[0][lc];
+	wl = (*uinsf.w)[0][lc];
+	pl = (*uinsf.p)[0][lc];
+
+	ur = (*uinsf.u)[0][rc];
+	vr = (*uinsf.v)[0][rc];
+	wr = (*uinsf.w)[0][rc];
+	pr = (*uinsf.p)[0][rc];
 
 	Real l2rdx = (*ug.xcc)[rc] - (*ug.xcc)[lc];
 	Real l2rdy = (*ug.ycc)[rc] - (*ug.ycc)[lc];
 	Real l2rdz = (*ug.zcc)[rc] - (*ug.zcc)[lc];
-	Real rurf = 0.8 / (1 + 0.8);
 
 	VdU1 = (*ug.cvol)[lc] / iinv.spu[lc];
 	VdU2 = (*ug.cvol)[rc] / iinv.spu[rc];
@@ -872,7 +866,7 @@ void UINsMomPre::CmpINsFaceflux(Real & dpdx1, Real & dpdx2, Real & dpdy1, Real &
 
 }
 
-void UINsMomPre::CmpINsBcFaceflux(Real& dpdx1, Real& dpdy1, Real& dpdz1, Real& pb1, int& fId)
+void UINsMomPre::CmpINsBcFaceflux(Real& dpdx1, Real& dpdy1, Real& dpdz1, Real& pb1, Real &rurf, int& fId)
 {
 	int lc = (*ug.lcf)[fId];
 
@@ -884,33 +878,49 @@ void UINsMomPre::CmpINsBcFaceflux(Real& dpdx1, Real& dpdy1, Real& dpdz1, Real& p
 
 	Real vnflow;
 
-	INsExtractl(*uinsf.q, rl, ul, vl, wl, pl, lc);
-
 	if (ug.bctype == BC::SOLID_SURFACE)
 	{
 		if (ug.bcdtkey == 0)
 		{
+			rl = (*uinsf.r)[0][lc];
 
-			uf = (*ug.vfx)[fId];
+			/*uf = (*ug.vfx)[fId];
 
 			vf = (*ug.vfy)[fId];
 
 			wf = (*ug.vfz)[fId];
 
-			vnflow = (*ug.a1)[fId] * uf + (*ug.a2)[fId] * vf + (*ug.a3)[fId] * wf;
+			vnflow = (*ug.a1)[fId] * uf + (*ug.a2)[fId] * vf + (*ug.a3)[fId] * wf;*/
+
+			iinv.ub[fId] = (*ug.vfx)[fId];
+
+			iinv.vb[fId] = (*ug.vfy)[fId];
+
+			iinv.wb[fId] = (*ug.vfz)[fId];
+
+			vnflow = (*ug.a1)[fId] * iinv.ub[fId] + (*ug.a2)[fId] * iinv.vb[fId] + (*ug.a3)[fId] * iinv.wb[fId];
 
 			iinv.flux[fId] = rl * vnflow;
 		}
 		else
 		{
+			rl = (*uinsf.r)[0][lc];
 
-			uf = (*inscom.bcflow)[IIDX::IIU];
+			/*uf = (*inscom.bcflow)[IIDX::IIU];
 
 			vf = (*inscom.bcflow)[IIDX::IIV];
 
 			wf = (*inscom.bcflow)[IIDX::IIW];
 
-			vnflow = (*ug.a1)[fId] * uf + (*ug.a2)[fId] * vf + (*ug.a3)[fId] * wf;
+			vnflow = (*ug.a1)[fId] * uf + (*ug.a2)[fId] * vf + (*ug.a3)[fId] * wf;*/
+
+			iinv.ub[fId] = (*inscom.bcflow)[IIDX::IIU];
+
+			iinv.vb[fId] = (*inscom.bcflow)[IIDX::IIV];
+
+			iinv.wb[fId] = (*inscom.bcflow)[IIDX::IIW];
+
+			vnflow = (*ug.a1)[fId] * iinv.ub[fId] + (*ug.a2)[fId] * iinv.vb[fId] + (*ug.a3)[fId] * iinv.wb[fId];
 
 			iinv.flux[fId] = rl * vnflow;
 		}
@@ -919,24 +929,36 @@ void UINsMomPre::CmpINsBcFaceflux(Real& dpdx1, Real& dpdy1, Real& dpdz1, Real& p
 
 	else if (ug.bctype == BC::INFLOW)
 	{
-		uf = inscom.inflow[IIDX::IIU];
+		/*uf = inscom.inflow[IIDX::IIU];
 
 		vf = inscom.inflow[IIDX::IIV];
 
 		wf = inscom.inflow[IIDX::IIW];
 
-		vnflow = (*ug.a1)[fId] * uf + (*ug.a2)[fId] * vf + (*ug.a3)[fId] * wf;
+		vnflow = (*ug.a1)[fId] * uf + (*ug.a2)[fId] * vf + (*ug.a3)[fId] * wf;*/
+
+		iinv.ub[fId] = inscom.inflow[IIDX::IIU];
+
+		iinv.vb[fId] = inscom.inflow[IIDX::IIV];
+
+		iinv.wb[fId] = inscom.inflow[IIDX::IIW];
+
+		vnflow = (*ug.a1)[fId] * iinv.ub[fId] + (*ug.a2)[fId] * iinv.vb[fId] + (*ug.a3)[fId] * iinv.wb[fId];
 
 		iinv.flux[fId] = inscom.inflow[IIDX::IIR] * vnflow;
 	}
 
 	else if (ug.bctype == BC::OUTFLOW)
 	{
+		/*rl = (*uinsf.r)[0][lc];
+		ul = (*uinsf.u)[0][lc];
+		vl = (*uinsf.v)[0][lc];
+		wl = (*uinsf.w)[0][lc];*/
+		pl = (*uinsf.p)[0][lc];
 
 		Real l2rdx = (*ug.xfc)[fId] - (*ug.xcc)[ug.lc];
 		Real l2rdy = (*ug.yfc)[fId] - (*ug.ycc)[ug.lc];
 		Real l2rdz = (*ug.zfc)[fId] - (*ug.zcc)[ug.lc];
-		Real rurf = 0.8 / (1 + 0.8);
 
 		VdU1 = (*ug.cvol)[lc] / iinv.spu[lc];
 
@@ -954,21 +976,30 @@ void UINsMomPre::CmpINsBcFaceflux(Real& dpdx1, Real& dpdy1, Real& dpdz1, Real& p
 		Real fdpdy = dpdy1 * dy1 - (pb1 - pl);
 		Real fdpdz = dpdz1 * dz1 - (pb1 - pl);
 
-		uf = ul + fdpdx * Df1;
+		/*uf = ul + fdpdx * Df1;
 		vf = vl + fdpdy * Df2;
 		wf = wl + fdpdz * Df3;
 
-		vnflow = (*ug.a1)[fId] * uf + (*ug.a2)[fId] * vf + (*ug.a3)[fId] * wf + rurf * iinv.dun[fId];
-		iinv.flux[fId] = rl * vnflow;
+		vnflow = (*ug.a1)[fId] * uf + (*ug.a2)[fId] * vf + (*ug.a3)[fId] * wf + rurf * iinv.dun[fId];*/
+
+		iinv.ub[fId] = iinv.ub[fId] + fdpdx * Df1;
+		iinv.vb[fId] = iinv.vb[fId] + fdpdy * Df2;
+		iinv.wb[fId] = iinv.wb[fId] + fdpdz * Df3;
+
+        vnflow = (*ug.a1)[fId] * iinv.ub[fId] + (*ug.a2)[fId] * iinv.vb[fId] + (*ug.a3)[fId] * iinv.wb[fId] + rurf * iinv.dun[fId];
+
+		iinv.flux[fId] = (*uinsf.r)[0][lc] * vnflow;
 	}
 
 	else if (ug.bctype == BC::SYMMETRY)
 	{
-		uf = 0;
+		/*uf = 0;
 
 		vf = 0;
 
-		wf = 0;
+		wf = 0;*/
+
+		;
 
 		iinv.flux[fId] = 0;
 	}

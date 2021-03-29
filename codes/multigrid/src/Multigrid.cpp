@@ -21,7 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Multigrid.h"
-#include "INsInvterm.h"
 #include "Mesh.h"
 #include "Ctrl.h"
 #include "Solver.h"

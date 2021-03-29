@@ -679,7 +679,7 @@ void Chemical::INsWrite(DataBook * dataBook)
 
 void Chemical::INsInit()
 {
-	INsInitRefPara();
+	//INsInitRefPara();
 
 	INsComputeRefPara();
 }
@@ -693,21 +693,21 @@ void Chemical::INsInitRefPara()
 
 void Chemical::INsComputeRefPara()
 {
-	INsComputeRefMolecularInfo();
+	//INsComputeRefMolecularInfo();
 
-	INsComputeRefGasInfo();
+	//INsComputeRefGasInfo();
 
-	INsComputeRefGama();
+	//INsComputeRefGama();
 
-	INsComputeRefSoundSpeed();
+	//INsComputeRefSoundSpeed();
 
-	INsComputeRefMachAndVel();
+	//INsComputeRefMachAndVel();
 
-	INsComputeStateCoef();
+	//INsComputeStateCoef();
 
 	INsComputeRefPrim();
 
-	INsComputeRefReynolds();
+	//INsComputeRefReynolds();
 }
 
 void Chemical::INsComputeRefMolecularInfo()

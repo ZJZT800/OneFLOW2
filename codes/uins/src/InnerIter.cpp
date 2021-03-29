@@ -110,6 +110,8 @@ void Inner::SolveFlow()
 
 void Mom_pre()
 {
+	iinv.MomPreInit();
+
 	INsCmpConv(); //计算对流项
 
 	INsCmpDiffus(); //计算扩散项
@@ -126,10 +128,14 @@ void Mom_pre()
 	SolveMom(); //求解动量方程
 
 	INsCmpFaceflux(); //计算界面流量
+
+	iinv.DeleteMomPreVar();
 }
 
 void Pres_cor()
 {
+	iinv.PressCorInit();
+
 	PresEqu(); //计算压力修正方程系数
 
 	INsCmpPressCorrectEquandUpdatePress();  //需要解压力修正方程组，增设单元修正压力未知量
@@ -137,6 +143,8 @@ void Pres_cor()
 	INsCmpSpeedCorrectandUpdateSpeed();  //需要先增设界面修正速度未知量并进行求解,更新单元速度和压力
 
 	INsUpdateFaceflux();   //更新界面流量
+
+	iinv.DeletePressCorVar();
 }
 
 void INsPreflux()
@@ -184,7 +192,8 @@ void MomEqu()
 void Relaxation()
 {
 	UINsMomPre * uINsMomPre = new UINsMomPre();
-	uINsMomPre->RelaxMom(0.8);
+	Real mom_relax = GetDataValue< Real >("mom_relax");
+	uINsMomPre->RelaxMom(mom_relax);
 	delete uINsMomPre;
 }
 

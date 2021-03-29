@@ -21,7 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "UINsRes.h"
-#include "INsInvterm.h"
+#include "UINsMomPre.h"
 //#include "UINsVisterm.h"
 //#include "UINsGrad.h"
 #include "UGrad.h"
