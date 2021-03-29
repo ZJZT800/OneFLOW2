@@ -6,3 +6,9 @@ true, res , nTEqu, all
 true, res1, nTEqu, all
 true, res2, nTEqu, all
 true, dq  , nTEqu, all
+
+true, r   , 1, all
+true, u   , 1, all
+true, v   , 1, all
+true, w   , 1, all
+true, p   , 1, all
