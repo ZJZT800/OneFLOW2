@@ -138,7 +138,7 @@ void UINsMomPre::CmpINsPreflux()
 					iinv.wb[fId] = (*uinsf.w)[0][lc];
 					iinv.pb[fId] = (*uinsf.p)[0][lc];
 
-					iinv.flux[fId] = (*uinsf.r)[0][lc] * ((*ug.a1)[fId] * iinv.ub[fId] + (*ug.a2)[fId] * iinv.vb[fId] + (*ug.a3)[fId] * iinv.wb[fId]);
+					iinv.flux[fId] = (*uinsf.rho)[0][lc] * ((*ug.a1)[fId] * iinv.ub[fId] + (*ug.a2)[fId] * iinv.vb[fId] + (*ug.a3)[fId] * iinv.wb[fId]);
 				}
 
 				else if (ug.bctype == BC::INFLOW)
@@ -186,7 +186,7 @@ void UINsMomPre::CmpINsPreflux()
 			INsExtract(*uinsf.v, vr, rc);
 			INsExtract(*uinsf.w, wr, rc);*/
 
-			rl = (*uinsf.r)[0][lc];
+			rl = (*uinsf.rho)[0][lc];
 			ul = (*uinsf.u)[0][lc];
 			vl = (*uinsf.v)[0][lc];
 			wl = (*uinsf.w)[0][lc];
@@ -302,7 +302,7 @@ void UINsMomPre::BcConvCoff(Real &ub1, Real &vb1, Real &wb1, int&fId)
 
 }
 
-void UINsMomPre::BcVelocity(RealField& ub, RealField& vb, RealField& wb)
+/*void UINsMomPre::BcVelocity(RealField& ub, RealField& vb, RealField& wb)
 {
 	ub = 0;
 	vb = 0;
@@ -382,7 +382,7 @@ void UINsMomPre::BcVelocity(RealField& ub, RealField& vb, RealField& wb)
 			}
 		}
 	}
-}
+}*/
 
 void UINsMomPre::CmpDiffus()
 {
@@ -522,7 +522,7 @@ void UINsMomPre::BcDiffusCoff(RealField& dudx, RealField& dudy, RealField& dudz,
 
 }
 
-void UINsMomPre::BcPressure(RealField& pb)
+/*void UINsMomPre::BcPressure(RealField& pb)
 {
 	pb = 0;
 
@@ -552,7 +552,7 @@ void UINsMomPre::BcPressure(RealField& pb)
 			}
 		}
 	}
-}
+}*/
 
 void UINsMomPre::FaceVelocity(RealField& ub, RealField& vb, RealField& wb, RealField& uf, RealField& vf, RealField& wf)
 {
@@ -604,11 +604,11 @@ void UINsMomPre::CmpTranst()
 
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
-		iinv.spu[cId] += (*ug.cvol)[cId] * (*uinsf.r)[0][cId] / timestep;  //矩阵对角线元素的非稳态项
+		iinv.spu[cId] += (*ug.cvol)[cId] * (*uinsf.rho)[0][cId] / timestep;  //矩阵对角线元素的非稳态项
 
-		iinv.bu[cId] += (*ug.cvol)[cId] * (*uinsf.r)[0][cId] * (*uinsf.u)[0][cId] / timestep; //源项的非稳态项
-		iinv.bv[cId] += (*ug.cvol)[cId] * (*uinsf.r)[0][cId] * (*uinsf.v)[0][cId] / timestep;
-		iinv.bw[cId] += (*ug.cvol)[cId] * (*uinsf.r)[0][cId] * (*uinsf.w)[0][cId] / timestep;
+		iinv.bu[cId] += (*ug.cvol)[cId] * (*uinsf.rho)[0][cId] * iinv.u_old[cId] / timestep; //源项的非稳态项
+		iinv.bv[cId] += (*ug.cvol)[cId] * (*uinsf.rho)[0][cId] * iinv.v_old[cId] / timestep;
+		iinv.bw[cId] += (*ug.cvol)[cId] * (*uinsf.rho)[0][cId] * iinv.w_old[cId] / timestep;
 	}
 
 }
@@ -819,7 +819,7 @@ void UINsMomPre::CmpINsFaceflux(Real & dpdx1, Real & dpdx2, Real & dpdy1, Real &
 
 	Real vnflow;
 
-	rl = (*uinsf.r)[0][lc];
+	rl = (*uinsf.rho)[0][lc];
 	ul = (*uinsf.u)[0][lc];
 	vl = (*uinsf.v)[0][lc];
 	wl = (*uinsf.w)[0][lc];
@@ -882,7 +882,7 @@ void UINsMomPre::CmpINsBcFaceflux(Real& dpdx1, Real& dpdy1, Real& dpdz1, Real& p
 	{
 		if (ug.bcdtkey == 0)
 		{
-			rl = (*uinsf.r)[0][lc];
+			rl = (*uinsf.rho)[0][lc];
 
 			/*uf = (*ug.vfx)[fId];
 
@@ -904,7 +904,7 @@ void UINsMomPre::CmpINsBcFaceflux(Real& dpdx1, Real& dpdy1, Real& dpdz1, Real& p
 		}
 		else
 		{
-			rl = (*uinsf.r)[0][lc];
+			rl = (*uinsf.rho)[0][lc];
 
 			/*uf = (*inscom.bcflow)[IIDX::IIU];
 
@@ -988,7 +988,7 @@ void UINsMomPre::CmpINsBcFaceflux(Real& dpdx1, Real& dpdy1, Real& dpdz1, Real& p
 
         vnflow = (*ug.a1)[fId] * iinv.ub[fId] + (*ug.a2)[fId] * iinv.vb[fId] + (*ug.a3)[fId] * iinv.wb[fId] + rurf * iinv.dun[fId];
 
-		iinv.flux[fId] = (*uinsf.r)[0][lc] * vnflow;
+		iinv.flux[fId] = (*uinsf.rho)[0][lc] * vnflow;
 	}
 
 	else if (ug.bctype == BC::SYMMETRY)
@@ -1011,6 +1011,16 @@ void UINsMomPre::CmpINsMomRes()
 	iinv.res_u = 0;
 	iinv.res_v = 0;
 	iinv.res_w = 0;
+}
+
+void SaveOldValue()
+{
+	for (int cId = 0; cId < ug.nCell; ++cId)
+	{
+		iinv.u_old[cId] = (*uinsf.u)[0][cId]; 
+		iinv.v_old[cId] = (*uinsf.v)[0][cId];
+		iinv.w_old[cId] = (*uinsf.w)[0][cId];
+	}
 }
 
 

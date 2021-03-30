@@ -49,7 +49,8 @@ void UINsField::Init()
 
    // q  = GetFieldPointer< MRField > ( grid, "q" );
 
-	r = GetFieldPointer< MRField >(grid, "r");
+	rho = GetFieldPointer< MRField >(grid, "rho");
+	kvis = GetFieldPointer< MRField >(grid, "kvis");
 	u = GetFieldPointer< MRField >(grid, "u");
 	v = GetFieldPointer< MRField >(grid, "v");
 	w = GetFieldPointer< MRField >(grid, "w");
@@ -68,7 +69,7 @@ void UINsField::Init()
     //dtdx  = GetFieldPointer< MRField > ( grid, "dtdx" );
     //dtdy  = GetFieldPointer< MRField > ( grid, "dtdy" );
     //dtdz  = GetFieldPointer< MRField > ( grid, "dtdz" );
-    bc_q    = GetFieldPointer< MRField > ( grid, "bc_q" );
+    //bc_q    = GetFieldPointer< MRField > ( grid, "bc_q" );
     //bcdqdx  = GetFieldPointer< MRField > ( grid, "bcdqdx" );
     //bcdqdy  = GetFieldPointer< MRField > ( grid, "bcdqdy" );
     //bcdqdz  = GetFieldPointer< MRField > ( grid, "bcdqdz" );

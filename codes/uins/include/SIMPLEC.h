@@ -15,15 +15,17 @@ public:
 	void DeleteMomPreVar();
 	void PressCorInit();
 	void DeletePressCorVar();
+	void OldValueInit();
 
 public:
 	RealField flux;
 	RealField spu, bu, bv, bw;
-	RealField rb,ub, vb, wb, pb;
+	RealField ub, vb, wb, pb;
+	RealField u_old, v_old, w_old;
 	RealField spp, bp;
 	RealField dun, dup;
 	RealField  ppf, pp;
-	RealField2D ai;//ajp;
+	RealField2D ai;
 
 public:
 	Real remax_up, remax_vp, remax_wp, remax_pp, res_u, res_v, res_w, res_p;
@@ -35,7 +37,7 @@ class SIMPLEC
 {
 public:
 	SIMPLEC();
-	//~SIMPLEC();
+	~SIMPLEC();
 public:
 	void Run();
 public:
@@ -46,6 +48,7 @@ public:
 protected:
 	void InnerProcess();
 	void OuterProcess(TimeSpan * timeSpan);
+	void SaveOldTimeValue();
 };
 
 void SIMPLECSolve();

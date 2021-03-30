@@ -126,10 +126,10 @@ void UINsPressCorrect::CmpInPressCoeff(int& fId)
 
 	//iinv.rf = (*ug.fl)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.lc] + ((*ug.fr)[ug.fId]) * (*uinsf.q)[IIDX::IIR][ug.rc];
 
-	iinv.spp[lc] += (*uinsf.r)[0][lc] * Sfarea / dist;
-	iinv.spp[rc] += (*uinsf.r)[0][lc] * Sfarea / dist;
-	iinv.ai[0][fId] = (*uinsf.r)[0][lc] * Sfarea / dist;
-	iinv.ai[1][fId] = (*uinsf.r)[0][lc] * Sfarea / dist;
+	iinv.spp[lc] += (*uinsf.rho)[0][lc] * Sfarea / dist;
+	iinv.spp[rc] += (*uinsf.rho)[0][lc] * Sfarea / dist;
+	iinv.ai[0][fId] = (*uinsf.rho)[0][lc] * Sfarea / dist;
+	iinv.ai[1][fId] = (*uinsf.rho)[0][lc] * Sfarea / dist;
 
 	iinv.bp[lc] -= iinv.flux[fId];
 	iinv.bp[rc] += iinv.flux[fId];
@@ -156,7 +156,7 @@ void UINsPressCorrect::CmpBcPressCoeff(int& fId)
 
 	if (bcType == BC::OUTFLOW)
 	{
-		iinv.spp[lc] += (*uinsf.r)[0][lc] * Sfarea / dist;
+		iinv.spp[lc] += (*uinsf.rho)[0][lc] * Sfarea / dist;
 	}
 
 	else if (bcType == BC::SOLID_SURFACE)
@@ -375,7 +375,7 @@ void UINsPressCorrect::CmpUpdateINsBcFaceflux(int& fId)
 
 		Real dist = l2rdx * (*ug.a1)[fId] + l2rdy * (*ug.a2)[fId] + l2rdz * (*ug.a3)[fId];
 
-		Real fux = (*uinsf.r)[0][lc] * Df / dist * (iinv.pp[lc] - iinv.ppf[fId]);
+		Real fux = (*uinsf.rho)[0][lc] * Df / dist * (iinv.pp[lc] - iinv.ppf[fId]);
 		iinv.flux[fId] = iinv.flux[fId] + fux;
 	}
 
@@ -405,7 +405,7 @@ void UINsPressCorrect::CmpUpdateINsFaceflux(int& fId)
 
 	Real dist = l2rdx * (*ug.a1)[fId] + l2rdy * (*ug.a2)[fId] + l2rdz * (*ug.a3)[fId];
 
-	Real fux = (*uinsf.r)[0][lc] * Df / dist * (iinv.pp[lc] - iinv.pp[rc]);
+	Real fux = (*uinsf.rho)[0][lc] * Df / dist * (iinv.pp[lc] - iinv.pp[rc]);
 	iinv.flux[fId] = iinv.flux[fId] + fux;
 
 }
@@ -428,7 +428,7 @@ void UINsPressCorrect::CmpDun(int& fId)
 		iinv.wf[ug.fId] = (*ug.fl)[ug.fId] * (*uinsf.q)[IIDX::IIW][ug.lc] + (*ug.fr)[ug.fId] * (*uinsf.q)[IIDX::IIW][ug.rc];*/
 		Real un = uf1 * (*ug.a1)[fId] + vf1 * (*ug.a2)[fId] + wf1 * (*ug.a3)[fId];
 
-		iinv.dun[fId] = iinv.flux[fId] / ((*uinsf.r)[0][lc] + SMALL) - un;
+		iinv.dun[fId] = iinv.flux[fId] / ((*uinsf.rho)[0][lc] + SMALL) - un;
 	//}
 
 	/*else 

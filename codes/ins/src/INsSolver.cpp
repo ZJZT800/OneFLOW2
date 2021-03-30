@@ -60,14 +60,14 @@ void INsSolver::StaticInit()
     solverInfo->registerInterface = 0;
     solverInfo->residualName = "res";
     solverInfo->resFileName = GetDataValue< string >( "resFile" );
-    solverInfo->gradString.push_back( "q"    );
+    /*solverInfo->gradString.push_back( "q"    );
     solverInfo->gradString.push_back( "dqdx" );
     solverInfo->gradString.push_back( "dqdy" );
-    solverInfo->gradString.push_back( "dqdz" );
+    solverInfo->gradString.push_back( "dqdz" );*/
 	//solverInfo->gradString.push_back("u");
 
-    solverInfo->implicitString.push_back( "q"  );
-    solverInfo->implicitString.push_back( "dq" );
+    //solverInfo->implicitString.push_back( "q"  );
+    //solverInfo->implicitString.push_back( "dq" );
 	//solverInfo->implicitString.push_back("u");
 }
 

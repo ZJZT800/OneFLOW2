@@ -44,12 +44,12 @@ public:
     void CmpConvTerm();
 	void InConvCoff(int&fId);
 	void BcConvCoff(Real &ub1, Real &vb1, Real &wb1, int&fId);
-	void BcVelocity(RealField& ub, RealField& vb, RealField& wb);
+	//void BcVelocity(RealField& ub, RealField& vb, RealField& wb);
 	void CmpDiffus();
 	void CmpDiffusTerm();
 	void InDiffusCoff(RealField& dudx, RealField& dudy, RealField& dudz, RealField& dvdx, RealField& dvdy, RealField& dvdz, RealField& dwdx, RealField& dwdy, RealField& dwdz, int& fId);
 	void BcDiffusCoff(RealField& dudx, RealField& dudy, RealField& dudz, RealField& dvdx, RealField& dvdy, RealField& dvdz, RealField& dwdx, RealField& dwdy, RealField& dwdz, Real& ub1, Real& vb1, Real& wb1, int& fId);
-	void BcPressure(RealField& pb);
+	//void BcPressure(RealField& pb);
 	void FaceVelocity(RealField& ub, RealField& vb, RealField& wb, RealField& uf, RealField& vf, RealField& wf);
 	void FacePressure(RealField& pb, RealField& pf);
 	void CmpTranst();
@@ -64,4 +64,7 @@ public:
 };
 //void PrimToQ(RealField & prim, Real gama, RealField & q);
 //extern UINsMomPre NonZero;
+
+void SaveOldValue();
+
 EndNameSpace

@@ -66,7 +66,7 @@ void INsInitFinal( StringField & data )
 	uINsSolver->FieldInit();
 	delete uINsSolver;
 
-    Grid * grid = Zone::GetGrid();
+   /* Grid * grid = Zone::GetGrid();
 
     if ( Zone::GetCGrid( grid ) )
     {
@@ -76,7 +76,8 @@ void INsInitFinal( StringField & data )
         //NsCmpBc();
 
         GridState::gridLevel -= 1;
-    }
+    }*/
+	;
 }
 
 void INsVisual( StringField & data )

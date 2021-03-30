@@ -1,7 +1,6 @@
 
 #include "SIMPLEC.h"
 #include "UINsMomPre.h"
-//#include "UINsInvterm.h"
 #include "Mesh.h"
 #include "Ctrl.h"
 #include "Solver.h"
@@ -84,16 +83,23 @@ void INsInv::DeletePressCorVar()
 	ai.clear();
 }
 
+void INsInv::OldValueInit()
+{
+	u_old.resize(ug.nCell);
+	v_old.resize(ug.nCell);
+	w_old.resize(ug.nCell);
+}
+
 
 SIMPLEC::SIMPLEC()
 {
 	;
 }
 
-/*SIMPLEC::~SIMPLEC()
+SIMPLEC::~SIMPLEC()
 {
 	;
-}*/
+}
 
 
 void SIMPLECSolve()
@@ -105,50 +111,43 @@ void SIMPLECSolve()
 
 void SIMPLEC::Run()
 {
-	/*double rhs_u = 1e-8;
-	double rhs_v = 1e-8;
-	double rhs_w = 1e-8;
-
-	iinv.remax_up = 1;
-	iinv.remax_vp = 1;
-	iinv.remax_wp = 1;*/
-
-	/*int transt = ONEFLOW::GetDataValue< int >("transt");
+	int transt = ONEFLOW::GetDataValue< int >("transt");
 	if (transt != 0)
 	{
+		iinv.OldValueInit();
 		TimeSpan * timeSpan = new TimeSpan();
+		// outer loop(Unsteady loop)
 		while (SimuIterState::Running())
 		{
 			Iteration::outerSteps++;
 			ctrl.currTime += ctrl.pdt;
 
-			int maxIterSteps = GetDataValue< int >("maxIterSteps");
-			while (iinv.remax_up > rhs_u || iinv.remax_vp > rhs_v || iinv.remax_wp > rhs_w)
+			//Inner loop(Steady loop)
+			Iteration::innerSteps = 0;
+			while (!SIMPLEC::Converge())
 			{
-				if (Iteration::innerSteps >= maxIterSteps) break;
-
 				Iteration::innerSteps++;
 
 				this->SolveInnerIter();
-
 			}
+
+			this->SaveOldTimeValue();
 			this->OuterProcess(timeSpan);
 		}
-		delete timeSpan;
-	}*/
-	//else
-	//{
-	//iinv.remax_up > rhs_u || iinv.remax_vp > rhs_v || iinv.remax_wp > rhs_w
-		//int maxIterSteps = GetDataValue< int >("maxIterSteps");
-
+		    delete timeSpan;
+	}
+   else
+   {
+	    //Inner loop(Steady loop)
 	    Iteration::innerSteps = 0;
-		while (!SIMPLEC::Converge())
-		{
-			Iteration::innerSteps++;
+	    while (!SIMPLEC::Converge())
+	    {
+		   Iteration::innerSteps++;
 
-			this->SolveInnerIter();
-		}
-	//}
+		   this->SolveInnerIter();
+	    }
+   }
+
 }
 
 bool SIMPLEC::Converge()
@@ -176,8 +175,14 @@ void SIMPLEC::InnerProcess()
 	ONEFLOW::MsMgTask("POST_PROCESS");
 }
 
+void SIMPLEC::SaveOldTimeValue()
+{
+    SaveOldValue();
+}
+
 void SIMPLEC::OuterProcess(TimeSpan * timeSpan)
 {
+
 	if (Iteration::outerSteps % Iteration::nFieldSave == 0)
 	{
 		if (Parallel::IsServer())

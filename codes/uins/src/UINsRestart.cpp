@@ -24,12 +24,16 @@ License
 #include "HXMath.h"
 #include "SolverDef.h"
 #include "Iteration.h"
+#include "InnerIter.h"
 #include "DataBase.h"
+#include "BcData.h"
 #include "FieldWrap.h"
 #include "Zone.h"
 #include "Grid.h"
 #include "UnsGrid.h"
 #include "INsCom.h"
+#include "UINsCom.h"
+#include "UCom.h"
 #include "Ctrl.h"
 #include "CellMesh.h"
 
@@ -54,7 +58,9 @@ void UINsRestart::InitinsRestart( int sTid )
 
    // MRField * q  = GetFieldPointer< MRField > ( grid, "q" );
 
-	MRField * r = GetFieldPointer< MRField  >(grid, "r");
+	MRField * rho = GetFieldPointer< MRField  >(grid, "rho");
+
+	MRField * kvis = GetFieldPointer< MRField  >(grid, "kvis");
 
 	MRField * u = GetFieldPointer< MRField  >(grid, "u");
 
@@ -71,15 +77,18 @@ void UINsRestart::InitinsRestart( int sTid )
         SetField( ( * q )[ iEqu ], inscom.inflow[ iEqu ] );
     }*/
 
-	SetField((*r)[0], inscom.inflow[0]);
+	Real k_vis = GetDataValue< Real >("k_vis");
+
+	SetField((*rho)[0], inscom.inflow[0]);
+	SetField((*kvis)[0], k_vis);
 	SetField((*u)[0], inscom.inflow[1]);
 	SetField((*v)[0], inscom.inflow[2]);
 	SetField((*w)[0], inscom.inflow[3]);
 	SetField((*p)[0], inscom.inflow[4]);
 
-    this->InitUnsteady( sTid );
+    //this->InitUnsteady( sTid );
 
-    RwInterface( sTid, GREAT_ZERO );
+    //RwInterface( sTid, GREAT_ZERO );
 
     if ( ctrl.inflowType == 3 )
     {
@@ -107,7 +116,7 @@ void UINsRestart::InitinsRestart( int sTid )
                     ( * q )[ iEqu ][ cId ] = ctrl.initflow1[ iEqu ];
                 }*/
 
-				(*r)[0][cId] = ctrl.initflow1[0];
+				(*rho)[0][cId] = ctrl.initflow1[0];
 				(*u)[0][cId] = ctrl.initflow1[1];
 				(*v)[0][cId] = ctrl.initflow1[2];
 				(*w)[0][cId] = ctrl.initflow1[3];
@@ -120,7 +129,7 @@ void UINsRestart::InitinsRestart( int sTid )
                     ( * q )[ iEqu ][ cId ] = ctrl.initflow2[ iEqu ];
                 }*/
 
-				(*r)[0][cId] = ctrl.initflow2[0];
+				(*rho)[0][cId] = ctrl.initflow2[0];
 				(*u)[0][cId] = ctrl.initflow2[1];
 				(*v)[0][cId] = ctrl.initflow2[2];
 				(*w)[0][cId] = ctrl.initflow2[3];
@@ -143,6 +152,10 @@ void UINsRestart::InitinsRestart( int sTid )
             Real z = zcc[ cId ];
         }
     }
+
+	//Inner* uINsSolver = new Inner;
+	//uINsSolver->FieldInit();
+	//delete uINsSolver;
 }
 
 

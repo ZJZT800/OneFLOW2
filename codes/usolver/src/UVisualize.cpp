@@ -620,13 +620,13 @@ void UVisualize::CmpNodeField( VisualTool * visualTool )
 	int compressible = ONEFLOW::GetDataValue< int >("compressible");
 	if (compressible == 1)
 	{
-		MRField * r = GetFieldPointer< MRField  >(grid, "r");
+		MRField * rho = GetFieldPointer< MRField  >(grid, "rho");
 		MRField * u = GetFieldPointer< MRField  >(grid, "u");
 		MRField * v = GetFieldPointer< MRField  >(grid, "v");
 		MRField * w = GetFieldPointer< MRField  >(grid, "w");
 		MRField * p = GetFieldPointer< MRField  >(grid, "p");
 
-		MRField * rn = visualTool->AddField((*r)[0], "r");
+		MRField * rn = visualTool->AddField((*rho)[0], "r");
 		MRField * un = visualTool->AddField((*u)[0], "u");
 		MRField * vn = visualTool->AddField((*v)[0], "v");
 		MRField * wn = visualTool->AddField((*w)[0], "w");
