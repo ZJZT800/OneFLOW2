@@ -5,6 +5,7 @@
 #include "Utils.h"
 #include "BasicComputation.h"
 
+
 class CGS
 {
 public:
@@ -21,9 +22,12 @@ public:
 	
 public:
 	CGS(double* A, int* IA, int* JA, double* b, double* x0, double Tol, int maxIter, int unknowns, int entrynum);
+	CGS(double* sp, double** aii, double* rhs, double* x, double Tol, int maxIter, int unknowns);
 	~CGS();
 
 public:
 	void Solve(double* A, int* IA, int* JA, double* b, double* x);
-	double* precond(const double* pre);
+	void SolveDirect(double* sp, double** aii, double* rhs, double* x);
+	void PrecondILU(double* sp, double** aii, double* apTmp);
+	void PrecondRU(double** aii, double* apTmp, double* b);
 };

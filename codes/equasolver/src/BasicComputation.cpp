@@ -1,4 +1,5 @@
 #include "BasicComputation.h"
+#include <iomanip>
 
 BasicCompute::BasicCompute()
 {
@@ -8,16 +9,68 @@ BasicCompute::~BasicCompute()
 {
 }
 
+void BasicCompute::MVs(double* sp, double** aii, double* b, double* ans)
+{
+	for (int cId = 0; cId < ONEFLOW::ug.nCell; ++cId)
+	{
+		ans[cId] = 0.0;
+		ans[cId] = sp[cId] * b[cId];
+	}
+	for (int fId = ONEFLOW::ug.nBFace; fId < ONEFLOW::ug.nFace; ++fId)
+	{
+		int lc = (*ONEFLOW::ug.lcf)[fId];
+		int rc = (*ONEFLOW::ug.rcf)[fId];
+		ans[lc] -= b[rc] * aii[fId][0];
+		ans[rc] -= b[lc] * aii[fId][1];
+	}
+}
+
+void BasicCompute::MVs(ONEFLOW::RealField* sp, ONEFLOW::RealField2D* aii, ONEFLOW::RealField* b, double* ans)
+{
+	for (int cId = 0; cId < ONEFLOW::ug.nCell; ++cId)
+	{
+		ans[cId] = 0.0;
+		ans[cId] = (*sp)[cId] * (*b)[cId];
+		std::cout << "sp[" << cId << "]: " << setprecision(18) << (*sp)[cId] << std::endl;
+	}
+	for (int fId = ONEFLOW::ug.nBFace; fId < ONEFLOW::ug.nFace; ++fId)
+	{
+		int lc = (*ONEFLOW::ug.lcf)[fId];
+		int rc = (*ONEFLOW::ug.rcf)[fId];
+		ans[lc] -= (*b)[rc] * (*aii)[fId][0];
+		ans[rc] -= (*b)[lc] * (*aii)[fId][1];
+		std::cout << lc << '\t' << rc << '\t' << setprecision(18) << (*aii)[fId][0] << '\t' << setprecision(18) << (*b)[rc] << std::endl;
+		std::cout << rc << '\t' << lc << '\t' << setprecision(18) << (*aii)[fId][1] << '\t' << setprecision(18) << (*b)[lc] << std::endl;
+	}
+	system("pause");
+}
+
+void BasicCompute::MVs(ONEFLOW::RealField* sp, ONEFLOW::RealField2D* aii, double* b, double* ans)
+{
+	for (int cId = 0; cId < ONEFLOW::ug.nCell; ++cId)
+	{
+		ans[cId] = 0.0;
+		ans[cId] = (*sp)[cId] * b[cId];
+	}
+	for (int fId = ONEFLOW::ug.nBFace; fId < ONEFLOW::ug.nFace; ++fId)
+	{
+		int lc = (*ONEFLOW::ug.lcf)[fId];
+		int rc = (*ONEFLOW::ug.rcf)[fId];
+		ans[lc] -= b[rc] * (*aii)[fId][0];
+		ans[rc] -= b[lc] * (*aii)[fId][1];
+	}
+}
+
 void BasicCompute::CSRMVs(double* A, int* IA, int* JA, double* b, double* ans, int rows)
 {
 	int cols, rowIndex, colIndex, frontEntry;
 	double* temp = ArrayUtils<double>::onetensor(rows);
-	for (int i = 1; i < rows + 1; i++)
+	for (int i = 1; i < rows + 1; ++i)
 	{
 		rowIndex = i - 1;
 		cols = IA[i] - IA[i - 1];
 		frontEntry = IA[i - 1];
-		for (int j = 0; j < cols; j++)
+		for (int j = 0; j < cols; ++j)
 		{
 			colIndex = JA[frontEntry + j];
 			temp[rowIndex] += A[frontEntry + j] * b[colIndex];
@@ -30,7 +83,7 @@ void BasicCompute::CSRMVs(double* A, int* IA, int* JA, double* b, double* ans, i
 
 void BasicCompute::apxy(double* b, double* c, int rows, double realnum)
 {
-	for (int i = 0; i < rows; i++)
+	for (int i = 0; i < rows; ++i)
 	{
 		b[i] = realnum * b[i] + b[i] * c[i];
 	}
@@ -38,7 +91,7 @@ void BasicCompute::apxy(double* b, double* c, int rows, double realnum)
 
 void BasicCompute::apxy(double* b, double* c, int rows)
 {
-	for (int i = 0; i < rows; i++)
+	for (int i = 0; i < rows; ++i)
 	{
 		b[i] += b[i] * c[i];
 	}
@@ -47,7 +100,7 @@ void BasicCompute::apxy(double* b, double* c, int rows)
 double BasicCompute::dot(double* b, double* c, int rows)
 {
 	double ans = 0.0;
-	for (int i = 0; i < rows; i++)
+	for (int i = 0; i < rows; ++i)
 	{
 		ans += b[i] * c[i];
 	}
@@ -57,16 +110,26 @@ double BasicCompute::dot(double* b, double* c, int rows)
 double BasicCompute::norm(double* b, int rows)
 {
 	double ans = 0.0;
-	for (int i = 0; i < rows; i++)
+	for (int i = 0; i < rows; ++i)
 	{
 		ans += b[i] * b[i];
 	}
 	return(sqrt(ans));
 }
 
+double BasicCompute::norm(ONEFLOW::RealField* b, int rows)
+{
+	double ans = 0.0;
+	for (int i = 0; i < rows; ++i)
+	{
+		ans += (*b)[i] * (*b)[i];
+	}
+	return(sqrt(ans));
+}
+
 void BasicCompute::VCs(double* b, double* c, double realnum, int rows)
 {
-	for (int i = 0; i < rows; i++)
+	for (int i = 0; i < rows; ++i)
 	{
 		c[i] = b[i] * realnum;
 	}
@@ -74,23 +137,39 @@ void BasicCompute::VCs(double* b, double* c, double realnum, int rows)
 
 void BasicCompute::vecPlus(double* b, double* c, int rows)
 {
-	for (int i = 0; i < rows; i++)
+	for (int i = 0; i < rows; ++i)
 	{
 		c[i] = b[i] + c[i];
 	}
 }
 
+void BasicCompute::vecPlus(double* b, ONEFLOW::RealField* c, int rows)
+{
+	for (int i = 0; i < rows; ++i)
+	{
+		(*c)[i] = b[i] + (*c)[i];
+	}
+}
+
 void BasicCompute::vecPlus(double* b, double* c, int rows, double realnum)
 {
-	for (int i = 0; i < rows; i++)
+	for (int i = 0; i < rows; ++i)
 	{
 		c[i] = b[i] + realnum * c[i];
 	}
 }
 
+void BasicCompute::vecPlus(ONEFLOW::RealField* b, double* c, int rows, double realnum)
+{
+	for (int i = 0; i < rows; ++i)
+	{
+		c[i] = (*b)[i] + realnum * c[i];
+	}
+}
+
 void BasicCompute::vecPlus(double* b, double* c, double* d, int rows, double realnum)
 {
-	for (int i = 0; i < rows; i++)
+	for (int i = 0; i < rows; ++i)
 	{
 		d[i] = b[i] + realnum * c[i];
 	}
@@ -98,15 +177,23 @@ void BasicCompute::vecPlus(double* b, double* c, double* d, int rows, double rea
 
 void BasicCompute::vecPlusb(double* b, double* c, int rows, double realnum)
 {
-	for (int i = 0; i < rows; i++)
+	for (int i = 0; i < rows; ++i)
 	{
 		b[i] = b[i] + realnum * c[i];
 	}
 }
 
+void BasicCompute::vecPlusb(ONEFLOW::RealField* b, double* c, int rows, double realnum)
+{
+	for (int i = 0; i < rows; ++i)
+	{
+		(*b)[i] = (*b)[i] + realnum * c[i];
+	}
+}
+
 void BasicCompute::vecCopy(double* b, double* c, int rows)
 {
-	for (int i = 0; i < rows; i++)
+	for (int i = 0; i < rows; ++i)
 	{
 		b[i] = c[i];
 	}

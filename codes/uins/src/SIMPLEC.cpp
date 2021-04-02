@@ -122,9 +122,10 @@ void SIMPLEC::Run()
 			Iteration::outerSteps++;
 			ctrl.currTime += ctrl.pdt;
 
+			ConveResInit();
 			//Inner loop(Steady loop)
 			Iteration::innerSteps = 0;
-			while (!SIMPLEC::Converge())
+			while (SIMPLEC::Converge())
 			{
 				Iteration::innerSteps++;
 
@@ -138,7 +139,9 @@ void SIMPLEC::Run()
 	}
    else
    {
+		TimeSpan * timeSpan = new TimeSpan();
 	    //Inner loop(Steady loop)
+		ConveResInit();
 	    Iteration::innerSteps = 0;
 	    while (!SIMPLEC::Converge())
 	    {
@@ -146,15 +149,32 @@ void SIMPLEC::Run()
 
 		   this->SolveInnerIter();
 	    }
+		this->OuterProcess(timeSpan);
+		delete timeSpan;
    }
 
+}
+
+void SIMPLEC::ConveResInit()
+{
+	iinv.remax_u = 1;
+	iinv.remax_v = 1;
+	iinv.remax_w = 1;
+	iinv.remax_pp = 1;
 }
 
 bool SIMPLEC::Converge()
 {
 	int maxIterSteps = GetDataValue< int >("maxIterSteps");
+	Real ConRes_u = GetDataValue< Real >("ConRes_u");
+	Real ConRes_v = GetDataValue< Real >("ConRes_v");
+	Real ConRes_w = GetDataValue< Real >("ConRes_w");
+	Real ConRes_pp = GetDataValue< Real >("ConRes_pp");
+
 	if (Iteration::innerSteps == 0) return false;
-	if (Iteration::innerSteps < maxIterSteps) return false;
+	if (Iteration::innerSteps < maxIterSteps && (iinv.remax_u > ConRes_u ||iinv.remax_v >ConRes_v|| iinv.remax_w > ConRes_w|| iinv.remax_pp > ConRes_pp))
+	    return false;
+
 	//if (ctrl.idualtime == 0) return true;
 	bool flag = true;
 

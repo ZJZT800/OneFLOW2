@@ -50,7 +50,7 @@ void UINsField::Init()
    // q  = GetFieldPointer< MRField > ( grid, "q" );
 
 	rho = GetFieldPointer< MRField >(grid, "rho");
-	kvis = GetFieldPointer< MRField >(grid, "kvis");
+	vis_coef = GetFieldPointer< MRField >(grid, "vis_coef");
 	u = GetFieldPointer< MRField >(grid, "u");
 	v = GetFieldPointer< MRField >(grid, "v");
 	w = GetFieldPointer< MRField >(grid, "w");

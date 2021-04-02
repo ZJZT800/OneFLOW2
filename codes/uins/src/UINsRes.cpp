@@ -63,24 +63,24 @@ UINsRes::~UINsRes()
 void UINsRes::UpdateINsRes()
 {
 
-	std::cout << "iinv.remax_up:" << iinv.remax_up << std::endl;
-	std::cout << "iinv.remax_vp:" << iinv.remax_vp << std::endl;
-	std::cout << "iinv.remax_wp:" << iinv.remax_wp << std::endl;
+	std::cout << "iinv.remax_u:" << iinv.remax_u << std::endl;
+	std::cout << "iinv.remax_v:" << iinv.remax_v << std::endl;
+	std::cout << "iinv.remax_w:" << iinv.remax_w << std::endl;
 	std::cout << "iinv.remax_pp:" << iinv.remax_pp << std::endl;
 
-	ofstream fileres_up("residual_up.txt", ios::app);
+	ofstream fileres_up("residual_u.txt", ios::app);
 	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_up << iinv.remax_up << endl;
+	fileres_up << iinv.remax_u << endl;
 	fileres_up.close();
 
-	ofstream fileres_vp("residual_vp.txt", ios::app);
+	ofstream fileres_vp("residual_v.txt", ios::app);
 	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_vp << iinv.remax_vp << endl;
+	fileres_vp << iinv.remax_v << endl;
 	fileres_vp.close();
 
-	ofstream fileres_wp("residual_wp.txt", ios::app);
+	ofstream fileres_wp("residual_w.txt", ios::app);
 	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_wp << iinv.remax_wp << endl;
+	fileres_wp << iinv.remax_w << endl;
 	fileres_wp.close();
 
 	ofstream fileres_pp("residual_pp.txt", ios::app);

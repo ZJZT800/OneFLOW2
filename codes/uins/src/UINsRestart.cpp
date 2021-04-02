@@ -60,7 +60,7 @@ void UINsRestart::InitinsRestart( int sTid )
 
 	MRField * rho = GetFieldPointer< MRField  >(grid, "rho");
 
-	MRField * kvis = GetFieldPointer< MRField  >(grid, "kvis");
+	MRField * vis_coef = GetFieldPointer< MRField  >(grid, "vis_coef");
 
 	MRField * u = GetFieldPointer< MRField  >(grid, "u");
 
@@ -77,10 +77,10 @@ void UINsRestart::InitinsRestart( int sTid )
         SetField( ( * q )[ iEqu ], inscom.inflow[ iEqu ] );
     }*/
 
-	Real k_vis = GetDataValue< Real >("k_vis");
+	Real vis_cof = ONEFLOW::GetDataValue< Real >("vis_coef");
 
 	SetField((*rho)[0], inscom.inflow[0]);
-	SetField((*kvis)[0], k_vis);
+	SetField((*vis_coef)[0], vis_cof);
 	SetField((*u)[0], inscom.inflow[1]);
 	SetField((*v)[0], inscom.inflow[2]);
 	SetField((*w)[0], inscom.inflow[3]);

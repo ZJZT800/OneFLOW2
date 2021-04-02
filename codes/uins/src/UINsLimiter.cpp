@@ -72,7 +72,7 @@ void INsLimField::BcQlQrFix()
 	for (int fId = 0; fId < ug.nBFace; ++fId)
 	{
 		int bcType = ug.bcRecord->bcType[fId];
-		if (bcType == BC::INTERFACE) continue;
+		//if (bcType == BC::INTERFACE) continue;
 		if (bcType == BC::PERIODIC) continue;
 
 		ug.fId = fId;

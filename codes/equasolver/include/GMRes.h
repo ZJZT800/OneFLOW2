@@ -37,7 +37,6 @@ class GMRes
 	double RestartGMRes(double *A, int* IA, int* JA, double *x0, double *b);
 	double InnerLoop(double *A, int* IA, int* JA, double *x0, double *b);
 	void Update(double** H, double* x, double* beta, std::vector<double*> Q, int iteration);
-	void Deallocate();
 };
 
 #endif // GMRES_H

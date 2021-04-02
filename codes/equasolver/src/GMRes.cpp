@@ -1,4 +1,5 @@
 #include "GMRes.h"
+#include <iomanip>
 
 using namespace std;
 
@@ -20,13 +21,32 @@ GMRes::GMRes(int krylovDemension, int mRestart, int unknows, double tolerance)
 
 GMRes::~GMRes()
 {
+	auto FREE = [](double*& p)
+	{
+		if (p != nullptr)
+		{
+			delete p;
+			p = nullptr;
+		}
+	};
+	FREE(res_n);
+	FREE(residual);
+	std::vector<double*>().swap(Q);
+	ArrayUtils<double>::deltwotensor(H);
+	//delete &H;
+	FREE(v);
+	FREE(q);
+	FREE(y);
+	FREE(x);
+	FREE(beta);
+
+
 }
 
 int GMRes::Solve(double* A, int* IA, int* JA, double* x0, double* b)
 {
 	double error = RestartGMRes(A, IA, JA, x0, b);
-	this->Deallocate();
-	return error;
+	return 1;
 }
 
 double GMRes::RestartGMRes(double* A, int* IA, int* JA, double* x0, double* b)
@@ -47,9 +67,9 @@ double GMRes::RestartGMRes(double* A, int* IA, int* JA, double* x0, double* b)
 	return error;
 }
 
+
 double GMRes::InnerLoop(double* A, int* IA, int* JA, double* x0, double* b)
 {
-
 	basic.CSRMVs(A, IA, JA, x0, residual, unknows);
 
 	basic.vecPlus(b, residual, unknows, -1);        //get the residual vector
@@ -85,40 +105,35 @@ double GMRes::InnerLoop(double* A, int* IA, int* JA, double* x0, double* b)
 		double coe = ONE / H[k][k + 1];
 
 		basic.VCs(v, q, coe, unknows);
-	
+
 		basic.vecCopy(Q[k + 1], q, unknows);
 
 		//givens rotation for single rhs
-		for (int j = 0; j < k; j++)
+		for (int j = 0; j < k; ++j)
 		{
 			basic.rot(&H[k][j], &H[k][j + 1], &givens[j][0], &givens[j][1]);
 		}
 
 		basic.rotg(&H[k][k], &H[k][k + 1], &givens[k][0], &givens[k][1]);
-		
-		//givens rotation for residual vector
+
 		basic.rot(&beta[k], &beta[k + 1], &givens[k][0], &givens[k][1]);
-		
+
 		//if convergence?
 		if (abs(beta[k + 1]) < tolerance * norm_b)
 		{
-			/*std::cout << "tolerance: " << tolerance << std::endl;
-			std::cout << "beta[k + 1]: " << beta[k + 1] << std::endl;
-			std::cout << "norm_b: " << norm_b << std::endl;*/
-
 			Update(H, x, beta, Q, k + 1);
 			basic.vecCopy(x0, x, unknows);
-			for (int i = 0; i < k + 2; ++i)
+			for (int i = 0; i <= k + 2; ++i)
 			{
 				ArrayUtils<double>::delonetensor(Q[i]);
 			}
 			return(beta[k + 1]);
 		}
+		
 	}
-
 	Update(H, x, beta, Q, krylovDemension);
 	basic.vecCopy(x0, x, unknows);
-	for (int i = 0; i < krylovDemension + 1; ++i)
+	for (int i = 0; i <= krylovDemension; ++i)
 	{
 		ArrayUtils<double>::delonetensor(Q[i]);
 	}
@@ -137,33 +152,10 @@ void GMRes::Update(double** H, double* x, double* beta, std::vector<double*> Q, 
 			beta[innerlupe] -= beta[lupe] * H[lupe][innerlupe];
 		}
 	}
-	for (lupe = 0; lupe < iteration; lupe++)
+	for (lupe = 0; lupe < iteration; ++lupe)
 	{
 		basic.VCs(Q[lupe], Q[lupe], beta[lupe], unknows);
 		basic.vecPlus(Q[lupe], x, unknows);
 	}
-}
-
-void GMRes::Deallocate()
-{
-	ArrayUtils<double>::delonetensor(res_n);
-	ArrayUtils<double>::delonetensor(residual);
-	std::vector<double*>().swap(Q);
-	ArrayUtils<double>::deltwotensor(H);
-	ArrayUtils<double>::delonetensor(v);
-	ArrayUtils<double>::delonetensor(q);
-	ArrayUtils<double>::delonetensor(y);
-	ArrayUtils<double>::delonetensor(x);
-	ArrayUtils<double>::delonetensor(beta);
-	ArrayUtils<double>::deltwotensor(givens);
-	res_n = NULL;
-	residual = NULL;
-	H = NULL;
-	v = NULL;
-	q = NULL;
-	y = NULL;
-	x = NULL;
-	beta = NULL;
-	givens = NULL;
 }
 

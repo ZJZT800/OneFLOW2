@@ -8,7 +8,7 @@ true, res2, nTEqu, all
 true, dq  , nTEqu, all
 
 true, rho   , 1, all
-true, kvis , 1, all
+true, vis_coef , 1, all
 true, u   , 1, all
 true, v   , 1, all
 true, w   , 1, all

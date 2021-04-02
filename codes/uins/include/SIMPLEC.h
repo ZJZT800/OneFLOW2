@@ -28,7 +28,7 @@ public:
 	RealField2D ai;
 
 public:
-	Real remax_up, remax_vp, remax_wp, remax_pp, res_u, res_v, res_w, res_p;
+	Real remax_u, remax_v, remax_w, remax_pp, res_u, res_v, res_w, res_p;
 };
 
 extern INsInv iinv;
@@ -41,6 +41,7 @@ public:
 public:
 	void Run();
 public:
+	void ConveResInit();
 	static bool Converge();
 public:
 	void SolveInnerIter();

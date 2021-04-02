@@ -101,9 +101,10 @@ void UINsPressCorrect::PresEquCoeff()
 	iinv.remax_pp = 0;
 	for (int cId = 0; cId < ug.nCell; cId++)
 	{
-		//iinv.remax_pp = MAX(abs(iinv.remax_pp), abs(iinv.bp[cId]));
-		iinv.remax_pp += abs(iinv.bp[cId]);
+		iinv.remax_pp += pow(iinv.bp[cId], 2); 
 	}
+
+	    iinv.remax_pp = sqrt(iinv.remax_pp);
 }
 
 void UINsPressCorrect::CmpInPressCoeff(int& fId)
@@ -595,28 +596,33 @@ void UINsPressCorrect::UpdateSpeed()
 			else if (ug.bctype == BC::OUTFLOW)
 			{
 
-				/*ub1 = (*uinsf.u)[0][lc] - (*ug.cvol)[lc] / iinv.dup[lc] * dppdx[lc];
-
-				vb1 = (*uinsf.v)[0][lc] - (*ug.cvol)[lc] / iinv.dup[lc] * dppdy[lc];
-
-				wb1 = (*uinsf.w)[0][lc] - (*ug.cvol)[lc] / iinv.dup[lc] * dppdz[lc];*/
-
-				iinv.ub[fId] = (*uinsf.u)[0][lc] - (*ug.cvol)[lc] / iinv.dup[lc] * dppdx[lc];
+				/*iinv.ub[fId] = (*uinsf.u)[0][lc] - (*ug.cvol)[lc] / iinv.dup[lc] * dppdx[lc];
 
 				iinv.vb[fId] = (*uinsf.v)[0][lc] - (*ug.cvol)[lc] / iinv.dup[lc] * dppdy[lc];
 
-				iinv.wb[fId] = (*uinsf.w)[0][lc] - (*ug.cvol)[lc] / iinv.dup[lc] * dppdz[lc];
+				iinv.wb[fId] = (*uinsf.w)[0][lc] - (*ug.cvol)[lc] / iinv.dup[lc] * dppdz[lc];*/
+
+				  iinv.ub[fId] = iinv.ub[fId] - (*ug.cvol)[lc] / iinv.dup[lc] * dppdx[lc];
+
+                  iinv.vb[fId] = iinv.vb[fId] - (*ug.cvol)[lc] / iinv.dup[lc] * dppdy[lc];
+
+                  iinv.wb[fId] = iinv.wb[fId] - (*ug.cvol)[lc] / iinv.dup[lc] * dppdz[lc];
 
 			}
 
 			else if (ug.bctype == BC::SYMMETRY)
 			{
-				/*iinv.ub[fId] = 0;
+				Real a2 = (*ug.a1)[fId] * (*ug.a1)[fId] + (*ug.a2)[fId] * (*ug.a2)[fId] + (*ug.a3)[fId] * (*ug.a3)[fId];
 
-				iinv.vb[fId] = 0;
+				Real udota = (*ug.a1)[fId] * (*uinsf.u)[0][lc] + (*ug.a2)[fId] * (*uinsf.v)[0][lc] + (*ug.a3)[fId] * (*uinsf.w)[0][lc];
 
-				iinv.wb[fId] = 0;*/
-				;
+				udota = udota / a2;
+
+				iinv.ub[fId] = (*uinsf.u)[0][lc] - udota * (*ug.a1)[fId];
+
+				iinv.vb[fId] = (*uinsf.v)[0][lc] - udota * (*ug.a2)[fId];
+
+				iinv.wb[fId] = (*uinsf.w)[0][lc] - udota * (*ug.a3)[fId];
 			}
 
 			(*uinsf.u)[0][rc] = iinv.ub[fId];
