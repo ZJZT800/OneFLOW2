@@ -2,13 +2,12 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include "Utils.h"
 #include "BasicComputation.h"
 
-
+BeginNameSpace(ONEFLOW)
 class CGS
 {
-public:
+private:
 	BasicCompute basic;
 	int unknowns;
 	int entrynum;
@@ -25,9 +24,11 @@ public:
 	CGS(double* sp, double** aii, double* rhs, double* x, double Tol, int maxIter, int unknowns);
 	~CGS();
 
-public:
+private:
 	void Solve(double* A, int* IA, int* JA, double* b, double* x);
 	void SolveDirect(double* sp, double** aii, double* rhs, double* x);
 	void PrecondILU(double* sp, double** aii, double* apTmp);
 	void PrecondRU(double** aii, double* apTmp, double* b);
 };
+
+EndNameSpace

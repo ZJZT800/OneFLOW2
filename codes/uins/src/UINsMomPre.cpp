@@ -117,6 +117,7 @@ void UINsMomPre::CmpINsPreflux()
 						iinv.wb[fId] = (*ug.vfz)[fId];
 
 						iinv.pb[fId] = (*uinsf.p)[0][lc];
+
 					}
 					else
 					{
@@ -128,6 +129,8 @@ void UINsMomPre::CmpINsPreflux()
 
 						iinv.pb[fId] = (*uinsf.p)[0][lc];
 					}
+
+					iinv.fvisb_cof[fId] = (*uinsf.vis_coef)[0][lc];
 					iinv.flux[fId] =0;
 				}
 
@@ -138,6 +141,7 @@ void UINsMomPre::CmpINsPreflux()
 					iinv.wb[fId] = (*uinsf.w)[0][lc];
 					iinv.pb[fId] = (*uinsf.p)[0][lc];
 
+					iinv.fvisb_cof[fId] = (*uinsf.vis_coef)[0][lc];
 					iinv.flux[fId] = (*uinsf.rho)[0][lc] * ((*ug.a1)[fId] * iinv.ub[fId] + (*ug.a2)[fId] * iinv.vb[fId] + (*ug.a3)[fId] * iinv.wb[fId]);
 				}
 
@@ -151,20 +155,23 @@ void UINsMomPre::CmpINsPreflux()
 
 					iinv.pb[fId] = inscom.inflow[IIDX::IIP];
 
+					iinv.fvisb_cof[fId] = (*uinsf.vis_coef)[0][lc];
 					iinv.flux[fId] = inscom.inflow[0] * ((*ug.a1)[fId] * iinv.ub[fId] + (*ug.a2)[fId] * iinv.vb[fId] + (*ug.a3)[fId] * iinv.wb[fId]);
 				}
 
 				else if (ug.bctype == BC::SYMMETRY)
 				{
-					iinv.ub[fId] = 0;
+					/*iinv.ub[fId] = (*uinsf.u)[0][lc];
 
-					iinv.vb[fId] = 0;
+					iinv.vb[fId] = (*uinsf.v)[0][lc];
 
-					iinv.wb[fId] = 0;
+					iinv.wb[fId] = (*uinsf.w)[0][lc];
 
 					iinv.pb[fId] = (*uinsf.p)[0][lc];
-					
-					iinv.flux[fId] =0;
+
+					iinv.fvisb_cof[fId] = (*uinsf.vis_coef)[0][lc];
+					iinv.flux[fId] =0;*/
+
 				}
 
 			}
@@ -199,6 +206,8 @@ void UINsMomPre::CmpINsPreflux()
 			vf = vl * (*ug.fl)[fId] + vr * (*ug.fr)[fId];
 
 			wf = wl * (*ug.fl)[fId] + wr * (*ug.fr)[fId];
+
+			iinv.fvis_cof[fId] = (*ug.fl)[fId] * (*uinsf.vis_coef)[0][lc] + (*ug.fr)[fId] * (*uinsf.vis_coef)[0][rc];
 
 			iinv.flux[fId] = rl * ((*ug.a1)[fId] * uf + (*ug.a2)[fId] * vf + (*ug.a3)[fId] * wf);
 		}
@@ -273,10 +282,11 @@ void UINsMomPre::BcConvCoff(Real &ub1, Real &vb1, Real &wb1, int&fId)
 	Real clr = MAX(0, iinv.flux[fId]);
 	Real crl = clr - iinv.flux[fId];
 
-	if (bctype == BC::SOLID_SURFACE || bctype == BC::SYMMETRY)
+	if (bctype == BC::SOLID_SURFACE|| bctype == BC::SYMMETRY)
 	{
 		;
 	}
+
 	else if (bctype == BC::INFLOW)
 	{
 		if (iinv.flux[fId] < 0)
@@ -417,6 +427,7 @@ void UINsMomPre::CmpDiffusTerm()
 	wf.resize(ug.nFace);
 
     //BcVelocity(ub, vb, wb);
+    //FaceVisCoeff();
 	FaceVelocity(iinv.ub, iinv.vb, iinv.wb, uf, vf, wf);
 
 	ONEFLOW::CmpINsGrad(uf, dudx, dudy, dudz);
@@ -436,17 +447,34 @@ void UINsMomPre::CmpDiffusTerm()
 
 		int bctype = ug.bcRecord->bcType[fId];
 
-		if (bctype == BC::SOLID_SURFACE || bctype == BC::INFLOW|| bctype == BC::OUTFLOW)
-		{
+		//if (bctype == BC::SOLID_SURFACE || bctype == BC::INFLOW|| bctype == BC::OUTFLOW)
+		//{
 			this->DirechletBcDiffusCoff(dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz, ub1, vb1, wb1, fId);
-		}
-		else if (bctype == BC::SYMMETRY)
+		//}
+		/*else if (bctype == BC::SYMMETRY)
 		{
 			this->SymmetryBcDiffusCoff(dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz, ub1, vb1, wb1, fId);
-		}
+		}*/
 	}
 
 }
+
+/*void UINsMomPre::FaceVisCoeff()
+{
+	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
+	{
+		int lc = (*ug.lcf)[fId];
+		int rc = (*ug.rcf)[fId];
+
+		iinv.fvis_cof[fId] = (*ug.fl)[fId]*(*uinsf.vis_coef)[0][lc]+ (*ug.fr)[fId]*(*uinsf.vis_coef)[0][rc];
+	}
+
+	for (int fId = 0; fId < ug.nBFace; ++fId)
+	{
+		int lc = (*ug.lcf)[fId];
+		iinv.fvisb_cof[fId] = (*uinsf.vis_coef)[0][lc];
+	}
+}*/
 
 void UINsMomPre::InDiffusCoff(RealField& dudx, RealField& dudy, RealField& dudz, RealField& dvdx, RealField& dvdy, RealField& dvdz, RealField& dwdx, RealField& dwdy, RealField& dwdz, int& fId)
 {
@@ -457,7 +485,7 @@ void UINsMomPre::InDiffusCoff(RealField& dudx, RealField& dudy, RealField& dudz,
 	Real l2rdy = (*ug.ycc)[rc] - (*ug.ycc)[lc];
 	Real l2rdz = (*ug.zcc)[rc] - (*ug.zcc)[lc];
 
-	Real vis_cof = GetDataValue< Real >("vis_coef");
+	//Real vis_cof = GetDataValue< Real >("vis_coef");
 
 	Real dist = (*ug.a1)[fId] * l2rdx + (*ug.a2)[fId] * l2rdy + (*ug.a3)[fId] * l2rdz;
 
@@ -479,17 +507,17 @@ void UINsMomPre::InDiffusCoff(RealField& dudx, RealField& dudy, RealField& dudz,
 	Real fdwdy = (*ug.fl)[fId] * dwdy[lc] + (*ug.fr)[fId] * dwdy[rc];
 	Real fdwdz = (*ug.fl)[fId] * dwdz[lc] + (*ug.fr)[fId] * dwdz[rc];
 
-	iinv.ai[0][fId] += vis_cof * Fn;
-	iinv.ai[1][fId] += vis_cof * Fn;
+	iinv.ai[0][fId] += iinv.fvis_cof[fId] * Fn;
+	iinv.ai[1][fId] += iinv.fvis_cof[fId] * Fn;
 
-	iinv.bu[lc] += vis_cof * (fdudx * T1 + fdudy * T2 + fdudz * T3);
-	iinv.bu[rc] -= vis_cof * (fdudx * T1 + fdudy * T2 + fdudz * T3);
+	iinv.bu[lc] += iinv.fvis_cof[fId] * (fdudx * T1 + fdudy * T2 + fdudz * T3);
+	iinv.bu[rc] -= iinv.fvis_cof[fId] * (fdudx * T1 + fdudy * T2 + fdudz * T3);
 
-	iinv.bv[lc] += vis_cof * (fdvdx * T1 + fdvdy * T2 + fdvdz * T3);
-	iinv.bv[rc] -= vis_cof * (fdvdx * T1 + fdvdy * T2 + fdvdz * T3);
+	iinv.bv[lc] += iinv.fvis_cof[fId] * (fdvdx * T1 + fdvdy * T2 + fdvdz * T3);
+	iinv.bv[rc] -= iinv.fvis_cof[fId] * (fdvdx * T1 + fdvdy * T2 + fdvdz * T3);
 
-	iinv.bw[lc] += vis_cof * (fdwdx * T1 + fdwdy * T2 + fdwdz * T3);
-	iinv.bw[rc] -= vis_cof * (fdwdx * T1 + fdwdy * T2 + fdwdz * T3);
+	iinv.bw[lc] += iinv.fvis_cof[fId] * (fdwdx * T1 + fdwdy * T2 + fdwdz * T3);
+	iinv.bw[rc] -= iinv.fvis_cof[fId] * (fdwdx * T1 + fdwdy * T2 + fdwdz * T3);
 }
 
 void UINsMomPre::DirechletBcDiffusCoff(RealField& dudx, RealField& dudy, RealField& dudz, RealField& dvdx, RealField& dvdy, RealField& dvdz, RealField& dwdx, RealField& dwdy, RealField& dwdz, Real& ub1, Real& vb1, Real& wb1, int& fId)
@@ -506,7 +534,7 @@ void UINsMomPre::DirechletBcDiffusCoff(RealField& dudx, RealField& dudy, RealFie
 
 	Fn = Fn / dist;
 
-	Real vis_cof = GetDataValue< Real >("vis_coef");
+	//Real vis_cof = GetDataValue< Real >("vis_coef");
 
 	Real T1 = (*ug.a1)[fId] - l2rdx * Fn;
 	Real T2 = (*ug.a2)[fId] - l2rdy * Fn;
@@ -522,11 +550,11 @@ void UINsMomPre::DirechletBcDiffusCoff(RealField& dudx, RealField& dudy, RealFie
 	Real fdwdy = dwdy[lc];
 	Real fdwdz = dwdz[lc];
 
-	iinv.spu[lc] += vis_cof * Fn;
+	iinv.spu[lc] += iinv.fvisb_cof[fId] * Fn;
 
-	iinv.bu[lc] += vis_cof * Fn * ub1 + vis_cof * (fdudx * T1 + fdudy * T2 + fdudz * T3);
-	iinv.bv[lc] += vis_cof * Fn * vb1 + vis_cof * (fdvdx * T1 + fdvdy * T2 + fdvdz * T3);
-	iinv.bw[lc] += vis_cof * Fn * wb1 + vis_cof * (fdwdx * T1 + fdwdy * T2 + fdwdz * T3);
+	iinv.bu[lc] += iinv.fvisb_cof[fId] * Fn * ub1 + iinv.fvisb_cof[fId] * (fdudx * T1 + fdudy * T2 + fdudz * T3);
+	iinv.bv[lc] += iinv.fvisb_cof[fId] * Fn * vb1 + iinv.fvisb_cof[fId] * (fdvdx * T1 + fdvdy * T2 + fdvdz * T3);
+	iinv.bw[lc] += iinv.fvisb_cof[fId] * Fn * wb1 + iinv.fvisb_cof[fId] * (fdwdx * T1 + fdwdy * T2 + fdwdz * T3);
 
 }
 
@@ -539,14 +567,32 @@ void UINsMomPre::SymmetryBcDiffusCoff(RealField& dudx, RealField& dudy, RealFiel
 	Real l2rdz = (*ug.zfc)[fId] - (*ug.zcc)[lc];
 
 	Real dist = (*ug.a1)[fId] * l2rdx + (*ug.a2)[fId] * l2rdy + (*ug.a3)[fId] * l2rdz;
+
+	Real Fn = (*ug.a1)[fId] * (*ug.a1)[fId] + (*ug.a2)[fId] * (*ug.a2)[fId] + (*ug.a3)[fId] * (*ug.a3)[fId];
+
+	Fn = Fn / dist;
+
+	iinv.spu[lc] += iinv.fvisb_cof[fId] * Fn;
+
+	iinv.bu[lc] += iinv.fvisb_cof[fId] * Fn * ub1;
+	iinv.bv[lc] += iinv.fvisb_cof[fId] * Fn * vb1;
+	iinv.bw[lc] += iinv.fvisb_cof[fId] * Fn * wb1;
+
+	/*int lc = (*ug.lcf)[fId];
+
+	Real l2rdx = (*ug.xfc)[fId] - (*ug.xcc)[lc];
+	Real l2rdy = (*ug.yfc)[fId] - (*ug.ycc)[lc];
+	Real l2rdz = (*ug.zfc)[fId] - (*ug.zcc)[lc];
+
+	Real dist = (*ug.a1)[fId] * l2rdx + (*ug.a2)[fId] * l2rdy + (*ug.a3)[fId] * l2rdz;
 	Real Fn = (*ug.a1)[fId] * (*ug.a1)[fId] + (*ug.a2)[fId] * (*ug.a2)[fId] + (*ug.a3)[fId] * (*ug.a3)[fId];
 	Fn = Fn / dist;
 
 	//Real udota = (*ug.a1)[fId] * ub1 + (*ug.a2)[fId] * vb1 + (*ug.a3)[fId] * wb1;
 	Real udota = (*ug.a1)[fId] * (*uinsf.u)[0][lc] + (*ug.a2)[fId] * (*uinsf.v)[0][lc] + (*ug.a3)[fId] * (*uinsf.w)[0][lc];
 
-	Real vis_cof = GetDataValue< Real >("vis_coef");
-	Real adif = vis_cof / dist;
+	//Real vis_cof = GetDataValue< Real >("vis_coef");
+	Real adif = iinv.fvisb_cof[fId] / dist;
 
 	Real adifx = adif * (*ug.a1)[fId];
 	Real adify = adif * (*ug.a2)[fId];
@@ -556,7 +602,7 @@ void UINsMomPre::SymmetryBcDiffusCoff(RealField& dudx, RealField& dudy, RealFiel
 
 	iinv.bu[lc] -= adifx * (udota - (*uinsf.u)[0][lc] * (*ug.a1)[fId]);
 	iinv.bv[lc] -= adify * (udota - (*uinsf.v)[0][lc] * (*ug.a2)[fId]);
-	iinv.bw[lc] -= adifz * (udota - (*uinsf.w)[0][lc] * (*ug.a3)[fId]);
+	iinv.bw[lc] -= adifz * (udota - (*uinsf.w)[0][lc] * (*ug.a3)[fId]);*/
 }
 
 /*void UINsMomPre::BcPressure(RealField& pb)
@@ -745,9 +791,10 @@ void UINsMomPre::Solveuvw()
 	Real Tol = GetDataValue< Real >("EquaMomTol");
 	int mRestarts = GetDataValue< int >("EquaMomRestarts");
 	string gt = GetDataValue< string >("EquaMomMethod");
-	SolveEqua(iinv.spu, iinv.ai, iinv.bu, uCorrect, iinv.res_u, gt, MaxIter, Tol, mRestarts);
-	SolveEqua(iinv.spu, iinv.ai, iinv.bv, vCorrect, iinv.res_v, gt, MaxIter, Tol, mRestarts);
-	SolveEqua(iinv.spu, iinv.ai, iinv.bw, wCorrect, iinv.res_w, gt, MaxIter, Tol, mRestarts);
+	bool ifPrecond = true;
+	SolveEqua(iinv.spu, iinv.ai, iinv.bu, uCorrect, iinv.res_u, gt, MaxIter, Tol, mRestarts, ifPrecond);
+	SolveEqua(iinv.spu, iinv.ai, iinv.bv, vCorrect, iinv.res_v, gt, MaxIter, Tol, mRestarts, ifPrecond);
+	SolveEqua(iinv.spu, iinv.ai, iinv.bw, wCorrect, iinv.res_w, gt, MaxIter, Tol, mRestarts, ifPrecond);
 
 	for (int cId = 0; cId < ug.nCell; cId++)
 	{
@@ -921,69 +968,15 @@ void UINsMomPre::CmpINsBcFaceflux(Real& dpdx1, Real& dpdy1, Real& dpdz1, Real& p
 
 	if (ug.bctype == BC::SOLID_SURFACE)
 	{
-		if (ug.bcdtkey == 0)
-		{
 			rl = (*uinsf.rho)[0][lc];
-
-			/*uf = (*ug.vfx)[fId];
-
-			vf = (*ug.vfy)[fId];
-
-			wf = (*ug.vfz)[fId];
-
-			vnflow = (*ug.a1)[fId] * uf + (*ug.a2)[fId] * vf + (*ug.a3)[fId] * wf;*/
-
-			/*iinv.ub[fId] = (*ug.vfx)[fId];
-
-			iinv.vb[fId] = (*ug.vfy)[fId];
-
-			iinv.wb[fId] = (*ug.vfz)[fId];*/
 
 			vnflow = (*ug.a1)[fId] * iinv.ub[fId] + (*ug.a2)[fId] * iinv.vb[fId] + (*ug.a3)[fId] * iinv.wb[fId];
 
 			iinv.flux[fId] = rl * vnflow;
-		}
-		else
-		{
-			rl = (*uinsf.rho)[0][lc];
-
-			/*uf = (*inscom.bcflow)[IIDX::IIU];
-
-			vf = (*inscom.bcflow)[IIDX::IIV];
-
-			wf = (*inscom.bcflow)[IIDX::IIW];
-
-			vnflow = (*ug.a1)[fId] * uf + (*ug.a2)[fId] * vf + (*ug.a3)[fId] * wf;*/
-
-			/*iinv.ub[fId] = (*inscom.bcflow)[IIDX::IIU];
-
-			iinv.vb[fId] = (*inscom.bcflow)[IIDX::IIV];
-
-			iinv.wb[fId] = (*inscom.bcflow)[IIDX::IIW];*/
-
-			vnflow = (*ug.a1)[fId] * iinv.ub[fId] + (*ug.a2)[fId] * iinv.vb[fId] + (*ug.a3)[fId] * iinv.wb[fId];
-
-			iinv.flux[fId] = rl * vnflow;
-		}
-
 	}
 
 	else if (ug.bctype == BC::INFLOW)
 	{
-		/*uf = inscom.inflow[IIDX::IIU];
-
-		vf = inscom.inflow[IIDX::IIV];
-
-		wf = inscom.inflow[IIDX::IIW];
-
-		vnflow = (*ug.a1)[fId] * uf + (*ug.a2)[fId] * vf + (*ug.a3)[fId] * wf;*/
-
-		/*iinv.ub[fId] = inscom.inflow[IIDX::IIU];
-
-		iinv.vb[fId] = inscom.inflow[IIDX::IIV];
-
-		iinv.wb[fId] = inscom.inflow[IIDX::IIW];*/
-
 		vnflow = (*ug.a1)[fId] * iinv.ub[fId] + (*ug.a2)[fId] * iinv.vb[fId] + (*ug.a3)[fId] * iinv.wb[fId];
 
 		iinv.flux[fId] = inscom.inflow[IIDX::IIR] * vnflow;
@@ -991,7 +984,7 @@ void UINsMomPre::CmpINsBcFaceflux(Real& dpdx1, Real& dpdy1, Real& dpdz1, Real& p
 
 	else if (ug.bctype == BC::OUTFLOW)
 	{
-		//rl = (*uinsf.rho)[0][lc];
+		rl = (*uinsf.rho)[0][lc];
 		ul = (*uinsf.u)[0][lc];
 		vl = (*uinsf.v)[0][lc];
 		wl = (*uinsf.w)[0][lc];
@@ -1017,37 +1010,24 @@ void UINsMomPre::CmpINsBcFaceflux(Real& dpdx1, Real& dpdy1, Real& dpdz1, Real& p
 		Real fdpdy = dpdy1 * dy1 - (pb1 - pl);
 		Real fdpdz = dpdz1 * dz1 - (pb1 - pl);
 
-		/*uf = ul + fdpdx * Df1;
-		vf = vl + fdpdy * Df2;
-		wf = wl + fdpdz * Df3;
-
-		vnflow = (*ug.a1)[fId] * uf + (*ug.a2)[fId] * vf + (*ug.a3)[fId] * wf + rurf * iinv.dun[fId];*/
-
-		/*iinv.ub[fId] = iinv.ub[fId] + fdpdx * Df1;
-		iinv.vb[fId] = iinv.vb[fId] + fdpdy * Df2;
-		iinv.wb[fId] = iinv.wb[fId] + fdpdz * Df3;*/
-
-		  iinv.ub[fId] = ul + fdpdx * Df1;
-          iinv.vb[fId] = vl + fdpdy * Df2;
-          iinv.wb[fId] = wl + fdpdz * Df3;
+		iinv.ub[fId] = ul + fdpdx * Df1;
+        iinv.vb[fId] = vl + fdpdy * Df2;
+        iinv.wb[fId] = wl + fdpdz * Df3;
 
         vnflow = (*ug.a1)[fId] * iinv.ub[fId] + (*ug.a2)[fId] * iinv.vb[fId] + (*ug.a3)[fId] * iinv.wb[fId] + rurf * iinv.dun[fId];
 
-		iinv.flux[fId] = (*uinsf.rho)[0][lc] * vnflow;
+		iinv.flux[fId] = rl * vnflow;
 	}
 
 	else if (ug.bctype == BC::SYMMETRY)
 	{
+		 /*rl = (*uinsf.rho)[0][lc];
 
-	/*iinv.ub[fId] = 0;
+	     vnflow = (*ug.a1)[fId] * iinv.ub[fId] + (*ug.a2)[fId] * iinv.vb[fId] + (*ug.a3)[fId] * iinv.wb[fId];
 
-	iinv.vb[fId] = 0;
+	     iinv.flux[fId] = rl * vnflow;*/
 
-	iinv.wb[fId] = 0;*/
-
-	vnflow = (*ug.a1)[fId] * iinv.ub[fId] + (*ug.a2)[fId] * iinv.vb[fId] + (*ug.a3)[fId] * iinv.wb[fId];
-
-	iinv.flux[fId] = rl * vnflow;
+		iinv.flux[fId] = 0;
 
 	}
 

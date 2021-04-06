@@ -45,6 +45,8 @@ void INsInv::FluxInit()
 	wb.resize(ug.nBFace);
 	pb.resize(ug.nBFace);
 	dun.resize(ug.nFace);
+	fvis_cof.resize(ug.nFace);
+	fvisb_cof.resize(ug.nBFace);
 }
 
 void INsInv::MomPreInit()

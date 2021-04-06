@@ -1,8 +1,12 @@
-#pragma once
+#ifndef _BasicComputation_H
+#define _BasicComputation_H
+
 #include "Utils.h"
 #include "UCom.h"
-#include "HXDefine.h"
 #include "FaceTopo.h"
+
+
+BeginNameSpace(ONEFLOW)
 
 class BasicCompute
 {
@@ -12,13 +16,15 @@ public:
 
 	void MVs(double* sp, double** aii, double* b, double* ans);
 
+	void MVs(RealField& sp, RealField2D& aii, RealField& b, RealField& ans);
+
 public:
-	void MVs(ONEFLOW::RealField* sp, ONEFLOW::RealField2D* ai1, ONEFLOW::RealField* b, double* ans);
 	void MVs(ONEFLOW::RealField* sp, ONEFLOW::RealField2D* aii, double* b, double* ans);
 	void CSRMVs(double* A, int* IA, int* JA, double* b, double* ans, int rows);
 	void apxy(double* b, double* c, int rows, double realnum);     //b = realnum * b + b * c
 	void apxy(double* b, double* c, int rows);                   //b = b + b * c
 	double dot(double* b, double* c, int rows);
+	Real dot(RealField& b, RealField& c, int rows);
 	double norm(double* b, int rows);
 	double norm(ONEFLOW::RealField* b, int rows);
 	void VCs(double* b, double* c, double realnum, int rows);
@@ -33,3 +39,6 @@ public:
 	void rotg(double* X, double* Y, double* c, double* s);    //givens rotation; calculate coefficient S & C
 	void rot(double* X, double* Y, double* c, double* s);
 };
+ EndNameSpace
+
+#endif

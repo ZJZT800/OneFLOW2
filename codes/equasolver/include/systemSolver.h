@@ -3,7 +3,7 @@
 #include "HXDefine.h"
 #include "UCom.h"
 #include "FaceTopo.h"
-#include "pGAMG.h"
+//#include "pGAMG.h"
 
 BeginNameSpace(ONEFLOW)
 
@@ -12,7 +12,7 @@ class SolveEqua
 
 public:
 	SolveEqua();
-	SolveEqua(RealField& sp, RealField2D& ai, RealField& rhs, RealField& x, Real res, std::string TypeNum, int MaxIter, double Tol, int Restarts);
+	SolveEqua(RealField& sp, RealField2D& ai, RealField& rhs, RealField& x, Real res, std::string TypeNum, int MaxIter, double Tol, int Restarts, bool ifPrecond);
 	~SolveEqua();
 
 public:
@@ -39,6 +39,7 @@ public:
 	double* bb;
 	double* xx;
 
+public:
 	void solveGMRES();
 	void CSR(RealField& sp, RealField2D& ai, RealField& rhs);
 	void CSRsp(RealField& sp, RealField2D& ai, RealField& rhs);
@@ -49,6 +50,7 @@ public:
 	void InitCGS();
 	void DeallocateCGS();
 	void InitAMG();
+
 };
 
 EndNameSpace

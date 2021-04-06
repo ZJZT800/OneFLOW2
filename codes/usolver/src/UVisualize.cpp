@@ -625,12 +625,14 @@ void UVisualize::CmpNodeField( VisualTool * visualTool )
 		MRField * v = GetFieldPointer< MRField  >(grid, "v");
 		MRField * w = GetFieldPointer< MRField  >(grid, "w");
 		MRField * p = GetFieldPointer< MRField  >(grid, "p");
+		MRField * vis_coef = GetFieldPointer< MRField  >(grid, "vis_coef");
 
 		MRField * rn = visualTool->AddField((*rho)[0], "r");
 		MRField * un = visualTool->AddField((*u)[0], "u");
 		MRField * vn = visualTool->AddField((*v)[0], "v");
 		MRField * wn = visualTool->AddField((*w)[0], "w");
 		MRField * pn = visualTool->AddField((*p)[0], "p");
+		MRField * vis_coefn = visualTool->AddField((*vis_coef)[0], "vis_coef");
 
 		MRField * gaman = CreateNodeVar("gama");
 		MRField * machn = visualTool->CreateField("mach");

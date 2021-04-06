@@ -1,16 +1,14 @@
 #ifndef GMRES_H
 #define GMRES_H
 
-
-#include "Utils.h"
 #include "BasicComputation.h"
 #include <complex>
 #include <fstream>
 #include <iostream>
 #include <vector>
-//#include <mkl.h>
-using namespace std;
 
+using namespace std;
+BeginNameSpace(ONEFLOW)
 class BasicCompute;
 class GMRes
 {
@@ -39,4 +37,5 @@ class GMRes
 	void Update(double** H, double* x, double* beta, std::vector<double*> Q, int iteration);
 };
 
+EndNameSpace
 #endif // GMRES_H

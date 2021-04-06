@@ -184,7 +184,8 @@ void UINsPressCorrect::CmpPressCorrectEqu()
 	Real Tol = GetDataValue< Real >("EquaPressTol");
 	int mRestarts = GetDataValue< int >("EquaPressRestarts");
 	string gt = GetDataValue< string >("EquaPressMethod");
-	SolveEqua(iinv.spp, iinv.ai, iinv.bp, iinv.pp, iinv.res_p, gt, MaxIter, Tol, mRestarts);
+	bool ifPrecond = true;
+	SolveEqua(iinv.spp, iinv.ai, iinv.bp, iinv.pp, iinv.res_p, gt, MaxIter, Tol, mRestarts, ifPrecond);
 	//std::cout << iinv.res_p << std::endl;
 
 	//�߽絥Ԫ
@@ -240,7 +241,6 @@ void UINsPressCorrect::CmpPressCorrectEqu()
 		if (bcType == BC::SOLID_SURFACE)
 		{
 			iinv.pb[fId] = (*uinsf.p)[0][lc];
-
 		}
 		else if (bcType == BC::INFLOW)
 		{
@@ -350,12 +350,14 @@ void UINsPressCorrect::CmpUpdateINsBcFaceflux(int& fId)
 
 	if (ug.bctype == BC::SOLID_SURFACE)
 	{
-		iinv.flux[fId] = 0;
+		//iinv.flux[fId] = 0;
+		;
 	}
 
 	else if (ug.bctype == BC::INFLOW)
 	{
-		iinv.flux[fId] += 0;
+		//iinv.flux[fId] += 0;
+		;
 	}
 
 	else if (ug.bctype == BC::OUTFLOW)
@@ -382,7 +384,8 @@ void UINsPressCorrect::CmpUpdateINsBcFaceflux(int& fId)
 
 	else if (ug.bctype == BC::SYMMETRY)
 	{
-		iinv.flux[fId] = 0;
+		//iinv.flux[fId] = 0;
+		;
 	}
 
 }
@@ -612,7 +615,15 @@ void UINsPressCorrect::UpdateSpeed()
 
 			else if (ug.bctype == BC::SYMMETRY)
 			{
-				Real a2 = (*ug.a1)[fId] * (*ug.a1)[fId] + (*ug.a2)[fId] * (*ug.a2)[fId] + (*ug.a3)[fId] * (*ug.a3)[fId];
+				Real vnRelative = (*uinsf.u)[0][lc] * (*ug.xfn)[fId] + (*uinsf.v)[0][lc] * (*ug.yfn)[fId] + (*uinsf.w)[0][lc] * (*ug.zfn)[fId];
+
+				iinv.ub[fId] = (*uinsf.u)[0][lc] - (*ug.xfn)[fId]* vnRelative;
+
+				iinv.vb[fId] = (*uinsf.v)[0][lc] - (*ug.yfn)[fId] * vnRelative;
+
+				iinv.wb[fId] = (*uinsf.u)[0][lc] - (*ug.zfn)[fId] * vnRelative;
+				
+				/*Real a2 = (*ug.a1)[fId] * (*ug.a1)[fId] + (*ug.a2)[fId] * (*ug.a2)[fId] + (*ug.a3)[fId] * (*ug.a3)[fId];
 
 				Real udota = (*ug.a1)[fId] * (*uinsf.u)[0][lc] + (*ug.a2)[fId] * (*uinsf.v)[0][lc] + (*ug.a3)[fId] * (*uinsf.w)[0][lc];
 
@@ -622,7 +633,7 @@ void UINsPressCorrect::UpdateSpeed()
 
 				iinv.vb[fId] = (*uinsf.v)[0][lc] - udota * (*ug.a2)[fId];
 
-				iinv.wb[fId] = (*uinsf.w)[0][lc] - udota * (*ug.a3)[fId];
+				iinv.wb[fId] = (*uinsf.w)[0][lc] - udota * (*ug.a3)[fId];*/
 			}
 
 			(*uinsf.u)[0][rc] = iinv.ub[fId];

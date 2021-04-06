@@ -20,7 +20,7 @@ public:
 public:
 	RealField flux;
 	RealField spu, bu, bv, bw;
-	RealField ub, vb, wb, pb;
+	RealField ub, vb, wb, pb, fvis_cof, fvisb_cof;
 	RealField u_old, v_old, w_old;
 	RealField spp, bp;
 	RealField dun, dup;

@@ -1,6 +1,8 @@
 #include "BasicComputation.h"
 #include <iomanip>
 
+BeginNameSpace(ONEFLOW)
+
 BasicCompute::BasicCompute()
 {
 }
@@ -25,24 +27,20 @@ void BasicCompute::MVs(double* sp, double** aii, double* b, double* ans)
 	}
 }
 
-void BasicCompute::MVs(ONEFLOW::RealField* sp, ONEFLOW::RealField2D* aii, ONEFLOW::RealField* b, double* ans)
+void BasicCompute::MVs(RealField& sp, RealField2D& aii, RealField& b, RealField& ans)
 {
 	for (int cId = 0; cId < ONEFLOW::ug.nCell; ++cId)
 	{
 		ans[cId] = 0.0;
-		ans[cId] = (*sp)[cId] * (*b)[cId];
-		std::cout << "sp[" << cId << "]: " << setprecision(18) << (*sp)[cId] << std::endl;
+		ans[cId] = sp[cId] * b[cId];
 	}
 	for (int fId = ONEFLOW::ug.nBFace; fId < ONEFLOW::ug.nFace; ++fId)
 	{
 		int lc = (*ONEFLOW::ug.lcf)[fId];
 		int rc = (*ONEFLOW::ug.rcf)[fId];
-		ans[lc] -= (*b)[rc] * (*aii)[fId][0];
-		ans[rc] -= (*b)[lc] * (*aii)[fId][1];
-		std::cout << lc << '\t' << rc << '\t' << setprecision(18) << (*aii)[fId][0] << '\t' << setprecision(18) << (*b)[rc] << std::endl;
-		std::cout << rc << '\t' << lc << '\t' << setprecision(18) << (*aii)[fId][1] << '\t' << setprecision(18) << (*b)[lc] << std::endl;
+		ans[lc] -= b[rc] * aii[fId][0];
+		ans[rc] -= b[lc] * aii[fId][1];
 	}
-	system("pause");
 }
 
 void BasicCompute::MVs(ONEFLOW::RealField* sp, ONEFLOW::RealField2D* aii, double* b, double* ans)
@@ -100,6 +98,16 @@ void BasicCompute::apxy(double* b, double* c, int rows)
 double BasicCompute::dot(double* b, double* c, int rows)
 {
 	double ans = 0.0;
+	for (int i = 0; i < rows; ++i)
+	{
+		ans += b[i] * c[i];
+	}
+	return(ans);
+}
+
+Real BasicCompute::dot(RealField& b, RealField& c, int rows)
+{
+	Real ans = 0.0;
 	for (int i = 0; i < rows; ++i)
 	{
 		ans += b[i] * c[i];
@@ -230,3 +238,5 @@ void BasicCompute::rot(double* X, double* Y, double* c, double* s)
 	(*Y) = -(*s) * (*X) + (*c) * (*Y);
 	(*X) = tmp;
 }
+
+EndNameSpace

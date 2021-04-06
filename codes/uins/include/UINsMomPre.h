@@ -46,6 +46,7 @@ public:
 	void BcConvCoff(Real &ub1, Real &vb1, Real &wb1, int&fId);
 	//void BcVelocity(RealField& ub, RealField& vb, RealField& wb);
 	void CmpDiffus();
+	//void FaceVisCoeff();
 	void CmpDiffusTerm();
 	void InDiffusCoff(RealField& dudx, RealField& dudy, RealField& dudz, RealField& dvdx, RealField& dvdy, RealField& dvdz, RealField& dwdx, RealField& dwdy, RealField& dwdz, int& fId);
 	void DirechletBcDiffusCoff(RealField& dudx, RealField& dudy, RealField& dudz, RealField& dvdx, RealField& dvdy, RealField& dvdz, RealField& dwdx, RealField& dwdy, RealField& dwdz, Real& ub1, Real& vb1, Real& wb1, int& fId);

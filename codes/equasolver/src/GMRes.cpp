@@ -2,7 +2,7 @@
 #include <iomanip>
 
 using namespace std;
-
+BeginNameSpace(ONEFLOW)
 GMRes::GMRes(int krylovDemension, int mRestart, int unknows, double tolerance)
 	: krylovDemension(krylovDemension), mRestart(mRestart), unknows(unknows), tolerance(tolerance)
 {
@@ -70,6 +70,7 @@ double GMRes::RestartGMRes(double* A, int* IA, int* JA, double* x0, double* b)
 
 double GMRes::InnerLoop(double* A, int* IA, int* JA, double* x0, double* b)
 {
+	std::ofstream file("resGMRES.txt", std::ios::app);
 	basic.CSRMVs(A, IA, JA, x0, residual, unknows);
 
 	basic.vecPlus(b, residual, unknows, -1);        //get the residual vector
@@ -90,37 +91,79 @@ double GMRes::InnerLoop(double* A, int* IA, int* JA, double* x0, double* b)
 	{
 		Q[k + 1] = ArrayUtils<double>::onetensor(unknows);
 
+		/*for (int z = 0; z < unknows; ++z)
+		{
+			std::cout << setprecision(30) << v[z] << std::endl;
+		}
+		for (int z = 0; z < unknows; ++z)
+		{
+			std::cout << setprecision(30) << q[z] << std::endl;
+		}*/
+
 		basic.CSRMVs(A, IA, JA, q, v, unknows);
+		/*for (int z = 0; z < unknows; ++z)
+		{
+			std::cout << setprecision(30) << v[z] << std::endl;
+		}
+		for (int z = 0; z < unknows; ++z)
+		{
+			std::cout << setprecision(30) << q[z] << std::endl;
+		}*/
 
 		for (int j = 0; j < k + 1; j++)
 		{
 			H[k][j] = basic.dot(Q[j], v, unknows);      //colMajor
-
+			/*for (int z = 0; z < unknows; ++z)
+			{
+				std::cout << setprecision(30) << v[z] << std::endl;
+			}
+			for (int z = 0; z < unknows; ++z)
+			{
+				std::cout << setprecision(30) << Q[j][z] << std::endl;
+			}*/
 			double coe = NEGONE * H[k][j];
 			
 			basic.vecPlusb(v, Q[j], unknows, coe);
 		}
 		H[k][k + 1] = basic.norm(v, unknows);
-
+		//std::cout << setprecision(30) << H[k][k + 1] << std::endl;
 		double coe = ONE / H[k][k + 1];
 
 		basic.VCs(v, q, coe, unknows);
-
+		/*for (int z = 0; z < unknows; ++z)
+		{
+			std::cout << setprecision(30) << v[z] << std::endl;
+		}
+		for (int z = 0; z < unknows; ++z)
+		{
+			std::cout << setprecision(30) << q[z] << std::endl;
+		}*/
 		basic.vecCopy(Q[k + 1], q, unknows);
-
+		/*for (int z = 0; z < unknows; ++z)
+		{
+			std::cout << setprecision(30) << Q[k + 1][z] << std::endl;
+		}*/
 		//givens rotation for single rhs
-		for (int j = 0; j < k; ++j)
+		for (int j = 0; j < k; j++)
 		{
 			basic.rot(&H[k][j], &H[k][j + 1], &givens[j][0], &givens[j][1]);
 		}
 
 		basic.rotg(&H[k][k], &H[k][k + 1], &givens[k][0], &givens[k][1]);
-
+		//std::cout << setprecision(30) << givens[k][0] << '\t' << givens[k][1] << std::endl;
+		//std::cout << setprecision(30) << beta[k] << '\t' << beta[k + 1] << std::endl;
+		//givens rotation for residual vector
 		basic.rot(&beta[k], &beta[k + 1], &givens[k][0], &givens[k][1]);
-
+		//std::cout << setprecision(30) << beta[k] << '\t' << beta[k + 1] << std::endl;
+		file << abs(beta[k + 1]) << std::endl;
+		//std::cout << abs(beta[k + 1]) << std::endl;
 		//if convergence?
 		if (abs(beta[k + 1]) < tolerance * norm_b)
 		{
+			/*std::cout << "tolerance: " << tolerance << std::endl;
+			std::cout << "beta[k + 1]: " << beta[k + 1] << std::endl;
+			std::cout << "norm_b: " << norm_b << std::endl;*/
+
 			Update(H, x, beta, Q, k + 1);
 			basic.vecCopy(x0, x, unknows);
 			for (int i = 0; i <= k + 2; ++i)
@@ -131,6 +174,7 @@ double GMRes::InnerLoop(double* A, int* IA, int* JA, double* x0, double* b)
 		}
 		
 	}
+	file.close();
 	Update(H, x, beta, Q, krylovDemension);
 	basic.vecCopy(x0, x, unknows);
 	for (int i = 0; i <= krylovDemension; ++i)
@@ -152,10 +196,11 @@ void GMRes::Update(double** H, double* x, double* beta, std::vector<double*> Q, 
 			beta[innerlupe] -= beta[lupe] * H[lupe][innerlupe];
 		}
 	}
-	for (lupe = 0; lupe < iteration; ++lupe)
+	for (lupe = 0; lupe < iteration; lupe++)
 	{
 		basic.VCs(Q[lupe], Q[lupe], beta[lupe], unknows);
 		basic.vecPlus(Q[lupe], x, unknows);
 	}
 }
 
+EndNameSpace

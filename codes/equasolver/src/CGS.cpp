@@ -1,6 +1,8 @@
 #include "CGS.h"
 #include <iomanip>
 
+BeginNameSpace(ONEFLOW)
+
 CGS::CGS(double* A, int* IA, int* JA, double* b, double* x0, double Tol, int maxIter, int unknowns, int entrynum)
 	:unknowns(unknowns), entrynum(entrynum), Tol(Tol), maxIter(maxIter)
 {
@@ -258,4 +260,7 @@ void CGS::PrecondRU(double** aii, double* apTmp, double* b)
 		b[lc] = b[lc] + aii[fId][0] * apTmp[lc] * b[rc];
 	}
 	ArrayUtils<double>::delonetensor(bTmp);
+	bTmp = NULL;
 }
+
+EndNameSpace

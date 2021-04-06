@@ -1,5 +1,6 @@
 #include "GMRes.h"
 #include "CGS.h"
+#include "BiCGStab.h"
 #include "Utils.h"
 #include "systemSolver.h"
 #include <time.h>
@@ -16,11 +17,12 @@ SolveEqua::SolveEqua()
 {
 }
 
-SolveEqua::SolveEqua(RealField& sp, RealField2D& ai, RealField& rhs, RealField& x, Real res, std::string TypeNum, int MaxIter, double Tol, int Restarts)
+SolveEqua::SolveEqua(RealField& sp, RealField2D& ai, RealField& rhs, RealField& x, Real res, std::string TypeNum, int MaxIter, double Tol, int Restarts, bool ifPrecond)
 	: MaxIter(MaxIter), Tol(Tol), restarts(Restarts), TypeNum(TypeNum)
 {	
 	unknowns = ONEFLOW::ug.nCell;
 	entryNum = (ONEFLOW::ug.nFace - ONEFLOW::ug.nBFace) * 2 + ONEFLOW::ug.nCell;
+
 	if (TypeNum == "GMRES")
 	{
 		this->CSR(sp, ai, rhs);
@@ -40,7 +42,7 @@ SolveEqua::SolveEqua(RealField& sp, RealField2D& ai, RealField& rhs, RealField& 
 	{
 		this->CSRsp(sp, ai, rhs);
 		system("pause");
-		typedef void (_stdcall*PGAMG)(int nrows, int ncols, int nnonzeros, int* IA, int* JA, double* d, double* A, double* u, double* b, int groupsize, int max_sweep, double res);
+		/*typedef void (_stdcall*PGAMG)(int nrows, int ncols, int nnonzeros, int* IA, int* JA, double* d, double* A, double* u, double* b, int groupsize, int max_sweep, double res);
 		HINSTANCE hDLL;
 		hDLL = LoadLibrary(TEXT("Dll3_2.dll"));
 		if (hDLL == NULL)
@@ -53,11 +55,23 @@ SolveEqua::SolveEqua(RealField& sp, RealField2D& ai, RealField& rhs, RealField& 
 			std::cout << "failed get procaddress" << std::endl;
 		}
 		double a = GetLastError();
-		pGAMG(unknowns, unknowns, entryNum, IA, JA, this->sp, A, this->x0, this->b, groupsize, max_sweep, res);
+		system("pause");*/
+		//PGAMG(unknowns, unknowns, entryNum, IA, JA, this->sp, A, this->x0, this->b, groupsize, max_sweep, ress);
 		
 		this->vecCopy(this->x0, x);
 		this->Deallocate();
-		FreeLibrary(hDLL);
+		//FreeLibrary(hDLL);
+	}
+	else if (TypeNum == "BiCGStab")
+	{
+		RealField2D aii;
+		aii.resize(ug.nFace, 2);
+		for (int fId = 0; fId < ug.nFace; ++fId)
+		{
+			aii[fId][0] = ai[0][fId];
+			aii[fId][1] = ai[1][fId];
+		}
+		BiCGStab(sp, aii, rhs, x, unknowns, MaxIter, Tol, ifPrecond);
 	}
 	res = ress;
 }
