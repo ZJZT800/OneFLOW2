@@ -70,6 +70,8 @@ void UINsRestart::InitinsRestart( int sTid )
 
 	MRField * p = GetFieldPointer< MRField  >(grid, "p");
 
+	MRField * tempr = GetFieldPointer< MRField >(grid, "tempr");
+
 	int nEqu = inscom.inflow.size();
 
    /* for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
@@ -78,6 +80,7 @@ void UINsRestart::InitinsRestart( int sTid )
     }*/
 
 	Real vis_cof = ONEFLOW::GetDataValue< Real >("vis_coef");
+	Real initaltempr = ONEFLOW::GetDataValue< Real >("inittempr");
 
 	SetField((*rho)[0], inscom.inflow[0]);
 	SetField((*vis_coef)[0], vis_cof);
@@ -85,6 +88,7 @@ void UINsRestart::InitinsRestart( int sTid )
 	SetField((*v)[0], inscom.inflow[2]);
 	SetField((*w)[0], inscom.inflow[3]);
 	SetField((*p)[0], inscom.inflow[4]);
+	SetField((*tempr)[0], initaltempr);
 
     //this->InitUnsteady( sTid );
 
@@ -152,10 +156,6 @@ void UINsRestart::InitinsRestart( int sTid )
             Real z = zcc[ cId ];
         }
     }
-
-	//Inner* uINsSolver = new Inner;
-	//uINsSolver->FieldInit();
-	//delete uINsSolver;
 }
 
 

@@ -55,6 +55,7 @@ void UINsField::Init()
 	v = GetFieldPointer< MRField >(grid, "v");
 	w = GetFieldPointer< MRField >(grid, "w");
 	p = GetFieldPointer< MRField >(grid, "p");
+	tempr = GetFieldPointer< MRField >(grid, "tempr");
 
     //q1  = GetFieldPointer< MRField > ( grid, "q1" );
     //q2  = GetFieldPointer< MRField > ( grid, "q2" );
@@ -76,8 +77,6 @@ void UINsField::Init()
 
     //visl  = GetFieldPointer< MRField > ( grid, "visl" );
     //vist  = GetFieldPointer< MRField > ( grid, "vist" );
-
-    //tempr = GetFieldPointer< MRField >( grid, "tempr" );
 
     timestep = GetFieldPointer< MRField >( grid, "timestep" );
 

@@ -36,46 +36,33 @@ public:
 	void UpdateINsResiduals();
     void FieldInit();
     void SolveFlow();
+	void SolveEnergy();
+	void SolveTurb();
+	void SolveMultiComp();
 };
-
-void NsCmpBc();
-void NSCmpGamaT( int flag );
-void NsCmpRHS();
-void NsCmpInvFlux();
-void NsCmpVisFlux();
-void NsCmpSrcFlux();
-void NsCmpChemSrc();
-void NsCmpTurbEnergy();
-void NsCmpDualTimeStepSrc();
 
 void INsCmpBc();
 void INSCmpGamaT(int flag);
-//void INsCmpRHS();
-//void INsCmpInvFlux();
-//void INsCmpVisFlux();
-//void INsCmpSrcFlux();
 void INsCmpChemSrc();
 void INsCmpTurbEnergy();
-//void INsCmpDualTimeStepSrc();
 void PresEqu();
-//void INsCorrectSpeed();
-void INsCmpTimestep();
-void INsPreflux();
-
+void InitField();
 void Mom_pre();
-void INsCmpConv();
-void INsCmpDiffus();
-void INsTranst();
-void INsCmpSrc();
-void MomEqu();
-void Relaxation();
+void CmpMomConv();
+void CmpMomDiffus();
+void CmpMomBc();
+void MomTranst();
+void CmpMomSrc();
+void MomPrimeEqu();
+void MomRelaxation();
 void SolveMom();
-void INsCmpFaceflux();
+void CmpFaceflux();
 void Pres_cor();
-void INsCmpPressCorrectEquandUpdatePress();
-void INsUpdateFaceflux();
-void INsUpdateRes();
-void INsCmpSpeedCorrectandUpdateSpeed();
+void PresEqu();
+void SolvePress();
+void UpdateCorSpeed();
+void UpdateFaceflux();
+void UpdateRes();
 
 
 EndNameSpace

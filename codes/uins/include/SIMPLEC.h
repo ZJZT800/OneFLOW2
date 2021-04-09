@@ -10,7 +10,7 @@ public:
 	INsInv();
 	~INsInv();
 public:
-	void FluxInit();
+	void FieldInit();
 	void MomPreInit();
 	void DeleteMomPreVar();
 	void PressCorInit();
@@ -20,7 +20,7 @@ public:
 public:
 	RealField flux;
 	RealField spu, bu, bv, bw;
-	RealField ub, vb, wb, pb, fvis_cof, fvisb_cof;
+	RealField ub, vb, wb, pb, fvisb_cof;
 	RealField u_old, v_old, w_old;
 	RealField spp, bp;
 	RealField dun, dup;

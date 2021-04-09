@@ -22,17 +22,18 @@ License
 
 
 #pragma once
-#include "systemSolver.h"
 #include "SIMPLEC.h"
+#include "systemSolver.h"
+
 BeginNameSpace(ONEFLOW)
 
-class UINsRes : public INsInv
+class UINsRelax : public INsInv
 {
 public:
-	UINsRes();
-    ~UINsRes();
+	UINsRelax();
+    ~UINsRelax();
 public:
-	void UpdateIterRes();
-
+	void Relax(string &Equa_vary, Real& a);
 };
+
 EndNameSpace

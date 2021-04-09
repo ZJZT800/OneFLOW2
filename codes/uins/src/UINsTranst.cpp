@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "UINsRes.h"
+#include "UINsTranst.h"
 #include "UGrad.h"
 #include "BcData.h"
 #include "Zone.h"
@@ -46,45 +46,52 @@ using namespace std;
 
 BeginNameSpace(ONEFLOW)
 
-UINsRes::UINsRes()
+UINsTranst::UINsTranst()
 {
 	;
 }
 
-UINsRes::~UINsRes()
+UINsTranst::~UINsTranst()
 {
 	;
 }
 
 
-void UINsRes::UpdateIterRes()
+void UINsTranst::CmpTranstTerm(string &Equa_vary)
 {
+	if (Equa_vary == "mom")
+	{
+		Real timestep = GetDataValue< Real >("global_dt");
 
-	std::cout << "iinv.remax_u:" << iinv.remax_u << std::endl;
-	std::cout << "iinv.remax_v:" << iinv.remax_v << std::endl;
-	std::cout << "iinv.remax_w:" << iinv.remax_w << std::endl;
-	std::cout << "iinv.remax_pp:" << iinv.remax_pp << std::endl;
+		for (int cId = 0; cId < ug.nCell; ++cId)
+		{
+			iinv.spu[cId] += (*ug.cvol)[cId] * (*uinsf.rho)[0][cId] / timestep;  //矩阵对角线元素的非稳态项
 
-	ofstream fileres_up("residual_u.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_up << iinv.remax_u << endl;
-	fileres_up.close();
-
-	ofstream fileres_vp("residual_v.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_vp << iinv.remax_v << endl;
-	fileres_vp.close();
-
-	ofstream fileres_wp("residual_w.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_wp << iinv.remax_w << endl;
-	fileres_wp.close();
-
-	ofstream fileres_pp("residual_pp.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_pp << iinv.remax_pp << endl;
-	fileres_pp.close();
+			iinv.bu[cId] += (*ug.cvol)[cId] * (*uinsf.rho)[0][cId] * iinv.u_old[cId] / timestep; //源项的非稳态项
+			iinv.bv[cId] += (*ug.cvol)[cId] * (*uinsf.rho)[0][cId] * iinv.v_old[cId] / timestep;
+			iinv.bw[cId] += (*ug.cvol)[cId] * (*uinsf.rho)[0][cId] * iinv.w_old[cId] / timestep;
+		}
+	}
+	else if (Equa_vary == "energy")
+	{
+		;
+	}
 }
 
+void SaveOldValue()
+{
+	for (int cId = 0; cId < ug.nCell; ++cId)
+	{
+		iinv.u_old[cId] = (*uinsf.u)[0][cId];
+		iinv.v_old[cId] = (*uinsf.v)[0][cId];
+		iinv.w_old[cId] = (*uinsf.w)[0][cId];
+
+		int solve_energy = GetDataValue< int >("solve_energy");
+		if (solve_energy == 1)
+		{
+			;
+		}
+	}
+}
 
 EndNameSpace

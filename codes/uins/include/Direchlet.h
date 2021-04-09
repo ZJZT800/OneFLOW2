@@ -22,17 +22,11 @@ License
 
 
 #pragma once
-#include "systemSolver.h"
 #include "SIMPLEC.h"
+#include "systemSolver.h"
+
 BeginNameSpace(ONEFLOW)
 
-class UINsRes : public INsInv
-{
-public:
-	UINsRes();
-    ~UINsRes();
-public:
-	void UpdateIterRes();
+void DirechletMom(RealField& dudx, RealField& dudy, RealField& dudz, RealField& dvdx, RealField& dvdy, RealField& dvdz, RealField& dwdx, RealField& dwdy, RealField& dwdz, Real& ub1, Real& vb1, Real& wb1, int& fId);
 
-};
 EndNameSpace

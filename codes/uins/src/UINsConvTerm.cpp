@@ -20,7 +20,10 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "UINsRes.h"
+#include "UINsConvTerm.h"
+//#include "INsInvterm.h"
+//#include "UINsVisterm.h"
+//#include "UINsGrad.h"
 #include "UGrad.h"
 #include "BcData.h"
 #include "Zone.h"
@@ -46,45 +49,65 @@ using namespace std;
 
 BeginNameSpace(ONEFLOW)
 
-UINsRes::UINsRes()
+UINsConvTerm::UINsConvTerm()
 {
 	;
 }
 
-UINsRes::~UINsRes()
+UINsConvTerm::~UINsConvTerm()
 {
 	;
 }
 
 
-void UINsRes::UpdateIterRes()
+void UINsConvTerm::CmpConvTerm(string &Equa_vary, string &ischeme)
 {
+	if (Equa_vary == "mom")
+	{
+		if (ischeme == "FOU")
+		{
+			for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
+			{
+				Real clr = MAX(0, iinv.flux[fId]);
+				Real crl = clr - iinv.flux[fId];
 
-	std::cout << "iinv.remax_u:" << iinv.remax_u << std::endl;
-	std::cout << "iinv.remax_v:" << iinv.remax_v << std::endl;
-	std::cout << "iinv.remax_w:" << iinv.remax_w << std::endl;
-	std::cout << "iinv.remax_pp:" << iinv.remax_pp << std::endl;
+				iinv.ai[0][fId] = crl;
+				iinv.ai[1][fId] = clr;
+			}
+		}
 
-	ofstream fileres_up("residual_u.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_up << iinv.remax_u << endl;
-	fileres_up.close();
+		else if (ischeme == "CENTRAL")
+		{
+			;
+		}
+		else if (ischeme == "SOU")
+		{
+			;
+		}
+	}
+	else if (Equa_vary == "energy")
+	{
+		if (ischeme == "FOU")
+		{
+			for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
+			{
+				Real clr = MAX(0, iinv.flux[fId]);
+				Real crl = clr - iinv.flux[fId];
 
-	ofstream fileres_vp("residual_v.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_vp << iinv.remax_v << endl;
-	fileres_vp.close();
+				iinv.ai[0][fId] = crl;
+				iinv.ai[1][fId] = clr;
+			}
+		}
+		else if (ischeme == "CENTRAL")
+		{
+			;
+		}
+		else if (ischeme == "SOU")
+		{
+			;
+		}
 
-	ofstream fileres_wp("residual_w.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_wp << iinv.remax_w << endl;
-	fileres_wp.close();
-
-	ofstream fileres_pp("residual_pp.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_pp << iinv.remax_pp << endl;
-	fileres_pp.close();
+	}
 }
-
 
 EndNameSpace

@@ -32,7 +32,6 @@ License
 #include "BcRecord.h"
 #include "INsIdx.h"
 #include "Iteration.h"
-#include "UINsMomPre.h"
 
 BeginNameSpace( ONEFLOW )
 

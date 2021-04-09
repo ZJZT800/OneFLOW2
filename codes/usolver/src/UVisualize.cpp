@@ -634,13 +634,13 @@ void UVisualize::CmpNodeField( VisualTool * visualTool )
 		MRField * pn = visualTool->AddField((*p)[0], "p");
 		MRField * vis_coefn = visualTool->AddField((*vis_coef)[0], "vis_coef");
 
+		MRField * tempr = ONEFLOW::GetFieldPointer< MRField >(grid, "tempr");
+		visualTool->AddField((*tempr)[0], "tempr");
+
 		MRField * gaman = CreateNodeVar("gama");
 		MRField * machn = visualTool->CreateField("mach");
 		CmpMach(rn, un, vn, wn, pn, gaman, machn);
 		delete gaman;
-
-		MRField * tempr = ONEFLOW::GetFieldPointer< MRField >(grid, "tempr");
-		visualTool->AddField((*tempr)[IDX::ITT], "tempr");
 	}
 	else
 	{

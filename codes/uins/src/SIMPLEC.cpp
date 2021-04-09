@@ -1,6 +1,6 @@
 
 #include "SIMPLEC.h"
-#include "UINsMomPre.h"
+#include "UINsTranst.h"
 #include "Mesh.h"
 #include "Ctrl.h"
 #include "Solver.h"
@@ -37,7 +37,7 @@ INsInv::~INsInv()
 	;
 }
 
-void INsInv::FluxInit()
+void INsInv::FieldInit()
 {
 	flux.resize(ug.nFace);
 	ub.resize(ug.nBFace);
@@ -45,7 +45,6 @@ void INsInv::FluxInit()
 	wb.resize(ug.nBFace);
 	pb.resize(ug.nBFace);
 	dun.resize(ug.nFace);
-	fvis_cof.resize(ug.nFace);
 	fvisb_cof.resize(ug.nBFace);
 }
 
@@ -72,6 +71,9 @@ void INsInv::PressCorInit()
 	pp.resize(ug.nCell);
 	ppf.resize(ug.nFace);
 	dup.resize(ug.nCell);
+
+	iinv.spp = 0;
+	iinv.bp = 0;
 }
 
 void INsInv::DeletePressCorVar()
@@ -90,6 +92,12 @@ void INsInv::OldValueInit()
 	u_old.resize(ug.nCell);
 	v_old.resize(ug.nCell);
 	w_old.resize(ug.nCell);
+
+	int solve_energy = GetDataValue< int >("solve_energy");
+	if (solve_energy == 1)
+	{
+		;
+	}
 }
 
 
@@ -185,8 +193,30 @@ bool SIMPLEC::Converge()
 
 void SIMPLEC::SolveInnerIter()
 {
+	int solve_flow = GetDataValue< int >("solve_flow");
+	int solve_energy = GetDataValue< int >("solve_energy");
+	int solve_turb = GetDataValue< int >("solve_turb");
+	int solve_multicomponent = GetDataValue< int >("solve_multicomponent");
+
 	Inner * uINsSolver = new Inner;
-	uINsSolver->SolveFlow();
+
+	if (solve_flow ==1)
+	{
+		uINsSolver->SolveFlow();
+	}
+	if (solve_energy == 1)
+	{
+		uINsSolver->SolveEnergy();
+	}
+	if (solve_turb ==1)
+	{
+		uINsSolver->SolveTurb();
+	}
+	if (solve_multicomponent == 1)
+	{
+		uINsSolver->SolveMultiComp();
+	}
+		
 	delete uINsSolver;
 
 	this->InnerProcess();

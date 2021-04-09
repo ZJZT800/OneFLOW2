@@ -20,7 +20,10 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "UINsRes.h"
+#include "FaceValue.h"
+//#include "INsInvterm.h"
+//#include "UINsVisterm.h"
+//#include "UINsGrad.h"
 #include "UGrad.h"
 #include "BcData.h"
 #include "Zone.h"
@@ -46,45 +49,22 @@ using namespace std;
 
 BeginNameSpace(ONEFLOW)
 
-UINsRes::UINsRes()
+void FaceValue(RealField& phib, RealField& phif, RealField& phi)
 {
-	;
+	phif = 0;
+
+	for (int fId = 0; fId < ug.nBFace; ++fId)
+	{
+		phif[fId] = phib[fId];
+	}
+
+	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
+	{
+		int lc = (*ug.lcf)[fId];
+		int rc = (*ug.rcf)[fId];
+
+		phif[fId] = (*ug.fl)[fId] * phi[lc] + (*ug.fr)[fId] * phi[rc];
+	}
 }
-
-UINsRes::~UINsRes()
-{
-	;
-}
-
-
-void UINsRes::UpdateIterRes()
-{
-
-	std::cout << "iinv.remax_u:" << iinv.remax_u << std::endl;
-	std::cout << "iinv.remax_v:" << iinv.remax_v << std::endl;
-	std::cout << "iinv.remax_w:" << iinv.remax_w << std::endl;
-	std::cout << "iinv.remax_pp:" << iinv.remax_pp << std::endl;
-
-	ofstream fileres_up("residual_u.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_up << iinv.remax_u << endl;
-	fileres_up.close();
-
-	ofstream fileres_vp("residual_v.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_vp << iinv.remax_v << endl;
-	fileres_vp.close();
-
-	ofstream fileres_wp("residual_w.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_wp << iinv.remax_w << endl;
-	fileres_wp.close();
-
-	ofstream fileres_pp("residual_pp.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_pp << iinv.remax_pp << endl;
-	fileres_pp.close();
-}
-
 
 EndNameSpace

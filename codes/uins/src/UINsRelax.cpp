@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "UINsRes.h"
+#include "UINsRelax.h"
 #include "UGrad.h"
 #include "BcData.h"
 #include "Zone.h"
@@ -46,45 +46,30 @@ using namespace std;
 
 BeginNameSpace(ONEFLOW)
 
-UINsRes::UINsRes()
+UINsRelax::UINsRelax()
 {
 	;
 }
 
-UINsRes::~UINsRes()
+UINsRelax::~UINsRelax()
 {
 	;
 }
 
 
-void UINsRes::UpdateIterRes()
+void UINsRelax::Relax(string &Equa_vary, Real& a)
 {
-
-	std::cout << "iinv.remax_u:" << iinv.remax_u << std::endl;
-	std::cout << "iinv.remax_v:" << iinv.remax_v << std::endl;
-	std::cout << "iinv.remax_w:" << iinv.remax_w << std::endl;
-	std::cout << "iinv.remax_pp:" << iinv.remax_pp << std::endl;
-
-	ofstream fileres_up("residual_u.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_up << iinv.remax_u << endl;
-	fileres_up.close();
-
-	ofstream fileres_vp("residual_v.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_vp << iinv.remax_v << endl;
-	fileres_vp.close();
-
-	ofstream fileres_wp("residual_w.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_wp << iinv.remax_w << endl;
-	fileres_wp.close();
-
-	ofstream fileres_pp("residual_pp.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_pp << iinv.remax_pp << endl;
-	fileres_pp.close();
+	if (Equa_vary == "mom")
+	{
+		for (int cId = 0; cId < ug.nCell; cId++)
+		{
+			iinv.spu[cId] = iinv.spu[cId] * (1 + a);
+		}
+	}
+	else if (Equa_vary == "energy")
+	{
+		;
+	}
 }
-
 
 EndNameSpace

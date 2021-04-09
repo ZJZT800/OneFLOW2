@@ -33,7 +33,6 @@ License
 #include "INsIdx.h"
 #include "HXMath.h"
 //#include "UINsLusgs.h"
-#include "UINsMomPre.h"
 //#include "UINsVisterm.h"
 //#include "UINsInvterm.h"
 #include "UCom.h"

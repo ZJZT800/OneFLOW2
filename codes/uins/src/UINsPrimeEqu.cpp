@@ -20,7 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "UINsRes.h"
+#include "UINsPrimeEqu.h"
 #include "UGrad.h"
 #include "BcData.h"
 #include "Zone.h"
@@ -46,45 +46,61 @@ using namespace std;
 
 BeginNameSpace(ONEFLOW)
 
-UINsRes::UINsRes()
+UINsPrimeEqu::UINsPrimeEqu()
 {
 	;
 }
 
-UINsRes::~UINsRes()
+UINsPrimeEqu::~UINsPrimeEqu()
 {
 	;
 }
 
 
-void UINsRes::UpdateIterRes()
+void UINsPrimeEqu::PrimeEqu(string &Equa_vary)
 {
+	if (Equa_vary == "mom")
+	{
+		iinv.remax_u = 0;
+		iinv.remax_v = 0;
+		iinv.remax_w = 0;
 
-	std::cout << "iinv.remax_u:" << iinv.remax_u << std::endl;
-	std::cout << "iinv.remax_v:" << iinv.remax_v << std::endl;
-	std::cout << "iinv.remax_w:" << iinv.remax_w << std::endl;
-	std::cout << "iinv.remax_pp:" << iinv.remax_pp << std::endl;
+		for (int fId = ug.nBFace; fId < ug.nFace; fId++)
+		{
+			int lc = (*ug.lcf)[fId];
+			int rc = (*ug.rcf)[fId];
 
-	ofstream fileres_up("residual_u.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_up << iinv.remax_u << endl;
-	fileres_up.close();
+			iinv.spu[lc] += iinv.ai[0][fId];
+			iinv.spu[rc] += iinv.ai[1][fId];
 
-	ofstream fileres_vp("residual_v.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_vp << iinv.remax_v << endl;
-	fileres_vp.close();
+			iinv.bu[lc] += iinv.ai[0][fId] * (*uinsf.u)[0][rc];
+			iinv.bv[lc] += iinv.ai[0][fId] * (*uinsf.v)[0][rc];
+			iinv.bw[lc] += iinv.ai[0][fId] * (*uinsf.w)[0][rc];
 
-	ofstream fileres_wp("residual_w.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_wp << iinv.remax_w << endl;
-	fileres_wp.close();
+			iinv.bu[rc] += iinv.ai[1][fId] * (*uinsf.u)[0][lc];
+			iinv.bv[rc] += iinv.ai[1][fId] * (*uinsf.v)[0][lc];
+			iinv.bw[rc] += iinv.ai[1][fId] * (*uinsf.w)[0][lc];
+		}
 
-	ofstream fileres_pp("residual_pp.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_pp << iinv.remax_pp << endl;
-	fileres_pp.close();
+		for (int cId = 0; cId < ug.nCell; ++cId)
+		{
+			iinv.bu[cId] -= iinv.spu[cId] * (*uinsf.u)[0][cId];
+			iinv.bv[cId] -= iinv.spu[cId] * (*uinsf.v)[0][cId];
+			iinv.bw[cId] -= iinv.spu[cId] * (*uinsf.w)[0][cId];
+
+			iinv.remax_u += pow(iinv.bu[cId], 2);
+			iinv.remax_v += pow(iinv.bv[cId], 2);
+			iinv.remax_w += pow(iinv.bw[cId], 2);
+		}
+
+		iinv.remax_u = sqrt(iinv.remax_u);
+		iinv.remax_v = sqrt(iinv.remax_v);
+		iinv.remax_w = sqrt(iinv.remax_w);
+	}
+	else if (Equa_vary == "energy")
+	{
+		;
+	}
 }
-
 
 EndNameSpace

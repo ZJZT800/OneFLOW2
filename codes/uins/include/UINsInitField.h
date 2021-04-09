@@ -27,29 +27,13 @@ License
 
 BeginNameSpace(ONEFLOW)
 
-class UINsFField;
-class Limiter;
-class LimField;
-class SolveEqua;
-
-
-class UINsPressCorrect : public INsInv
+class UINsInitField : public INsInv
 {
 public:
-	UINsPressCorrect();
-    ~UINsPressCorrect();
+	UINsInitField();
+    ~UINsInitField();
 public:
-	void PresEquCoeff();
-	void InitPressCoeff();
-	void CmpInPressCoeff(int& fId);
-	void CmpBcPressCoeff(int& fId);
-	void CmpPressCorrectEqu();
-	void UpdateFaceflux();
-	void CmpUpdateINsFaceflux(int& fId);
-    void CmpDun(int& fId);
-	void CmpUpdateINsBcFaceflux(int& fId);
-	void UpdateSpeed();
+	void InitInputField();
 };
-//void PrimToQ(RealField & prim, Real gama, RealField & q);
-//extern UINsPressCorrect NonZero;
+
 EndNameSpace

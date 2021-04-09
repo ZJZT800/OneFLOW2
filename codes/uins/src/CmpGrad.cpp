@@ -20,8 +20,10 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "UINsRes.h"
-#include "UGrad.h"
+#include "CmpGrad.h"
+//#include "INsInvterm.h"
+//#include "UINsVisterm.h"
+//#include "UINsGrad.h"
 #include "BcData.h"
 #include "Zone.h"
 #include "Atmosphere.h"
@@ -46,45 +48,39 @@ using namespace std;
 
 BeginNameSpace(ONEFLOW)
 
-UINsRes::UINsRes()
+void CmpUnsGrad(RealField & q, RealField & dqdx, RealField & dqdy, RealField & dqdz)
 {
-	;
+	dqdx = 0;
+	dqdy = 0;
+	dqdz = 0;
+
+	for (int fId = 0; fId < ug.nBFace; ++fId)
+	{
+		int lc = (*ug.lcf)[fId];
+		dqdx[lc] += (*ug.a1)[fId] * q[fId];
+		dqdy[lc] += (*ug.a2)[fId] * q[fId];
+		dqdz[lc] += (*ug.a3)[fId] * q[fId];
+	}
+	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
+	{
+		int lc = (*ug.lcf)[fId];
+		int rc = (*ug.rcf)[fId];
+
+		dqdx[lc] += (*ug.a1)[fId] * q[fId];
+		dqdy[lc] += (*ug.a2)[fId] * q[fId];
+		dqdz[lc] += (*ug.a3)[fId] * q[fId];
+
+		dqdx[rc] -= (*ug.a1)[fId] * q[fId];
+		dqdy[rc] -= (*ug.a2)[fId] * q[fId];
+		dqdz[rc] -= (*ug.a3)[fId] * q[fId];
+	}
+	for (int cId = 0; cId < ug.nCell; ++cId)
+	{
+		Real vol = (*ug.cvol)[cId];
+		dqdx[cId] /= vol;
+		dqdy[cId] /= vol;
+		dqdz[cId] /= vol;
+	}
 }
-
-UINsRes::~UINsRes()
-{
-	;
-}
-
-
-void UINsRes::UpdateIterRes()
-{
-
-	std::cout << "iinv.remax_u:" << iinv.remax_u << std::endl;
-	std::cout << "iinv.remax_v:" << iinv.remax_v << std::endl;
-	std::cout << "iinv.remax_w:" << iinv.remax_w << std::endl;
-	std::cout << "iinv.remax_pp:" << iinv.remax_pp << std::endl;
-
-	ofstream fileres_up("residual_u.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_up << iinv.remax_u << endl;
-	fileres_up.close();
-
-	ofstream fileres_vp("residual_v.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_vp << iinv.remax_v << endl;
-	fileres_vp.close();
-
-	ofstream fileres_wp("residual_w.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_wp << iinv.remax_w << endl;
-	fileres_wp.close();
-
-	ofstream fileres_pp("residual_pp.txt", ios::app);
-	//fileres_p << "residual_p:" <<residual_p << endl;
-	fileres_pp << iinv.remax_pp << endl;
-	fileres_pp.close();
-}
-
 
 EndNameSpace

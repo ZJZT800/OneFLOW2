@@ -22,17 +22,19 @@ License
 
 
 #pragma once
-#include "systemSolver.h"
 #include "SIMPLEC.h"
+#include "systemSolver.h"
+
 BeginNameSpace(ONEFLOW)
 
-class UINsRes : public INsInv
+class UINsDiffusTerm : public INsInv
 {
 public:
-	UINsRes();
-    ~UINsRes();
+	UINsDiffusTerm();
+    ~UINsDiffusTerm();
 public:
-	void UpdateIterRes();
-
+	void CmpDiffusTerm(string &Equa_vary, string &ischeme);
+	void Initfvis_cof(RealField&fvis_cof,string &Equa_vary);
 };
+
 EndNameSpace
