@@ -100,6 +100,13 @@ void INsInv::OldValueInit()
 	}
 }
 
+void INsInv::DeleteOldValue()
+{
+	u_old.clear();
+	v_old.clear();
+	w_old.clear();
+}
+
 
 SIMPLEC::SIMPLEC()
 {
@@ -135,7 +142,7 @@ void SIMPLEC::Run()
 			ConveResInit();
 			//Inner loop(Steady loop)
 			Iteration::innerSteps = 0;
-			while (SIMPLEC::Converge())
+			while (!SIMPLEC::Converge())
 			{
 				Iteration::innerSteps++;
 
@@ -145,6 +152,8 @@ void SIMPLEC::Run()
 			this->SaveOldTimeValue();
 			this->OuterProcess(timeSpan);
 		}
+
+		    iinv.DeleteOldValue();
 		    delete timeSpan;
 	}
    else

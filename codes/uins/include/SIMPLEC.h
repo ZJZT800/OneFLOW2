@@ -16,6 +16,7 @@ public:
 	void PressCorInit();
 	void DeletePressCorVar();
 	void OldValueInit();
+	void DeleteOldValue();
 
 public:
 	RealField flux;
