@@ -48,21 +48,10 @@ using namespace std;
 
 BeginNameSpace(ONEFLOW)
 
-UINsCmpFlux::UINsCmpFlux()
-{
-	;
-}
-
-UINsCmpFlux::~UINsCmpFlux()
-{
-	;
-}
-
-
-void UINsCmpFlux::CmpFlux()
+UINsCmpFlux::UINsCmpFlux(RealField &rho,RealField &u, RealField &ub, RealField &v, RealField &vb, RealField &w, RealField &wb, RealField &p, RealField &pb,RealField &spu,RealField &flux,RealField &dun)
 {
 	RealField dpdx, dpdy, dpdz;
-	RealField pb, pf;
+	RealField pf;
 
 	dpdx.resize(ug.nCell);
 	dpdy.resize(ug.nCell);
@@ -70,7 +59,7 @@ void UINsCmpFlux::CmpFlux()
 
 	pf.resize(ug.nFace);
 
-	FaceValue(iinv.pb, pf, (*uinsf.p)[0]);
+	FaceValue(p, pb, pf);
 	CmpUnsGrad(pf, dpdx, dpdy, dpdz);
 
 	Real mom_relax = GetDataValue< Real >("mom_relax");
@@ -97,23 +86,23 @@ void UINsCmpFlux::CmpFlux()
 
 		Real vnflow;
 
-		rl = (*uinsf.rho)[0][lc];
-		ul = (*uinsf.u)[0][lc];
-		vl = (*uinsf.v)[0][lc];
-		wl = (*uinsf.w)[0][lc];
-		pl = (*uinsf.p)[0][lc];
+		rl = rho[lc];
+		ul = u[lc];
+		vl = v[lc];
+		wl = w[lc];
+		pl = p[lc];
 
-		ur = (*uinsf.u)[0][rc];
-		vr = (*uinsf.v)[0][rc];
-		wr = (*uinsf.w)[0][rc];
-		pr = (*uinsf.p)[0][rc];
+		ur = u[rc];
+		vr = v[rc];
+		wr = w[rc];
+		pr = p[rc];
 
 		Real l2rdx = (*ug.xcc)[rc] - (*ug.xcc)[lc];
 		Real l2rdy = (*ug.ycc)[rc] - (*ug.ycc)[lc];
 		Real l2rdz = (*ug.zcc)[rc] - (*ug.zcc)[lc];
 
-		VdU1 = (*ug.cvol)[lc] / iinv.spu[lc];
-		VdU2 = (*ug.cvol)[rc] / iinv.spu[rc];
+		VdU1 = (*ug.cvol)[lc] / spu[lc];
+		VdU2 = (*ug.cvol)[rc] / spu[rc];
 
 		Vdvu = (*ug.fl)[fId] * VdU1 + (*ug.fr)[fId] * VdU2;
 
@@ -139,8 +128,8 @@ void UINsCmpFlux::CmpFlux()
 		vf = vl * (*ug.fl)[fId] + vr * (*ug.fr)[fId];
 		wf = wl * (*ug.fl)[fId] + wr * (*ug.fr)[fId];
 
-		vnflow = (*ug.a1)[fId] * (uf + fdpdx * Df1) + (*ug.a2)[fId] * (vf + fdpdy * Df2) + (*ug.a3)[fId] * (wf + fdpdz * Df3) + rurf * iinv.dun[fId];
-		iinv.flux[fId] = rl * vnflow;
+		vnflow = (*ug.a1)[fId] * (uf + fdpdx * Df1) + (*ug.a2)[fId] * (vf + fdpdy * Df2) + (*ug.a3)[fId] * (wf + fdpdz * Df3) + rurf * dun[fId];
+		flux[fId] = rl * vnflow;
 	}
 
 	ug.nRegion = ug.bcRecord->bcInfo->bcType.size();
@@ -163,7 +152,7 @@ void UINsCmpFlux::CmpFlux()
 			Real dpdy1 = dpdy[lc];
 			Real dpdz1 = dpdz[lc];
 
-			Real pb1 = iinv.pb[fId];
+			Real pb1 = pb[fId];
 
 			Real rl, ul, vl, wl, pl;
 
@@ -177,31 +166,31 @@ void UINsCmpFlux::CmpFlux()
 			{
 				rl = (*uinsf.rho)[0][lc];
 
-				vnflow = (*ug.a1)[fId] * iinv.ub[fId] + (*ug.a2)[fId] * iinv.vb[fId] + (*ug.a3)[fId] * iinv.wb[fId];
+				vnflow = (*ug.a1)[fId] * ub[fId] + (*ug.a2)[fId] * vb[fId] + (*ug.a3)[fId] * wb[fId];
 
-				iinv.flux[fId] = rl * vnflow;
+				flux[fId] = rl * vnflow;
 			}
 
 			else if (ug.bctype == BC::INFLOW)
 			{
-				vnflow = (*ug.a1)[fId] * iinv.ub[fId] + (*ug.a2)[fId] * iinv.vb[fId] + (*ug.a3)[fId] * iinv.wb[fId];
+				vnflow = (*ug.a1)[fId] * ub[fId] + (*ug.a2)[fId] * vb[fId] + (*ug.a3)[fId] * wb[fId];
 
-				iinv.flux[fId] = inscom.inflow[IIDX::IIR] * vnflow;
+				flux[fId] = rl * vnflow;
 			}
 
 			else if (ug.bctype == BC::OUTFLOW)
 			{
-				rl = (*uinsf.rho)[0][lc];
-				ul = (*uinsf.u)[0][lc];
-				vl = (*uinsf.v)[0][lc];
-				wl = (*uinsf.w)[0][lc];
-				pl = (*uinsf.p)[0][lc];
+				rl = rho[lc];
+				ul = u[lc];
+				vl = v[lc];
+				wl = w[lc];
+				pl = p[lc];
 
 				Real l2rdx = (*ug.xfc)[fId] - (*ug.xcc)[ug.lc];
 				Real l2rdy = (*ug.yfc)[fId] - (*ug.ycc)[ug.lc];
 				Real l2rdz = (*ug.zfc)[fId] - (*ug.zcc)[ug.lc];
 
-				VdU1 = (*ug.cvol)[lc] / iinv.spu[lc];
+				VdU1 = (*ug.cvol)[lc] / spu[lc];
 
 				Real dist = (*ug.a1)[fId] * l2rdx + (*ug.a2)[fId] * l2rdy + (*ug.a3)[fId] * l2rdz;
 
@@ -217,34 +206,26 @@ void UINsCmpFlux::CmpFlux()
 				Real fdpdy = dpdy1 * dy1 - (pb1 - pl);
 				Real fdpdz = dpdz1 * dz1 - (pb1 - pl);
 
-				iinv.ub[fId] = ul + fdpdx * Df1;
-				iinv.vb[fId] = vl + fdpdy * Df2;
-				iinv.wb[fId] = wl + fdpdz * Df3;
+				ub[fId] = ul + fdpdx * Df1;
+				vb[fId] = vl + fdpdy * Df2;
+				wb[fId] = wl + fdpdz * Df3;
 
-				vnflow = (*ug.a1)[fId] * iinv.ub[fId] + (*ug.a2)[fId] * iinv.vb[fId] + (*ug.a3)[fId] * iinv.wb[fId] + rurf * iinv.dun[fId];
+				vnflow = (*ug.a1)[fId] * ub[fId] + (*ug.a2)[fId] * vb[fId] + (*ug.a3)[fId] * wb[fId] + rurf * dun[fId];
 
-				iinv.flux[fId] = rl * vnflow;
+				flux[fId] = rl * vnflow;
 			}
 
 			else if (ug.bctype == BC::SYMMETRY)
 			{
-				iinv.flux[fId] = 0;
+				flux[fId] = 0;
 			}
 		}
 	}
+}
 
-	/*RealField massflux = 0;
-massflux.resize(ug.nCell);
-for (int cId = 0; cId < ug.nCell; cId++)
+UINsCmpFlux::~UINsCmpFlux()
 {
-	int fn = (*ug.c2f)[cId].size();
-	for (int iFace = 0; iFace < fn; iFace++)
-	{
-		int fId = (*ug.c2f)[cId][iFace];
-		massflux[cId] += iinv.fq[fId];
-	}
-	std::cout << "cId: " << cId << ", massflux[cId]: " << massflux[cId] << std::endl;
-}*/
+	;
 }
 
 EndNameSpace

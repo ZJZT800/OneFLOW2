@@ -30,10 +30,8 @@ BeginNameSpace(ONEFLOW)
 class UINsCmpFlux : public INsInv
 {
 public:
-	UINsCmpFlux();
+	UINsCmpFlux(RealField &rho, RealField &u, RealField &ub, RealField &v, RealField &vb, RealField &w, RealField &wb, RealField &p, RealField &pb, RealField &spu, RealField &flux, RealField &dun);
     ~UINsCmpFlux();
-public:
-	void CmpFlux();
 };
 
 EndNameSpace

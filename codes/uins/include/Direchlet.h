@@ -27,6 +27,5 @@ License
 
 BeginNameSpace(ONEFLOW)
 
-void DirechletMom(RealField& dudx, RealField& dudy, RealField& dudz, RealField& dvdx, RealField& dvdy, RealField& dvdz, RealField& dwdx, RealField& dwdy, RealField& dwdz, Real& ub1, Real& vb1, Real& wb1, int& fId);
-
+void DirechletBc(string&EquaVary,RealField& dqdx, RealField& dqdy, RealField& dqdz, Real& qb, RealField &fdiffus_cof, string &diffus_ischeme,int &fId, RealField &spu,RealField &bu);
 EndNameSpace

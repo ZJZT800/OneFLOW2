@@ -27,6 +27,7 @@ License
 
 BeginNameSpace(ONEFLOW)
 
-void FaceValue(RealField& phib, RealField& phif, RealField& phi);
+void FaceValue(RealField& phi, RealField& phib, RealField& phif);
+void FvisCoeff(string &Equa_vary, RealField &vis_coef, RealField &fdiffusb_coef,RealField&fvis_cof);
 
 EndNameSpace

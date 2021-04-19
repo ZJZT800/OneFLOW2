@@ -30,10 +30,8 @@ BeginNameSpace(ONEFLOW)
 class UINsPressEqu : public INsInv
 {
 public:
-	UINsPressEqu();
+	UINsPressEqu(RealField &rho, RealField &flux, RealField &spu, RealField2D &ai, RealField &dup, RealField &spp, RealField &bp, Real &resmax);
     ~UINsPressEqu();
-public:
-	void PressEqu();
 };
 
 EndNameSpace

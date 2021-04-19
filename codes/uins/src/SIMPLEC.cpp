@@ -1,6 +1,8 @@
 
 #include "SIMPLEC.h"
-#include "UINsTranst.h"
+#include "INsCom.h"
+#include "UCom.h"
+#include "UINsCom.h"
 #include "Mesh.h"
 #include "Ctrl.h"
 #include "Solver.h"
@@ -92,6 +94,10 @@ void INsInv::OldValueInit()
 	u_old.resize(ug.nCell);
 	v_old.resize(ug.nCell);
 	w_old.resize(ug.nCell);
+	
+	u_old = inscom.inflow[1];
+	v_old = inscom.inflow[2];
+	w_old = inscom.inflow[3];
 
 	int solve_energy = GetDataValue< int >("solve_energy");
 	if (solve_energy == 1)
@@ -131,10 +137,9 @@ void SIMPLEC::Run()
 	int transt = ONEFLOW::GetDataValue< int >("transt");
 	if (transt != 0)
 	{
-		iinv.OldValueInit();
 		TimeSpan * timeSpan = new TimeSpan();
 		// outer loop(Unsteady loop)
-		while (SimuIterState::Running())
+		while (!SimuIterState::Running())
 		{
 			Iteration::outerSteps++;
 			ctrl.currTime += ctrl.pdt;
@@ -238,19 +243,42 @@ void SIMPLEC::InnerProcess()
 
 void SIMPLEC::SaveOldTimeValue()
 {
-    SaveOldValue();
+	for (int cId = 0; cId < ug.nCell; ++cId)
+	{
+		iinv.u_old[cId] = (*uinsf.u)[0][cId];
+		iinv.v_old[cId] = (*uinsf.v)[0][cId];
+		iinv.w_old[cId] = (*uinsf.w)[0][cId];
+	}
 }
 
 void SIMPLEC::OuterProcess(TimeSpan * timeSpan)
 {
+	int transt = ONEFLOW::GetDataValue< int >("transt");
 
-	if (Iteration::outerSteps % Iteration::nFieldSave == 0)
+	if (transt == 0)
 	{
-		if (Parallel::IsServer())
+		if (Iteration::outerSteps % Iteration::nFieldSave == 0)
 		{
-			cout << "dumping field...";
-			cout << "  finished " << endl;
-			timeSpan->ShowTimeSpan();
+			if (Parallel::IsServer())
+			{
+				cout << "dumping field...";
+				cout << "  finished " << endl;
+				timeSpan->ShowTimeSpan();
+			}
+		}
+	}
+	else
+	{
+		int  maxSteps = ONEFLOW::GetDataValue< int >("maxSteps");
+
+		if (Iteration::outerSteps == maxSteps)
+		{
+			if (Parallel::IsServer())
+			{
+				cout << "dumping field...";
+				cout << "  finished " << endl;
+				timeSpan->ShowTimeSpan();
+			}
 		}
 	}
 }

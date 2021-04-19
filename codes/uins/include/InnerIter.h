@@ -23,6 +23,7 @@ License
 
 #pragma once
 #include "HXDefine.h"
+#include "SIMPLEC.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -32,8 +33,6 @@ public:
     Inner ();
     ~Inner();
 public:
-    void UpdateNsResiduals();
-	void UpdateINsResiduals();
     void FieldInit();
     void SolveFlow();
 	void SolveEnergy();
@@ -45,24 +44,11 @@ void INsCmpBc();
 void INSCmpGamaT(int flag);
 void INsCmpChemSrc();
 void INsCmpTurbEnergy();
-void PresEqu();
 void InitField();
 void Mom_pre();
-void CmpMomConv();
-void CmpMomDiffus();
-void CmpMomBc();
-void MomTranst();
-void CmpMomSrc();
-void MomPrimeEqu();
-void MomRelaxation();
-void SolveMom();
-void CmpFaceflux();
 void Pres_cor();
-void PresEqu();
-void SolvePress();
-void UpdateCorSpeed();
+void UpdateCorPressAndSpeed();
 void UpdateFaceflux();
 void UpdateRes();
-
 
 EndNameSpace

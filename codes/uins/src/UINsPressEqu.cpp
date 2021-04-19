@@ -46,40 +46,29 @@ using namespace std;
 
 BeginNameSpace(ONEFLOW)
 
-UINsPressEqu::UINsPressEqu()
-{
-	;
-}
-
-UINsPressEqu::~UINsPressEqu()
-{
-	;
-}
-
-
-void UINsPressEqu::PressEqu()
+UINsPressEqu::UINsPressEqu(RealField &rho, RealField &flux,RealField &spu, RealField2D &ai, RealField &dup,RealField &spp, RealField &bp,Real &resmax)
 {
 	for (int cId = 0; cId < ug.nCell; cId++)
 	{
-		iinv.dup[cId] = iinv.spu[cId];
+		dup[cId] = spu[cId];
 	}
 	for (int fId = ug.nBFace; fId < ug.nFace; fId++)
 	{
 		int lc = (*ug.lcf)[fId];
 		int rc = (*ug.rcf)[fId];
-		iinv.dup[lc] = iinv.dup[lc] - iinv.ai[0][fId];
-		iinv.dup[rc] = iinv.dup[rc] - iinv.ai[1][fId];
+		dup[lc] = dup[lc] - ai[0][fId];
+		dup[rc] = dup[rc] - ai[1][fId];
 	}
 
-	iinv.ai[0] = 0;
-	iinv.ai[1] = 0;
+	ai[0] = 0;
+	ai[1] = 0;
 
 	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
 	{
 		int lc = (*ug.lcf)[fId];
 		int rc = (*ug.rcf)[fId];
 
-		Real duf = (*ug.fl)[fId] * ((*ug.cvol)[lc] / iinv.dup[lc]) + (*ug.fr)[fId] * ((*ug.cvol)[rc] / iinv.dup[rc]);
+		Real duf = (*ug.fl)[fId] * ((*ug.cvol)[lc] / dup[lc]) + (*ug.fr)[fId] * ((*ug.cvol)[rc] / dup[rc]);
 		Real Sf1 = duf * (*ug.a1)[fId];
 		Real Sf2 = duf * (*ug.a2)[fId];
 		Real Sf3 = duf * (*ug.a3)[fId];
@@ -94,20 +83,20 @@ void UINsPressEqu::PressEqu()
 
 		//iinv.rf = (*ug.fl)[ug.fId] * (*uinsf.q)[IIDX::IIR][ug.lc] + ((*ug.fr)[ug.fId]) * (*uinsf.q)[IIDX::IIR][ug.rc];
 
-		iinv.spp[lc] += (*uinsf.rho)[0][lc] * Sfarea / dist;
-		iinv.spp[rc] += (*uinsf.rho)[0][lc] * Sfarea / dist;
-		iinv.ai[0][fId] = (*uinsf.rho)[0][lc] * Sfarea / dist;
-		iinv.ai[1][fId] = (*uinsf.rho)[0][lc] * Sfarea / dist;
+		spp[lc] += rho[lc] * Sfarea / dist;
+		spp[rc] += rho[lc] * Sfarea / dist;
+		ai[0][fId] = rho[lc] * Sfarea / dist;
+		ai[1][fId] = rho[lc] * Sfarea / dist;
 
-		iinv.bp[lc] -= iinv.flux[fId];
-		iinv.bp[rc] += iinv.flux[fId];
+		bp[lc] -= flux[fId];
+		bp[rc] += flux[fId];
 	}
 
 	for (int fId = 0; fId < ug.nBFace; ++fId)
 	{
 		int lc = (*ug.lcf)[fId];
 
-		Real duf = (*ug.cvol)[lc] / iinv.dup[lc];
+		Real duf = (*ug.cvol)[lc] / dup[lc];
 		Real Sf1 = duf * (*ug.a1)[fId];
 		Real Sf2 = duf * (*ug.a2)[fId];
 		Real Sf3 = duf * (*ug.a3)[fId];
@@ -124,7 +113,7 @@ void UINsPressEqu::PressEqu()
 
 		if (bcType == BC::OUTFLOW)
 		{
-			iinv.spp[lc] += (*uinsf.rho)[0][lc] * Sfarea / dist;
+			spp[lc] += rho[lc] * Sfarea / dist;
 		}
 
 		else if (bcType == BC::SOLID_SURFACE)
@@ -142,17 +131,21 @@ void UINsPressEqu::PressEqu()
 			;
 		}
 
-		iinv.bp[lc] -= iinv.flux[fId];
+		bp[lc] -= flux[fId];
 	}
 
-	iinv.remax_pp = 0;
+	resmax = 0;
 	for (int cId = 0; cId < ug.nCell; cId++)
 	{
-		iinv.remax_pp += pow(iinv.bp[cId], 2); 
+		resmax += pow(bp[cId], 2);
 	}
 
-	    iinv.remax_pp = sqrt(iinv.remax_pp);
+	resmax = sqrt(resmax);
 }
 
+UINsPressEqu::~UINsPressEqu()
+{
+	;
+}
 
 EndNameSpace

@@ -66,6 +66,81 @@ void UINsMomCorrect::UpdateCorrectSpeed()
 	 
 	CmpUnsGrad(iinv.ppf, dppdx, dppdy, dppdz);
 
+	//Update pressure
+	for (int fId = 0; fId < ug.nBFace; ++fId)
+	{
+		int lc = (*ug.lcf)[fId];
+		int rc = (*ug.rcf)[fId];
+
+		int bcType = ug.bcRecord->bcType[fId];
+
+		if (bcType == BC::OUTFLOW)
+		{
+			iinv.ppf[fId] = 0;
+		}
+
+		else if (bcType == BC::SOLID_SURFACE)
+		{
+			iinv.ppf[fId] = iinv.pp[lc];
+		}
+
+		else if (bcType == BC::INFLOW)
+		{
+			iinv.ppf[fId] = iinv.pp[lc];
+		}
+
+		else if (ug.bctype == BC::SYMMETRY)
+		{
+			iinv.ppf[fId] = iinv.pp[lc];
+		}
+	}
+
+	for (int fId = ug.nBFace; fId < ug.nFace; ++fId)
+	{
+		int lc = (*ug.lcf)[fId];
+		int rc = (*ug.rcf)[fId];
+
+		iinv.ppf[fId] = (*ug.fl)[fId] * iinv.pp[lc] + (*ug.fr)[fId] * iinv.pp[rc];
+	}
+
+	Real press_relax = GetDataValue< Real >("press_relax");
+
+	for (int cId = 0; cId < ug.nCell; ++cId)
+	{
+		(*uinsf.p)[0][cId] = (*uinsf.p)[0][cId] + press_relax * (iinv.pp[cId]);
+	}
+
+
+	for (int fId = 0; fId < ug.nBFace; fId++)
+	{
+		int bcType = ug.bcRecord->bcType[fId];
+		int lc = (*ug.lcf)[fId];
+
+		if (bcType == BC::SOLID_SURFACE)
+		{
+			iinv.pb[fId] = (*uinsf.p)[0][lc];
+		}
+		else if (bcType == BC::INFLOW)
+		{
+			iinv.pb[fId] = (*uinsf.p)[0][lc];
+		}
+		else if (bcType == BC::OUTFLOW)
+		{
+			iinv.pb[fId] += 0;
+		}
+		else if (ug.bctype == BC::SYMMETRY)
+		{
+			iinv.pb[fId] = (*uinsf.p)[0][lc];
+		}
+	}
+
+	for (int fId = 0; fId < ug.nBFace; fId++)
+	{
+		int rc = (*ug.rcf)[fId];
+		(*uinsf.p)[0][rc] = iinv.pb[fId];
+	}
+
+	// Update speed
 	for (int cId = 0; cId < ug.nCell; ++cId)
 	{
 		(*uinsf.u)[0][cId] -= (*ug.cvol)[cId] / iinv.dup[cId] * dppdx[cId];

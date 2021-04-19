@@ -62,6 +62,8 @@ void UINsInitField::InitInputField()
 		iinv.FieldInit();
 		ug.Init();
 		uinsf.Init();
+		int transt = ONEFLOW::GetDataValue< int >("transt");
+		if(transt != 0) iinv.OldValueInit();
 
 		Real  rl, ul, vl, wl, pl;
 		Real  rr, ur, vr, wr, pw;
@@ -122,6 +124,7 @@ void UINsInitField::InitInputField()
 						;
 					}
 					iinv.flux[fId] = 0;
+					iinv.fvisb_cof[fId] = (*uinsf.vis_coef)[0][lc];
 				}
 
 				else if (ug.bctype == BC::OUTFLOW)
@@ -136,6 +139,7 @@ void UINsInitField::InitInputField()
 						;
 					}
 					iinv.flux[fId] = (*uinsf.rho)[0][lc] * ((*ug.a1)[fId] * iinv.ub[fId] + (*ug.a2)[fId] * iinv.vb[fId] + (*ug.a3)[fId] * iinv.wb[fId]);
+					iinv.fvisb_cof[fId] = (*uinsf.vis_coef)[0][lc];
 				}
 
 				else if (ug.bctype == BC::INFLOW)
@@ -153,6 +157,7 @@ void UINsInitField::InitInputField()
 						;
 					}
 					iinv.flux[fId] = inscom.inflow[0] * ((*ug.a1)[fId] * iinv.ub[fId] + (*ug.a2)[fId] * iinv.vb[fId] + (*ug.a3)[fId] * iinv.wb[fId]);
+					iinv.fvisb_cof[fId] = (*uinsf.vis_coef)[0][lc];
 				}
 
 				else if (ug.bctype == BC::SYMMETRY)

@@ -21,16 +21,13 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "InnerIter.h"
+#include "EquaDiscrete.h"
+#include "SIMPLEC.h"
+#include "systemSolver.h"
+#include "UpdateVary.h"
+#include "FaceValue.h"
 #include "UINsInitField.h"
 #include "UNsBcSolver.h"
-#include "UINsConvTerm.h"
-#include "UINsDiffusTerm.h"
-#include "UINsBcTerm.h"
-#include "UINsTranst.h"
-#include "UINsSrcTerm.h"
-#include "UINsPrimeEqu.h"
-#include "UINsRelax.h"
-#include "UINsSolveVar.h"
 #include "UINsCmpFlux.h"
 #include "UINsPressEqu.h"
 #include "UINsMomCorrect.h"
@@ -129,44 +126,74 @@ void Inner::SolveMultiComp()
 
 void Mom_pre()
 {
-	iinv.MomPreInit();
-
-	CmpMomConv(); //计算对流项
-
-	CmpMomDiffus(); //计算扩散项
-
-	CmpMomBc();
-
+	//Discrete format,mom relax coefficient,transt, Parameter Setting of Solution Equations
+	string conv_ischeme = ONEFLOW::GetDataValue< string >("conv_ischeme");
+	string diffus_ischeme = ONEFLOW::GetDataValue< string >("diffus_ischeme");
+	Real mom_relax = GetDataValue< Real >("mom_relax");
 	int transt = ONEFLOW::GetDataValue< int >("transt");
-	if (transt != 0) MomTranst();  //瞬态项
 
-	CmpMomSrc(); //计算压力梯度和动量方程系数
+	int MaxIter = GetDataValue< int >("EquaMomIter");
+	Real Tol = GetDataValue< Real >("EquaMomTol");
+	int mRestarts = GetDataValue< int >("EquaMomRestarts");
+	string gt = GetDataValue< string >("EquaMomMethod");
+	bool ifPrecond = true;
 
-	MomPrimeEqu();     //和对流扩散项平级
+	RealField diff_value;
+	diff_value.resize(ug.nCell);
+	RealField fdiffus_cof;
+	fdiffus_cof.resize(ug.nFace);
 
-	MomRelaxation();
+	iinv.MomPreInit(); //allocation  mom storage
 
-	SolveMom(); //求解动量方程
+	string EquaVary = "vary_u";
+	FvisCoeff(EquaVary, (*uinsf.vis_coef)[0], iinv.fvisb_cof, fdiffus_cof);
+	EquaDisc(EquaVary, (*uinsf.u)[0], iinv.ub, iinv.u_old, iinv.flux, (*uinsf.p)[0], iinv.pb, fdiffus_cof, conv_ischeme, diffus_ischeme, mom_relax, transt, iinv.spu, iinv.ai, iinv.bu, iinv.remax_u);
+	SolveEqua(iinv.spu, iinv.ai, iinv.bu, diff_value, iinv.res_u, gt, MaxIter, Tol, mRestarts, ifPrecond);
+	UpateVar((*uinsf.u)[0], diff_value);
+	diff_value = 0;
+	iinv.spu = 0;
+	iinv.ai[0] = 0;
+	iinv.ai[1] = 0;
 
-	CmpFaceflux(); //计算界面流量
+	EquaVary = "vary_v";
+	EquaDisc(EquaVary, (*uinsf.v)[0], iinv.vb, iinv.v_old, iinv.flux, (*uinsf.p)[0], iinv.pb, fdiffus_cof, conv_ischeme, diffus_ischeme, mom_relax, transt, iinv.spu, iinv.ai, iinv.bv, iinv.remax_v);
+	SolveEqua(iinv.spu, iinv.ai, iinv.bv, diff_value, iinv.res_v, gt, MaxIter, Tol, mRestarts, ifPrecond);
+	UpateVar((*uinsf.v)[0], diff_value);
+	diff_value = 0;
+	iinv.spu = 0;
+	iinv.ai[0] = 0;
+	iinv.ai[1] = 0;
 
-	iinv.DeleteMomPreVar();
+	EquaVary = "vary_w";
+	EquaDisc(EquaVary, (*uinsf.w)[0], iinv.wb, iinv.w_old, iinv.flux, (*uinsf.p)[0], iinv.pb, fdiffus_cof, conv_ischeme, diffus_ischeme, mom_relax, transt, iinv.spu, iinv.ai, iinv.bw, iinv.remax_w);
+	SolveEqua(iinv.spu, iinv.ai, iinv.bw, diff_value, iinv.res_w, gt, MaxIter, Tol, mRestarts, ifPrecond);
+	UpateVar((*uinsf.w)[0], diff_value);
+
+	iinv.DeleteMomPreVar(); //free mom storage
+
+	UINsCmpFlux((*uinsf.rho)[0], (*uinsf.u)[0], iinv.ub, (*uinsf.v)[0], iinv.vb, (*uinsf.w)[0], iinv.wb, (*uinsf.p)[0], iinv.pb, iinv.spu, iinv.flux, iinv.dun);
 }
 
 void Pres_cor()
 {
 	iinv.PressCorInit();
 
-	PresEqu(); //计算压力修正方程系数
+	UINsPressEqu((*uinsf.rho)[0], iinv.flux, iinv.spu, iinv.ai, iinv.dup, iinv.spp, iinv.bp, iinv.remax_pp);
 
-	SolvePress();  //需要解压力修正方程组，增设单元修正压力未知量
+	int MaxIter = GetDataValue< int >("EquaPressIter");
+	Real Tol = GetDataValue< Real >("EquaPressTol");
+	int mRestarts = GetDataValue< int >("EquaPressRestarts");
+	string gt = GetDataValue< string >("EquaPressMethod");
+	bool ifPrecond = true;
+	SolveEqua(iinv.spp, iinv.ai, iinv.bp, iinv.pp, iinv.res_p, gt, MaxIter, Tol, mRestarts, ifPrecond);
 
-	UpdateCorSpeed();  //需要先增设界面修正速度未知量并进行求解,更新单元速度和压力
+	UpdateCorPressAndSpeed();  //Update correction press and speed 
 
-	UpdateFaceflux();   //更新界面流量
+	UpdateFaceflux();   //Update face flux
 
 	iinv.DeletePressCorVar();
 }
+
 
 void InitField()
 {
@@ -175,96 +202,7 @@ void InitField()
 	delete uINsInitField;
 }
 
-void CmpMomConv()
-{
-	string vary = "mom";
-	string conv_ischeme = ONEFLOW::GetDataValue< string >("conv_ischeme");
-	UINsConvTerm * uINsConvTerm = new UINsConvTerm();
-	uINsConvTerm->CmpConvTerm(vary, conv_ischeme);
-	delete uINsConvTerm;
-}
-
-void CmpMomDiffus()
-{
-	string vary = "mom";
-	string diffus_ischeme = ONEFLOW::GetDataValue< string >("diffus_ischeme");
-	UINsDiffusTerm * uINsDiffusTerm = new UINsDiffusTerm;
-	uINsDiffusTerm->CmpDiffusTerm(vary, diffus_ischeme);
-	delete uINsDiffusTerm;
-}
-
-void CmpMomBc()
-{
-	string vary = "mom";
-	UINsBcTerm * uINsBcTerm = new UINsBcTerm;
-	uINsBcTerm->CmpMomBcTerm(vary);
-	delete uINsBcTerm;
-}
-
-void MomTranst()
-{
-	string vary = "mom";
-	UINsTranst * uINsTranst = new UINsTranst();
-	uINsTranst->CmpTranstTerm(vary);
-	delete uINsTranst;
-}
-
-void CmpMomSrc()
-{
-	string vary = "mom";
-	UINsSrcTerm * uINsSrcTerm = new UINsSrcTerm();
-	uINsSrcTerm->CmpMomSrcTerm(vary);
-	delete uINsSrcTerm;
-}
-
-void MomPrimeEqu()
-{
-	string vary = "mom";
-	UINsPrimeEqu * uINsPrimeEqu = new UINsPrimeEqu();
-	uINsPrimeEqu->PrimeEqu(vary);
-	delete uINsPrimeEqu;
-}
-
-void MomRelaxation()
-{
-	string vary = "mom";
-	Real mom_relax = GetDataValue< Real >("mom_relax");
-	UINsRelax * uINsRelax = new UINsRelax();
-	uINsRelax->Relax(vary,mom_relax);
-	delete uINsRelax;
-}
-
-void SolveMom()
-{
-	string vary = "mom";
-	UINsSolveVar * uINsSolveVar = new UINsSolveVar();
-	uINsSolveVar->SolveVar(vary);
-	delete uINsSolveVar;
-}
-
-void CmpFaceflux()
-{
-	UINsCmpFlux * uINsCmpFlux = new UINsCmpFlux();
-	uINsCmpFlux->CmpFlux();
-	delete uINsCmpFlux;
-}
-
-void PresEqu()
-{
-	UINsPressEqu * uINsPressEqu = new UINsPressEqu();
-	uINsPressEqu->PressEqu();
-	delete uINsPressEqu;
-}
-
-void SolvePress()
-{
-	string vary = "press";
-	UINsSolveVar * uINsSolveVar = new UINsSolveVar();
-	uINsSolveVar->SolveVar(vary);
-	delete uINsSolveVar;
-}
-
-void UpdateCorSpeed()
+void UpdateCorPressAndSpeed()
 {
 	UINsMomCorrect * uINsMomCorrect = new UINsMomCorrect();
 	uINsMomCorrect->UpdateCorrectSpeed();
@@ -284,32 +222,5 @@ void UpdateRes()
 	uINsRes->UpdateIterRes();
 	delete uINsRes;
 }
-
-//void INsCorrectSpeed()
-//{
-//	UINsInvterm * uINsInvterm = new UINsInvterm();
-//	uINsInvterm->CmpCorrectSpeed();
-//	delete uINsInvterm;
-//}
-
-
-
-/*void INsCmpChemSrc()
-{
-	;
-}*/
-
-/*void INsCmpTurbEnergy()
-{
-	;
-}*/
-
-//void INsCmpDualTimeStepSrc()
-//{
-//	UINsUnsteady * uinsUnsteady = new UINsUnsteady();
-//	uinsUnsteady->CmpDualTimeSrc();
-//	delete uinsUnsteady;
-//}
-
 
 EndNameSpace

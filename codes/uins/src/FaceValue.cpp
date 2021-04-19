@@ -21,9 +21,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "FaceValue.h"
-//#include "INsInvterm.h"
-//#include "UINsVisterm.h"
-//#include "UINsGrad.h"
 #include "UGrad.h"
 #include "BcData.h"
 #include "Zone.h"
@@ -49,7 +46,7 @@ using namespace std;
 
 BeginNameSpace(ONEFLOW)
 
-void FaceValue(RealField& phib, RealField& phif, RealField& phi)
+void FaceValue(RealField& phi,RealField& phib,RealField& phif)
 {
 	phif = 0;
 
@@ -64,6 +61,40 @@ void FaceValue(RealField& phib, RealField& phif, RealField& phi)
 		int rc = (*ug.rcf)[fId];
 
 		phif[fId] = (*ug.fl)[fId] * phi[lc] + (*ug.fr)[fId] * phi[rc];
+	}
+}
+
+void FvisCoeff(string &Equa_vary, RealField &diffus_coef, RealField &fdiffusb_coef,RealField&fvis_cof)
+{
+	for (int fId = ug.nBFace; fId < ug.nFace; fId++)
+	{
+		int lc = (*ug.lcf)[fId];
+		int rc = (*ug.rcf)[fId];
+
+		if (Equa_vary == "vary_u"|| Equa_vary == "vary_v"|| Equa_vary == "vary_w")
+		{
+			fvis_cof[fId] = (*ug.fl)[fId] * diffus_coef[lc] + (*ug.fr)[fId] * diffus_coef[rc];
+		}
+		else if (Equa_vary == "vary_h")
+		{
+			;
+		}
+	}
+
+	for (int fId = 0; fId < ug.nBFace; fId++)
+	{
+		int lc = (*ug.lcf)[fId];
+
+		if (Equa_vary == "vary_u" || Equa_vary == "vary_v" || Equa_vary == "vary_w")
+		{
+			fdiffusb_coef[fId] =  diffus_coef[lc];
+
+			fvis_cof[fId] = fdiffusb_coef[fId];
+		}
+		else if (Equa_vary == "vary_h")
+		{
+			;
+		}
 	}
 }
 
