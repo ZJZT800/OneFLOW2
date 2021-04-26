@@ -120,15 +120,21 @@ UINsCmpFlux::UINsCmpFlux(RealField &rho,RealField &u, RealField &ub, RealField &
 		Real dy2 = (*ug.ycc)[rc] - (*ug.yfc)[fId];
 		Real dz2 = (*ug.zcc)[rc] - (*ug.zfc)[fId];
 
-		Real fdpdx = dpdx1 * dx1 + dpdx2 * dx2 - (pr - pl);
+		/*Real fdpdx = dpdx1 * dx1 + dpdx2 * dx2 - (pr - pl);
 		Real fdpdy = dpdy1 * dy1 + dpdy2 * dy2 - (pr - pl);
-		Real fdpdz = dpdz1 * dz1 + dpdz2 * dz2 - (pr - pl);
+		Real fdpdz = dpdz1 * dz1 + dpdz2 * dz2 - (pr - pl);*/
+
+		Real dp1 = dpdx1 * dx1 + dpdx2 * dx2 + dpdy1 * dy1 + dpdy2 * dy2 + dpdz1 * dz1 + dpdz2 * dz2;
+
+		Real dp = (dp1 - (pr - pl));
 
 		uf = ul * (*ug.fl)[fId] + ur * (*ug.fr)[fId];
 		vf = vl * (*ug.fl)[fId] + vr * (*ug.fr)[fId];
 		wf = wl * (*ug.fl)[fId] + wr * (*ug.fr)[fId];
 
-		vnflow = (*ug.a1)[fId] * (uf + fdpdx * Df1) + (*ug.a2)[fId] * (vf + fdpdy * Df2) + (*ug.a3)[fId] * (wf + fdpdz * Df3) + rurf * dun[fId];
+		//vnflow = (*ug.a1)[fId] * (uf + fdpdx * Df1) + (*ug.a2)[fId] * (vf + fdpdy * Df2) + (*ug.a3)[fId] * (wf + fdpdz * Df3) + rurf * iinv.dun[fId];
+		vnflow = (*ug.a1)[fId] * uf + (*ug.a2)[fId] * vf + (*ug.a3)[fId] * wf + Df1 * (*ug.a1)[fId] * dp + Df2 * (*ug.a2)[fId] * dp + Df3 * (*ug.a3)[fId] * dp;
+		
 		flux[fId] = rl * vnflow;
 	}
 
@@ -202,13 +208,17 @@ UINsCmpFlux::UINsCmpFlux(RealField &rho,RealField &u, RealField &ub, RealField &
 				Real dy1 = (*ug.yfc)[fId] - (*ug.ycc)[lc];
 				Real dz1 = (*ug.zfc)[fId] - (*ug.zcc)[lc];
 
-				Real fdpdx = dpdx1 * dx1 - (pb1 - pl);
+				/*Real fdpdx = dpdx1 * dx1 - (pb1 - pl);
 				Real fdpdy = dpdy1 * dy1 - (pb1 - pl);
-				Real fdpdz = dpdz1 * dz1 - (pb1 - pl);
+				Real fdpdz = dpdz1 * dz1 - (pb1 - pl);*/
 
-				ub[fId] = ul + fdpdx * Df1;
-				vb[fId] = vl + fdpdy * Df2;
-				wb[fId] = wl + fdpdz * Df3;
+				Real dp1 = dpdx1 * dx1 + dpdy1 * dy1 + dpdz1 * dz1;
+
+				Real dp = (dp1 - (pb1 - pl));
+
+				ub[fId] = ul + Df1 * dp;
+				vb[fId] = vl + Df2 * dp;
+				wb[fId] = wl + Df3 * dp;
 
 				vnflow = (*ug.a1)[fId] * ub[fId] + (*ug.a2)[fId] * vb[fId] + (*ug.a3)[fId] * wb[fId] + rurf * dun[fId];
 

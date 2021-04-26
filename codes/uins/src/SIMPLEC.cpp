@@ -139,7 +139,7 @@ void SIMPLEC::Run()
 	{
 		TimeSpan * timeSpan = new TimeSpan();
 		// outer loop(Unsteady loop)
-		while (!SimuIterState::Running())
+		while (SimuIterState::Running())
 		{
 			Iteration::outerSteps++;
 			ctrl.currTime += ctrl.pdt;
